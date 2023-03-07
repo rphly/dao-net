@@ -8,7 +8,5 @@ class Core:
     def __init__(self,):
         self.clock = sync.Sync(2)
 
-    # or some other value. may be good to just rely on clock and decouple this logic from the engine
-    @sync.add_delay(2)
     def send_action(self, data: Action):
         ...
