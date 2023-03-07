@@ -11,11 +11,14 @@ class Client():
         super().__init__()
         self._game_engine: Core = engine
         self._players: dict[str, Player] = {}
+        self._state: str = "lobby"
 
     def state(self):
         return self._state
 
     def trigger_handler(self, state):
+        if state == "lobby":
+            self._lobby()
         if state == "init":
             self._init()
         elif state == "ready":
@@ -24,6 +27,13 @@ class Client():
             return self._play()
         elif state == "end":
             return self._end()
+
+    def _lobby(self):
+        # check for players
+        # if not enough players:
+        # call next immediately
+        # else when all done change to init and call next
+        ...
 
     def _init(self):
         # if not yet sync:
