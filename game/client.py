@@ -18,33 +18,25 @@ class Client():
     def trigger_handler(self, state):
         if state == "init":
             self._init()
-            return "ready"
-        elif state == "init_wait":
-            self._init()
-            return "init_wait"
         elif state == "ready":
             self._ready()
-            return "play"
-        elif state == "ready_wait":
-            self._ready()
-            return "ready_wait"
         elif state == "play":
-            return "end"
+            return self._play()
         elif state == "end":
-            return "end"
+            return self._end()
 
     def _init(self):
         # if not yet sync:
         # init game clock sync
         # if not sync done:
-        # go to init_wait
-        # else when all done go to ready
+        # call next immediately
+        # else when all done change to ready and call next
         ...
 
     def _ready(self):
         # if not yet sent,
         # send ready to all clients
-        # if not all ready, go to ready_wait state
+        # if not all ready, call next immediately
         # if all ready go to play state
         # next()
         ...
