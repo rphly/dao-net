@@ -8,6 +8,7 @@ from game.transport.packet import Transport, Packet, Nak, Ack
 import config
 import keyboard
 import socket
+from time import time
 
 
 class Client():
@@ -21,6 +22,7 @@ class Client():
         self._state: str = "PEERING"
         self._players: dict[str, Player] = {}
         self._myself = Player(name=my_name)
+        self.game_over = False
 
         self._round_inputs: dict[str, str] = {
             "Q": None,
@@ -47,15 +49,15 @@ class Client():
         return self._state
 
     def start(self):
-        while True:
+        while not self.game_over:
             self._next()
 
     def trigger_handler(self, state):
         if state == "PEERING":
             self.peering()
 
-        if state == "LOBBY":
-            self.lobby()
+        if state == "SYNCHRONIZE_CLOCK":
+            self.sync_clock()
 
         if state == "INIT":
             self.init()
@@ -72,10 +74,15 @@ class Client():
         elif state == "END_GAME":
             self.end_game()
 
-    def lobby(self):
-        players = self._players
-        if len(players) == config.NUM_PLAYERS:
-            self._state("INIT")
+    def peering(self):
+        if self._transportLayer.all_connected():
+            self._state = "SYNCHRONIZE_CLOCK"
+        self._next()
+
+    def sync_clock(self):
+        # logic to sync clocks here
+        time.sleep(10)
+        self._state = "INIT"
         self._next()
 
     def init(self):
@@ -114,7 +121,8 @@ class Client():
 
     def end_game(self):
         # terminate all connections
-        ...
+        self._transportLayer.shutdown()
+        self.game_over = True
 
 
 ######### helper functions #########
