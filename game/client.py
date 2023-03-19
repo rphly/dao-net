@@ -58,7 +58,7 @@ class Client():
             self.end_game()
 
     def lobby(self):
-        players = self.get_players()
+        players = self._players
         if len(players) == config.NUM_PLAYERS:
             self._state("INIT")
         self._next()
@@ -110,20 +110,30 @@ class Client():
             return False
         return True
 
-    def _receiving_seats(self, data):
-        if self._round_inputs[data.seat] is None:
-            self._round_inputs[data.seat] = data.player
-            _send_ack(data.player)
-            return
-        _send_nak(data.player)
+        for player in self._players.keys():
+            if player not in self._round_inputs.values():
+                self._players.pop(player)
 
-    def end_round(self):
+        # clear all inputs, remove last chair
+        d = {value: None for value in d}
+        d.popitem()
+        self._round_inputs = d
+
+        # if no chairs left, end the game, else reset
+        if len(self._round_inputs.keys() < 1):
+            self._state = "END_GAME"
+        else:
+            self._state = "AWAIT_INPUT"
 
         self._next()
 
     def end_game(self):
         # terminate all connections
         ...
+
+
+######### helper functions #########
+
 
     def _next(self):
         self._state = self.trigger_handler(self._state)
@@ -132,22 +142,24 @@ class Client():
     def _register(self, player: Player):
         self._players[player.id] = player
 
-    # function to insert inputs, receiver needs to call this
-
     def _insert_input(self, player: Player, keypress):
-        # save dict of player keypresses
-        # only allow player to insert input if alive
         self._my_keypress = keypress
         print(f"Attempt to sit at {keypress}")
         keyboard.remove_all_hotkeys()
 
-    def _process_others_input(self, player: Player, keypress):
-        ...
+    def _selecting_seats(self) -> bool():
+        nak_count = 0
+        for player in self._players().keys():
+            res = _send_seat(player)
+            if res == NAK:
+                nak_count += 1
+        if nak_count > len(self._players):
+            return False
+        return True
 
-    def _get_num_alive(self):
-        count = 0
-        for player in self.get_players():
-            if player.is_alive:
-                count = count + 1
-
-        return count
+    def _receiving_seats(self, data):
+        if self._round_inputs[data.seat] is None:
+            self._round_inputs[data.seat] = data.player
+            _send_ack(data.player)
+            return
+        _send_nak(data.player)
