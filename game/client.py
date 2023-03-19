@@ -23,6 +23,7 @@ class Client():
         self._players: dict[str, Player] = {}
         self._myself = Player(name=my_name)
         self.game_over = False
+        self.tracker = tracker
 
         self._round_inputs: dict[str, str] = {
             "Q": None,
@@ -43,7 +44,7 @@ class Client():
 
         # transport layer stuff
         self._transportLayer = Transport(
-            self.tracker.get(my_name), tracker=self.tracker)
+            self.tracker.get_ip_port(my_name)[1], tracker=self.tracker)
 
     def _state(self):
         return self._state
