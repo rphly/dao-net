@@ -4,7 +4,7 @@ from game.models.player import Player
 from game.models.action import Action
 from game.lobby.tracker import Tracker
 from game.transport.transport import Transport
-from game.transport.packet import Transport, Packet, Nak, Ack
+from game.transport.packet import Packet, Nak, Ack
 import config
 import keyboard
 import socket
