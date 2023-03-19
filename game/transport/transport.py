@@ -33,9 +33,13 @@ class Transport:
                     if ip is None or port is None:
                         continue
                     # waiting for player to start server
-                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    sock.connect((ip, port))
-                    self._connection_pool[player_id] = sock
+                    try:
+                        sock = socket.socket(
+                            socket.AF_INET, socket.SOCK_STREAM)
+                        sock.connect((ip, port))
+                        self._connection_pool[player_id] = sock
+                    except (ConnectionRefusedError, TimeoutError):
+                        pass
 
     def send(self, packet: Packet, player_id):
         conn = self._connection_pool[player_id]

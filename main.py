@@ -45,9 +45,10 @@ if __name__ == "__main__":
         exit(1)
 
     if not is_player_mode:
-        print(f"Starting host mode on port {player_port}.")
+        host_port = host_port or 9999
+        print(f"Starting host mode on port {host_port}.")
         tracker = Lobby().start(ip="127.0.0.1",
-                                host_port=player_port or 9999, player_name=player_name)
+                                host_port=host_port or 9999, player_name=player_name)
     else:
         print("Starting in player mode.")
         tracker = Lobby().join(host_ip, player_ip, host_port, player_port, player_name)

@@ -23,6 +23,7 @@ class Lobby():
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('0.0.0.0', host_port))
         sock.listen(self.NUM_PLAYERS)
+        self.mysocket = sock
 
         # register myself
         # generate playerid
@@ -31,11 +32,14 @@ class Lobby():
         keyboard.add_hotkey('space', self.attempt_start)
         try:
             while not self.game_started:
-                connection, _ = sock.accept()
-                buf = connection.recv(1024)
-                if buf:
-                    self.handle_host(buf.decode(
-                        'utf-8').rstrip("\0"), connection)
+                try:
+                    connection, _ = sock.accept()
+                    buf = connection.recv(1024)
+                    if buf:
+                        self.handle_host(buf.decode(
+                            'utf-8').rstrip("\0"), connection)
+                except:
+                    pass
             print("Exiting lobby, entering game")
             return self.tracker
         except KeyboardInterrupt:
@@ -172,6 +176,7 @@ class Lobby():
         print("All clients notified of game start.")
         keyboard.remove_hotkey('space')
         self.game_started = True
+        self.mysocket.close()
 
     def start_pkt(self):
         return json.dumps(dict(
