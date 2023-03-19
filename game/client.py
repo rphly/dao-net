@@ -3,6 +3,7 @@ from game.engine.core import Core
 from game.models.player import Player
 from game.models.action import Action
 from game.transport.transport import Transport
+from game.transport.packet import Transport, Packet, Nak, Ack
 import config
 import keyboard
 import socket
@@ -19,6 +20,7 @@ class Client():
         self._transportLayer = Transport()
         self._state: str = "LOBBY"
         self._players: dict[str, Player] = {}
+        self._myself = Player(name="Myself")  # TODO
 
         self._round_inputs: dict[str, str] = {
             "Q": None,
@@ -32,8 +34,10 @@ class Client():
         self._current_chairs: int = config.NUM_CHAIRS
         self._my_keypress = None
 
-        # tracker, connection pool
-        self._connection_pool: dict[str, socket.socket] = {}
+        # selecting seats algo
+        self._nak_count = 0
+        self._ack_count = 0
+        self._is_selecting_seat = False
 
     def state(self):
         return self._state
@@ -75,15 +79,23 @@ class Client():
             for k in ["Q", "W", "E", "R", "T", "Y"]:
                 keyboard.add_hotkey(k, lambda: self._insert_input(k))
         else:
-            # 2) SelectingSeat success and everyone submitted: change state
-            is_success = self._selecting_seats()
-            if is_success and all(self._round_inputs.values()):
-                self._state("END_ROUND")
-                _send_round_end()
+            # 2) SelectingSeat
+            self._selecting_seats()
 
-            # 3) SelectingSeat Failure: clear my keypress
-            else:
+        if self._is_selecting_seat:
+            thresh = (config.NUM_PLAYERS // 2)
+            if self._nak_count >= thresh:
+                # SelectingSeat failed
                 self._my_keypress = None
+                self._nak_count = 0
+                self._ack_count = 0
+                self._is_selecting_seat = False
+
+            if self._ack_count > thresh:
+                # SelectingSeat success
+                self._state("END_ROUND")
+                self._next()
+                return
 
         # 4) Check for others' keypress, let transport layer handler handle it
         self._checkTransportLayerForIncomingData()
@@ -99,40 +111,36 @@ class Client():
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         data = self._transportLayer.receive()
-        pkt_json = json.loads(data)
 
-        if pkt_json.get("payload_type") == "action":
-            # keypress
-            action = Action(pkt_json.get("data"), Player(
-                pkt_json.get("player").get("id")))
-            self._receiving_seats(action)
+        if data:
+            pkt_json = json.loads(data)
 
-    def _selecting_seats(self) -> bool():
-        nak_count = 0
-        for player in self._players().keys():
-            res = _send_seat(player)
-            if res == NAK:
-                nak_count += 1
-        if nak_count > len(self._players):
-            return False
-        return True
+            if pkt_json.get("payload_type") == "action":
+                # keypress
+                action = Action(pkt_json.get("data"), Player(
+                    pkt_json.get("player").get("id")))
+                self._receiving_seats(action)
 
-        for player in self._players.keys():
-            if player not in self._round_inputs.values():
-                self._players.pop(player)
+            elif pkt_json.get("payload_type") == "ss_nak":
+                self._nak_count += 1
 
-        # clear all inputs, remove last chair
-        d = {value: None for value in d}
-        d.popitem()
-        self._round_inputs = d
+            elif pkt_json.get("payload_type") == "ss_ack":
+                self._ack_count += 1
 
-        # if no chairs left, end the game, else reset
-        if len(self._round_inputs.keys() < 1):
-            self._state = "END_GAME"
-        else:
-            self._state = "AWAIT_INPUT"
+    def _selecting_seats(self):
+        self._is_selecting_seat = True
+        for player in self._players().values():  # TODO: send in order using time clock
+            self._send_seat(player)
 
-        self._next()
+    def _send_seat(self, player: Player):
+        pkt = Packet(Action(dict(seat=self._my_keypress), player))
+        self._transportLayer.send(pkt, player.id)
+
+    def _send_ack(self, player: Player):
+        self._transportLayer.send(Packet(Ack(self._myself)), player.id)
+
+    def _send_nak(self, player: Player):
+        self._transportLayer.send(Packet(Nak(self._myself)), player.id)
 
     def _next(self):
         self._state = self.trigger_handler(self._state)
@@ -141,24 +149,16 @@ class Client():
     def _register(self, player: Player):
         self._players[player.id] = player
 
-    def _insert_input(self, player: Player, keypress):
+    def _insert_input(self, keypress):
         self._my_keypress = keypress
-        print(f"Attempt to sit at {keypress}")
         keyboard.remove_all_hotkeys()
 
-    def _selecting_seats(self) -> bool():
-        nak_count = 0
-        for player in self._players().keys():
-            res = _send_seat(player)
-            if res == NAK:
-                nak_count += 1
-        if nak_count > len(self._players):
-            return False
-        return True
-
-    def _receiving_seats(self, data):
-        if self._round_inputs[data.seat] is None:
-            self._round_inputs[data.seat] = data.player
-            _send_ack(data.player)
-            return
-        _send_nak(data.player)
+    def _receiving_seats(self, action: Action):
+        seat = action.get_data().get("seat")
+        player = action.get_player()
+        if seat:
+            if self._round_inputs[seat] is None:
+                self._round_inputs[seat] = player
+                self._send_ack(player)
+                return
+        self._send_nak(player)
