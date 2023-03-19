@@ -2,6 +2,7 @@ import json
 from game.engine.core import Core
 from game.models.player import Player
 from game.models.action import Action
+from game.lobby.tracker import Tracker
 from game.transport.transport import Transport
 from game.transport.packet import Transport, Packet, Nak, Ack
 import config
@@ -14,13 +15,12 @@ class Client():
     Game FSM 
     """
 
-    def __init__(self, engine=Core(),):
+    def __init__(self, my_name: str, tracker: Tracker):
         super().__init__()
-        self._game_engine: Core = engine
-        self._transportLayer = Transport()
-        self._state: str = "LOBBY"
+
+        self._state: str = "PEERING"
         self._players: dict[str, Player] = {}
-        self._myself = Player(name="Myself")  # TODO
+        self._myself = Player(name=my_name)
 
         self._round_inputs: dict[str, str] = {
             "Q": None,
@@ -39,10 +39,21 @@ class Client():
         self._ack_count = 0
         self._is_selecting_seat = False
 
-    def state(self):
+        # transport layer stuff
+        self._transportLayer = Transport(
+            self.tracker.get(my_name), tracker=self.tracker)
+
+    def _state(self):
         return self._state
 
+    def start(self):
+        while True:
+            self._next()
+
     def trigger_handler(self, state):
+        if state == "PEERING":
+            self.peering()
+
         if state == "LOBBY":
             self.lobby()
 
@@ -107,6 +118,7 @@ class Client():
 
 
 ######### helper functions #########
+
 
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""

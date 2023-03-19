@@ -31,6 +31,7 @@ class Lobby():
                 if buf:
                     self.handle_host(buf.decode('utf-8'), connection)
             print("Exiting lobby, entering game")
+            return self.tracker
         except KeyboardInterrupt:
             print("\nExiting lobby")
             # TODO: close all connections and deregister players
