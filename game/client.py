@@ -1,5 +1,8 @@
+import json
 from game.engine.core import Core
-from game.models import Player
+from game.models.player import Player
+from game.models.action import Action
+from game.transport.transport import Transport
 import config
 import keyboard
 import socket
@@ -13,6 +16,7 @@ class Client():
     def __init__(self, engine=Core(),):
         super().__init__()
         self._game_engine: Core = engine
+        self._transportLayer = Transport()
         self._state: str = "LOBBY"
         self._players: dict[str, Player] = {}
 
@@ -81,11 +85,20 @@ class Client():
             else:
                 self._my_keypress = None
 
-        # 4) Received others keypress
-        if _rcv_keypress(data):
-            self._receiving_seats(data)
-
+        # 4) Check for others' keypress, let transport layer handler handle it
+        self._checkTransportLayerForIncomingData()
         self._next()
+
+    def _checkTransportLayerForIncomingData(self):
+        """handle data being received from transport layer"""
+        data = self._transportLayer.receive()
+        pkt_json = json.loads(data)
+
+        if pkt_json.get("payload_type") == "action":
+            # keypress
+            action = Action(pkt_json.get("data"), Player(
+                pkt_json.get("player").get("id")))
+            self._receiving_seats(action)
 
     def _selecting_seats(self) -> bool():
         nak_count = 0
