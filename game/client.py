@@ -15,6 +15,7 @@ class Client():
         self._state: str = "LOBBY"
 
         self._players: dict[str, Player] = {}
+        self._votekick: dict[str, int] = {}
 
         self._round_inputs: dict[str, str] = {
             "Q": None,
@@ -85,15 +86,57 @@ class Client():
 
         self._next()
 
-    def end_round(self):
-        # 1) I have lost the game: lose state
-        # 2) Another player has lost the game
-
+    def byzantine_send(self):
+        # determine who has lost
+        # send who to kick to everyone else
+        player_to_kick = None
         for player in self._players.keys():
             if player not in self._round_inputs.values():
-                self._players.pop(player)
+                player_to_kick = player
+
+        for player in self._players.keys():
+            _send_vote(player_to_kick, player)
+
+        # init votekick dict
+        # should put at init/ start of round
+        self._votekick = self._players
+        self._votekick = dict.fromkeys(self._votekick, 0)
+
+        self._state = "BYZANTINE_RCV"
+
+        self._next()
+
+    def byzantine_recv(self):
+        # wait till we receive everyone's vote
+        # remove the most voted player
+        if _rcv_vote(data):
+            self._votekick[data.player_to_kick] = self._votekick[data.player_to_kick] + 1
+
+        # if num of votes == num of players
+        if sum(self._votekick.values()) == len(self._players):
+            max_vote = max(self._votekick.values())
+            # in case there is a tie
+
+            to_be_kicked = [key for key,
+                            value in self._votekick.items() if value == max_vote]
+
+            # 1) if only one voted, remove from player_list
+            if len(to_be_kicked) == 1:
+                self._players.pop(to_be_kicked[0])
+
+            # 2) if tied, just go to next round
+            self._votekick = {}
+            self._state = "END_ROUND"
+
+        else:
+            self._state = "BYZANTINE_RCV"
+
+        self._next()
+
+    def end_round(self):
 
         # clear all inputs, remove last chair
+        d = self._round_inputs
         d = {value: None for value in d}
         d.popitem()
         self._round_inputs = d
