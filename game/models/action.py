@@ -7,6 +7,7 @@ class Action:
         self.player = player
 
     def get_data(self):
+        # Q
         return self.data
 
     def get_player(self):

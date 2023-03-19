@@ -16,7 +16,14 @@ class Client():
 
         self._players: dict[str, Player] = {}
 
-        self._round_inputs: dict[str, str] = {}
+        self._round_inputs: dict[str, str] = {
+            "Q": None,
+            "W": None,
+            "E": None,
+            "R": None,
+            "T": None,
+            "Y": None,
+        }
 
         self._current_chairs: int = config.NUM_CHAIRS
 
@@ -47,13 +54,13 @@ class Client():
     def lobby(self):
         players = self.get_players()
         if len(players) == config.NUM_PLAYERS:
-            self._set_state("INIT")
+            self._state("INIT")
         self._next()
 
     def init(self):
         # start counting down
         # do all the network stuff here
-        self._set_state("AWAIT_KEYPRESS")
+        self._state("AWAIT_KEYPRESS")
         self._next()
 
     def await_keypress(self):
@@ -62,43 +69,40 @@ class Client():
             for k in ["Q", "W", "E", "R", "T", "Y"]:
                 keyboard.add_hotkey(k, lambda: self._insert_input(k))
         else:
-            # 2) SelectingSeat success: change state
+            # 2) SelectingSeat success and everyone submitted: change state
+            is_success = self._selecting_seats()
+            if is_success and all(self._round_inputs.values()):
+                self._state("END_ROUND")
+                _send_round_end()
+
             # 3) SelectingSeat Failure: clear my keypress
-            pass
+            else:
+                self._my_keypress = None
 
         # 4) Received others keypress
-
-        # if received other keypress
+        if _rcv_keypress(data):
+            self._receiving_seats(data)
 
         self._next()
 
-    def process_others_keypress(self, data):
-        # handle others kp
-        success = self._process_others_keypress(data)
+    def _selecting_seats(self) -> bool():
+        nak_count = 0
+        for player in self._players().keys():
+            res = _send_seat(player)
+            if res == NAK:
+                nak_count += 1
+        if nak_count > len(self._players):
+            return False
+        return True
 
-        if (self._my_keypress is None):
-            self._set_state("AWAIT_KEYPRESS")
-        else:
-            if len(self._get_round_inputs) == self._get_num_alive():
-                self._set_state("END_ROUND")
+    def _receiving_seats(self, data):
+        if self._round_inputs[data.seat] is None:
+            self._round_inputs[data.seat] = data.player
+            _send_ack(data.player)
+            return
+        _send_nak(data.player)
 
     def end_round(self):
-        # if player failed to input/ find chair, he loses
-        for player in self._get_round_inputs.keys():
-            if player not in self._round_inputs:
-                player.kill()
-
-        self._reduce_chairs()
-
-        # if num of chairs = 1, end game
-        if self._get_chairs() == 1:
-            self._set_state("END_GAME")
-
-        else:
-            self._set_state("AWAIT_KEYPRESS")
-
-        # clear all inputs
-        self._clear_round_inputs()
 
         self._next()
 
@@ -112,24 +116,6 @@ class Client():
 
     def _register(self, player: Player):
         self._players[player.id] = player
-
-    def _get_players(self) -> dict[str, Player]:
-        return self._players
-
-    def _set_state(self, state):
-        self._state = state
-
-    def _reduce_chairs(self):
-        self._current_chairs = self._current_chairs - 1
-
-    def _get_chairs(self):
-        return self._current_chairs
-
-    def _get_round_inputs(self):
-        return self._round_inputs
-
-    def _clear_round_inputs(self):
-        self._round_inputs = {}
 
     # function to insert inputs, receiver needs to call this
 
