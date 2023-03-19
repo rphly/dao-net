@@ -1,4 +1,5 @@
 from game.models.player import Player
+import json
 
 
 class Action:
@@ -12,6 +13,13 @@ class Action:
 
     def get_player(self):
         return self.player
+
+    def to_json(self):
+        return json.dumps(dict(
+            data=self.get_data(),
+            payload_type="action",
+            player=self.get_player()
+        ))
 
     def __str__(self):
         return f"Action: {self.__class__.__name__}"
