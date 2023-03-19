@@ -122,10 +122,14 @@ class Client():
                 self._receiving_seats(action)
 
             elif pkt_json.get("payload_type") == "ss_nak":
-                self._nak_count += 1
+                # drop the nak/ack if we've moved on
+                if self._is_selecting_seat:
+                    self._nak_count += 1
 
             elif pkt_json.get("payload_type") == "ss_ack":
-                self._ack_count += 1
+                # drop the nak/ack if we've moved on
+                if self._is_selecting_seat:
+                    self._ack_count += 1
 
     def _selecting_seats(self):
         self._is_selecting_seat = True
