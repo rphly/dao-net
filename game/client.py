@@ -2,6 +2,7 @@ from game.engine.core import Core
 from game.models import Player
 import config
 import keyboard
+import socket
 
 
 class Client():
@@ -13,7 +14,6 @@ class Client():
         super().__init__()
         self._game_engine: Core = engine
         self._state: str = "LOBBY"
-
         self._players: dict[str, Player] = {}
 
         self._round_inputs: dict[str, str] = {
@@ -26,8 +26,10 @@ class Client():
         }
 
         self._current_chairs: int = config.NUM_CHAIRS
-
         self._my_keypress = None
+
+        # tracker, connection pool
+        self._connection_pool: dict[str, socket.socket] = {}
 
     def state(self):
         return self._state
