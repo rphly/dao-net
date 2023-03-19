@@ -21,6 +21,9 @@ class Transport:
 
         self.make_connections()
 
+    def all_connected(self):
+        return len(self._connection_pool) == self.NUM_PLAYERS - 1
+
     def make_connections(self, player_id, port):
         while len(self._connection_pool) < self.NUM_PLAYERS-1:
             for player_id in self.tracker.get_players():
