@@ -89,6 +89,13 @@ class Client():
         self._checkTransportLayerForIncomingData()
         self._next()
 
+    def end_game(self):
+        # terminate all connections
+        ...
+
+
+######### helper functions #########
+
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         data = self._transportLayer.receive()
@@ -126,14 +133,6 @@ class Client():
             self._state = "AWAIT_INPUT"
 
         self._next()
-
-    def end_game(self):
-        # terminate all connections
-        ...
-
-
-######### helper functions #########
-
 
     def _next(self):
         self._state = self.trigger_handler(self._state)
