@@ -1,4 +1,5 @@
 keyboard==0.13.5
+petname==2.6
 pyobjc==9.0.1
 pyobjc-core==9.0.1
 pyobjc-framework-Accessibility==9.0.1

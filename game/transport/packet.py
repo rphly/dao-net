@@ -13,6 +13,10 @@ class Packet:
     - SyncReq
     - SyncAck
     - SyncUpdate
+    - LobbyRegister
+    - LobbyLeave
+    - LobbyStart
+    - LobbySaveTracker
     """
     ACCEPTED_TYPES = Union[Action, dict]
 
