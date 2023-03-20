@@ -9,7 +9,7 @@ class Transport:
     chunksize = 1024
     NUM_PLAYERS = 9
 
-    def __init__(self, port: int, tracker: Tracker):
+    def __init__(self, port, tracker: Tracker):
         self.tracker = tracker
 
         # start my socket
@@ -24,14 +24,22 @@ class Transport:
     def all_connected(self):
         return len(self._connection_pool) == self.NUM_PLAYERS - 1
 
-    def make_connections(self, player_id, port):
+    def make_connections(self):
         while len(self._connection_pool) < self.NUM_PLAYERS-1:
             for player_id in self.tracker.get_players():
                 if player_id not in self._connection_pool:
+                    ip, port = self.tracker.get_ip_port(
+                        player_id)
+                    if ip is None or port is None:
+                        continue
                     # waiting for player to start server
-                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    sock.connect(('0.0.0.0', port))
-                    self._connection_pool[player_id] = sock
+                    try:
+                        sock = socket.socket(
+                            socket.AF_INET, socket.SOCK_STREAM)
+                        sock.connect((ip, port))
+                        self._connection_pool[player_id] = sock
+                    except (ConnectionRefusedError, TimeoutError):
+                        pass
 
     def send(self, packet: Packet, player_id):
         conn = self._connection_pool[player_id]
