@@ -1,10 +1,9 @@
 import json
-from game.engine.core import Core
 from game.models.player import Player
 from game.models.action import Action
 from game.lobby.tracker import Tracker
 from game.transport.transport import Transport
-from game.transport.packet import Packet, Nak, Ack
+from game.transport.packet import Nak, Ack
 import config
 import keyboard
 import socket
@@ -16,7 +15,7 @@ class Client():
     Game FSM 
     """
 
-    def __init__(self, my_name: str, tracker: Tracker):
+    def __init__(self, my_name: str, tracker: Tracker, is_player_mode: bool = True):
         super().__init__()
 
         self._state: str = "PEERING"
@@ -43,8 +42,8 @@ class Client():
         self._is_selecting_seat = False
 
         # transport layer stuff
-        self._transportLayer = Transport(
-            self.tracker.get_ip_port(my_name)[1], tracker=self.tracker)
+        self._transportLayer = Transport(my_name,
+                                         self.tracker.get_ip_port(my_name)[1], tracker=self.tracker, is_player_mode=is_player_mode)
 
     def _state(self):
         return self._state
@@ -77,7 +76,9 @@ class Client():
 
     def peering(self):
         if self._transportLayer.all_connected():
-            self._state = "SYNCHRONIZE_CLOCK"
+            print("Connected to all peers")
+            print("Notifying ready to start")
+            self._transportLayer.sendall()
         self._next()
 
     def sync_clock(self):
@@ -128,7 +129,6 @@ class Client():
 
 ######### helper functions #########
 
-
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         data = self._transportLayer.receive()
@@ -158,14 +158,14 @@ class Client():
             self._send_seat(player)
 
     def _send_seat(self, player: Player):
-        pkt = Packet(Action(dict(seat=self._my_keypress), player))
+        pkt = Action(dict(seat=self._my_keypress), player)
         self._transportLayer.send(pkt, player.id)
 
     def _send_ack(self, player: Player):
-        self._transportLayer.send(Packet(Ack(self._myself)), player.id)
+        self._transportLayer.send(Ack(self._myself), player.id)
 
     def _send_nak(self, player: Player):
-        self._transportLayer.send(Packet(Nak(self._myself)), player.id)
+        self._transportLayer.send(Nak(self._myself), player.id)
 
     def _next(self):
         self._state = self.trigger_handler(self._state)
