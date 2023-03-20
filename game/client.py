@@ -3,7 +3,7 @@ from game.models.player import Player
 from game.models.action import Action
 from game.lobby.tracker import Tracker
 from game.transport.transport import Transport
-from game.transport.packet import Nak, Ack
+from game.transport.packet import Nak, Ack, PeeringCompleted
 import config
 import keyboard
 import socket
@@ -78,8 +78,7 @@ class Client():
         if self._transportLayer.all_connected():
             print("Connected to all peers")
             print("Notifying ready to start")
-            self._transportLayer.sendall()
-        self._next()
+            self._transportLayer.sendall(PeeringCompleted(player=self._myself))
 
     def sync_clock(self):
         # logic to sync clocks here
@@ -134,6 +133,7 @@ class Client():
         data = self._transportLayer.receive()
 
         if data:
+            print("DATA RECEIVED")
             pkt_json = json.loads(data)
 
             if pkt_json.get("payload_type") == "action":
@@ -151,6 +151,10 @@ class Client():
                 # drop the nak/ack if we've moved on
                 if self._is_selecting_seat:
                     self._ack_count += 1
+
+            elif pkt_json.get("payload_type") == "peering_completed":
+                print(
+                    f"Received peering completed from {pkt_json.get('player', {}).get('id')}")
 
     def _selecting_seats(self):
         self._is_selecting_seat = True

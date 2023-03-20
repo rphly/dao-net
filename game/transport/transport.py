@@ -11,7 +11,7 @@ import threading
 class Transport:
     _connection_pool: dict[str, socket.socket] = {}
     chunksize = 1024
-    NUM_PLAYERS = 9
+    NUM_PLAYERS = 2
 
     def __init__(self, myself, port, tracker: Tracker, is_player_mode: bool = True):
         self.tracker = tracker
@@ -74,15 +74,17 @@ class Transport:
         """
         Drain the queue when we are ready to handle data.
         """
+        print("[QUEUE] Draining...")
         try:
             data = self.queue.get_nowait()
             self.queue.task_done()
             if data:
+                print("[QUEUE] data received")
                 return data.decode('utf-8').rstrip("\0")
         except Empty:
             return
 
-    def handle_incoming(self, connection, player_id):
+    def handle_incoming(self, connection: socket.socket, player_id):
         """
         Handle incoming data from a connection.
         note: queue.put is blocking,
