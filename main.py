@@ -58,5 +58,5 @@ if __name__ == "__main__":
         exit(1)
 
     print("Entering game...")
-    GameClient(player_name, tracker).start()
+    GameClient(player_name, tracker, is_player_mode=is_player_mode).start()
     print("Hope you had fun!")
