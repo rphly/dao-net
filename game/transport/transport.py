@@ -2,6 +2,10 @@ import socket
 
 from game.transport.packet import Packet
 from game.lobby.tracker import Tracker
+from game.thread_manager import ThreadManager
+
+from queue import Queue, Empty
+import threading
 
 
 class Transport:
@@ -12,6 +16,8 @@ class Transport:
     def __init__(self, myself, port, tracker: Tracker, is_player_mode: bool = True):
         self.tracker = tracker
         self.myself = myself
+        self.thread_mgr = ThreadManager()
+        self.queue = Queue()
 
         # start my socket
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,11 +45,17 @@ class Transport:
                         continue
                     # waiting for player to start server
                     try:
-                        sock = socket.socket(
+                        conn = socket.socket(
                             socket.AF_INET, socket.SOCK_STREAM)
-                        sock.connect((ip, port))
+                        conn.connect((ip, port))
                         print(f"Connected to {player_id} at {ip}:{port}")
-                        self._connection_pool[player_id] = sock
+                        self._connection_pool[player_id] = conn
+
+                        t = threading.Thread(
+                            target=self.handle_incoming, args=(conn, player_id,), daemon=True)
+                        t.start()
+                        self.thread_mgr.add_thread(t)
+
                     except (ConnectionRefusedError, TimeoutError):
                         pass
 
@@ -59,15 +71,29 @@ class Transport:
             conn.sendall(padded)
 
     def receive(self) -> str:
-        # TODO: for each connection in pool based on delay
-        for connection in self._connection_pool.values():
+        """
+        Drain the queue when we are ready to handle data.
+        """
+        try:
+            data = self.queue.get_nowait()
+            self.queue.task_done()
+            if data:
+                return data.decode('utf-8').rstrip("\0")
+        except Empty:
+            return
+
+    def handle_incoming(self, connection, player_id):
+        """
+        Handle incoming data from a connection.
+        note: queue.put is blocking,
+        """
+        while player_id in self._connection_pool:
             data = connection.recv(self.chunksize)
             if data:
-                # decode
-                data = data.decode('utf-8')
-                return data.rstrip("\0")
+                self.queue.put(data)
 
     def shutdown(self):
         self.my_socket.close()
         for connection in self._connection_pool.values():
             connection.close()
+        self.thread_mgr.shutdown()
