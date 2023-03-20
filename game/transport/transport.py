@@ -4,6 +4,8 @@ from game.transport.packet import Packet
 from game.lobby.tracker import Tracker
 
 
+#TODO
+## Modify receive function in transport.py to handle "I'm done" packet and "timer" packet.
 class Transport:
     _connection_pool: dict[str, socket.socket] = {}
     chunksize = 1024

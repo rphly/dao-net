@@ -10,10 +10,10 @@ import keyboard
 import socket
 from time import time
 
-
+## Modify client.py to handle the FSM diagram
 class Client():
     """
-    Game FSM 
+    Game FSM
     """
 
     def __init__(self, my_name: str, tracker: Tracker):
@@ -57,7 +57,7 @@ class Client():
         if state == "PEERING":
             self.peering()
 
-        if state == "SYNCHRONIZE_CLOCK":
+        if state == "":
             self.sync_clock()
 
         if state == "INIT":

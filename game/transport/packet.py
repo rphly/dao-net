@@ -5,6 +5,9 @@ import json
 import time
 
 
+#TODO
+## 1. Create timer packets and I'm done packet
+
 class Ack():
     """Acknowledge a packet."""
 
