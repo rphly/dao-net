@@ -56,16 +56,14 @@ class Lobby():
                 except socket.timeout:
                     pass
             print("Exiting lobby, entering game")
-            return self.tracker
+            return self.mysocket, self.tracker
         except KeyboardInterrupt:
             self.thread_mgr.shutdown()
             print("\nExiting lobby")
         finally:
-            sock.close()
             for connection in self.connections.values():
                 connection.close()
             keyboard.remove_all_hotkeys()
-        return True
 
     def join(self, host_ip="127.0.0.1", player_ip="127.0.0.1", host_port=9999, player_port=9997, player_name="Player") -> Tracker:
         """
@@ -87,7 +85,7 @@ class Lobby():
                     self.handle_player(buf.decode(
                         'utf-8').rstrip("\0"), sock)
             print("Exiting lobby, entering game")
-            return self.tracker
+            return None, self.tracker
         except KeyboardInterrupt:
             self.send(self.lobby_deregister_pkt(), sock)
             sock.close()

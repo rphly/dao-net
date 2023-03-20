@@ -10,11 +10,11 @@ class Player:
     def id(self):
         return self.id
 
-    def json(self):
-        return json.dumps(dict(
+    def dict(self):
+        return dict(
             name=self.name,
             id=self.id
-        ))
+        )
 
     def __str__(self):
         return f"{self.name} (#{self.id})"

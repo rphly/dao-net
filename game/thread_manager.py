@@ -13,10 +13,11 @@ class ThreadManager:
             self.threadpool.remove(thread)
         except ValueError:
             return
-        if thread.is_alive:
-            thread.stop()
+        # if thread.is_alive:
+        #     thread.stop()
 
     def shutdown(self):
-        for thread in self.threadpool:
-            if thread and thread.is_alive:
-                thread.stop()
+        ...
+        # for thread in self.threadpool:
+        #     if thread and thread.is_alive:
+        #         thread.stop()

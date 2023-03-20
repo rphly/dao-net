@@ -43,7 +43,7 @@ class Packet:
         """Return a json representation of the packet."""
         return json.dumps(dict(
             data=self.data,
-            player=self.player.json(),
+            player=self.player.dict(),
             payload_type=self.packet_type,
             created_at=self.createdAt
         ))
