@@ -1,5 +1,5 @@
 from game.models.player import Player
-import json
+from game.transport.packet import Packet
 
 
 class Action(Packet):
