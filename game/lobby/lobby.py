@@ -17,7 +17,7 @@ class Lobby():
         self.connections = dict()
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind(('0.0.0.0', host_port))
+        sock.bind(('127.0.0.1', host_port))
         sock.listen(self.NUM_PLAYERS)
 
         # register myself
@@ -43,7 +43,7 @@ class Lobby():
         """Join an existing lobby."""
         self.player_name = player_name
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(('0.0.0.0', host_port))
+        sock.connect(('127.0.0.1', host_port))
 
         sock.sendall(self.lobby_register_pkt())
 
@@ -195,3 +195,4 @@ class Lobby():
             ),
             payload_type="lobby_ack",
         )).encode('utf-8')
+        

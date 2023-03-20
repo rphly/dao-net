@@ -19,7 +19,9 @@ if __name__ == "__main__":
 
     if host_port is None:
         print("Starting in host mode.")
+        print(host_port)
         Lobby().start(host_port=9999, player_name=player_name)
     else:
         print("Starting in player mode.")
+        print(host_port)
         tracker = Lobby().join(host_port, player_name)
