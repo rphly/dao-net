@@ -10,7 +10,6 @@ import threading
 
 class Transport:
     _connection_pool: dict[str, socket.socket] = {}
-    chunksize = 1024
     NUM_PLAYERS = 2
 
     def __init__(self, myself, port, tracker: Tracker, is_player_mode: bool = True):
@@ -18,6 +17,7 @@ class Transport:
         self.myself = myself
         self.thread_mgr = ThreadManager()
         self.queue = Queue()
+        self.chunksize = 1024
 
         # start my socket
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -67,6 +67,7 @@ class Transport:
 
     def sendall(self, packet: Packet):
         for conn in self._connection_pool.values():
+            print(packet.json())
             padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
             conn.sendall(padded)
 
@@ -90,7 +91,7 @@ class Transport:
         note: queue.put is blocking,
         """
         while player_id in self._connection_pool:
-            data = connection.recv(self.chunksize)
+            data = self._connection_pool[player_id].recv(self.chunksize)
             if data:
                 self.queue.put(data)
 
