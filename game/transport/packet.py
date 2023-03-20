@@ -1,5 +1,3 @@
-from typing import Union
-from game.models.action import Action
 from game.models.player import Player
 import json
 import time
