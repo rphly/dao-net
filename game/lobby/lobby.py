@@ -2,6 +2,8 @@ import socket
 from game.lobby.tracker import Tracker
 import json
 import keyboard
+from game.thread_manager import ThreadManager
+import threading
 
 
 class Lobby():
@@ -11,49 +13,64 @@ class Lobby():
         self.chunksize = 1024
         self.NUM_PLAYERS = 2  # grab from config
 
+        self.lock = threading.Lock()
+        self.game_start_lock = threading.Lock()
+
     def start(self, ip="127.0.0.1", host_port=9999, player_name="Host"):
+        """
+        Hosting a lobby
+        """
         self.player_name = player_name
 
         self.tracker = Tracker()
-        self.connections = dict()
+        self.thread_mgr = ThreadManager()
 
         self.player_ip = ip
         self.host_port = host_port
 
+        # initialize host socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('0.0.0.0', host_port))
         sock.listen(self.NUM_PLAYERS)
+        sock.settimeout(0.5)
         self.mysocket = sock
 
         # register myself
-        # generate playerid
         self.tracker.add(player_name, ip, self.host_port)
 
+        self.connections = {}
+
+        # bind keypress listener
         keyboard.add_hotkey('space', self.attempt_start)
+
         try:
             while not self.game_started:
                 try:
-                    connection, _ = sock.accept()
-                    buf = connection.recv(1024)
-                    if buf:
-                        self.handle_host(buf.decode(
-                            'utf-8').rstrip("\0"), connection)
-                except:
+                    connection, _ = self.mysocket.accept()
+                    if connection:
+                        # start a thread to handle incoming data
+                        t = threading.Thread(target=self.thread_handler, args=(
+                            connection, ), daemon=True)
+                        t.start()
+                        self.thread_mgr.add_thread(t)
+                except socket.timeout:
                     pass
             print("Exiting lobby, entering game")
             return self.tracker
         except KeyboardInterrupt:
-            # TODO: send lobby shutdown
+            self.thread_mgr.shutdown()
             print("\nExiting lobby")
         finally:
             sock.close()
+            for connection in self.connections.values():
+                connection.close()
             keyboard.remove_all_hotkeys()
-            for conn in self.connections.values():
-                conn.close()
         return True
 
     def join(self, host_ip="127.0.0.1", player_ip="127.0.0.1", host_port=9999, player_port=9997, player_name="Player") -> Tracker:
-        """Join an existing lobby."""
+        """
+        Join an existing lobby.
+        """
         self.player_name = player_name
         self.player_port = player_port
         self.player_ip = player_ip
@@ -61,23 +78,26 @@ class Lobby():
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((host_ip, host_port))
 
-        sock.sendall(self.lobby_register_pkt())
+        self.send(self.lobby_register_pkt(), sock)
 
         while True:
             try:
                 while not self.game_started and not self.lobby_host_exited:
                     buf = sock.recv(1024)
                     if buf:
-                        self.handle_player(buf.decode('utf-8'), sock)
+                        self.handle_player(buf.decode(
+                            'utf-8').rstrip("\0"), sock)
                 print("Exiting lobby, entering game")
                 return self.tracker
             except KeyboardInterrupt:
-                sock.sendall(self.lobby_deregister_pkt())
+                self.send(self.lobby_deregister_pkt(), sock)
                 sock.close()
                 print("\nExiting lobby")
                 exit()
             finally:
                 sock.close()
+
+    # handler triggers
 
     def handle_player(self, packet, connection):
         req = json.loads(packet)
@@ -92,10 +112,9 @@ class Lobby():
             # game is starting, save tracker
             data = req.get("data")
             tracker = data.get("tracker")
-            print(tracker)
 
             if tracker is None:
-                self.nak("No tracker data provided")
+                self.send(self.nak("No tracker data provided"), connection)
                 return
 
             self.tracker = Tracker(tracker)
@@ -115,7 +134,10 @@ class Lobby():
             data = req.get("data")
             self.lobby_deregister(data, connection)
         else:
-            self.nak("Unknown payload type: " + payload_type)
+            self.send(self.nak("Unknown payload type: " +
+                      payload_type), connection)
+
+    # state handlers
 
     def attempt_start(self):
         if self.tracker.get_player_count() == self.NUM_PLAYERS:
@@ -136,17 +158,17 @@ class Lobby():
             print("No player port")
             return
 
-        if player_id in self.connections:
-            connection.sendall(self.ack())
-            return
-
         if self.tracker.is_ip_port_used(player_ip, player_port):
-            connection.sendall(self.nak("ip + port in use by another player"))
+            print("[lobby_register] ip port used")
+            self.send(self.nak("ip + port in use by another player"), connection)
             return
 
+        self.lock.acquire()
         self.connections[player_id] = connection
         self.tracker.add(player_id, player_ip, player_port)
-        connection.sendall(self.ack())
+        self.lock.release()
+
+        self.send(self.ack(), connection)
 
         print("Player registered: " + player_id)
         print("Current players: " + str(self.tracker.get_players()))
@@ -163,20 +185,36 @@ class Lobby():
             print("No player port or IP address")
             return
 
+        self.lock.acquire()
         self.connections.pop(player_id)
         self.tracker.remove(player_id)
+        self.lock.release()
+
         connection.close()
         print("Player left the lobby: " + player_id)
         print("Current players: " + str(self.tracker.get_players()))
 
     def lobby_start_game(self):
-        for _, connection in self.connections.items():
-            connection.send(self.start_pkt())
-            connection.close()  # close connections to lobby host
+        for connection in self.connections.values():
+            self.send(self.start_pkt(), connection)
         print("All clients notified of game start.")
         keyboard.remove_hotkey('space')
+
         self.game_started = True
-        self.mysocket.close()
+
+    # handler threads
+    def thread_handler(self, connection):
+        while not self.game_started:
+            buf = connection.recv(1024)
+            if buf:
+                self.handle_host(buf.decode(
+                    'utf-8').rstrip("\0"), connection)
+
+    # helper method to send packets
+    def send(self, packet: bytes, connection):
+        connection.sendall(packet.ljust(self.chunksize, b"\0"))
+
+    # packets
 
     def start_pkt(self):
         return json.dumps(dict(
@@ -195,7 +233,7 @@ class Lobby():
                 port=self.player_port,
             ),
             payload_type="lobby_register",
-        )).encode('utf-8').ljust(self.chunksize, b"\0")
+        )).encode('utf-8')
 
     def lobby_deregister_pkt(self):
         return json.dumps(dict(

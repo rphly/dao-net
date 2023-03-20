@@ -9,13 +9,16 @@ class Transport:
     chunksize = 1024
     NUM_PLAYERS = 9
 
-    def __init__(self, port, tracker: Tracker):
+    def __init__(self, myself, port, tracker: Tracker, is_player_mode: bool = True):
         self.tracker = tracker
+        self.myself = myself
 
         # start my socket
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(("0.0.0.0", port))
-        s.listen(self.NUM_PLAYERS)
+
+        if is_player_mode:
+            s.bind(("0.0.0.0", port))
+            s.listen(self.NUM_PLAYERS)
 
         self.my_socket = s
 
@@ -27,6 +30,8 @@ class Transport:
     def make_connections(self):
         while len(self._connection_pool) < self.NUM_PLAYERS-1:
             for player_id in self.tracker.get_players():
+                if player_id == self.myself:
+                    continue
                 if player_id not in self._connection_pool:
                     ip, port = self.tracker.get_ip_port(
                         player_id)
@@ -37,6 +42,7 @@ class Transport:
                         sock = socket.socket(
                             socket.AF_INET, socket.SOCK_STREAM)
                         sock.connect((ip, port))
+                        print(f"Connected to {player_id} at {ip}:{port}")
                         self._connection_pool[player_id] = sock
                     except (ConnectionRefusedError, TimeoutError):
                         pass
@@ -46,6 +52,11 @@ class Transport:
         # pad data to 1024 bytes
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         conn.sendall(padded)
+
+    def sendall(self, packet: Packet):
+        for conn in self._connection_pool.values():
+            padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
+            conn.sendall(padded)
 
     def receive(self) -> str:
         # TODO: for each connection in pool based on delay
