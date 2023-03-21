@@ -43,7 +43,7 @@ class Packet:
         """Return a json representation of the packet."""
         return json.dumps(dict(
             data=self.data,
-            player=self.player,
+            player=self.player.dict(),
             payload_type=self.packet_type,
             created_at=self.createdAt
         ))
@@ -70,7 +70,7 @@ class PeeringCompleted(Packet):
     """Peering has been completed."""
 
     def __init__(self, player: Player):
-        super().__init__(None, player, "peering_complete")
+        super().__init__(None, player, "peering_completed")
 
 class SyncReq(Packet):
     """Send a Sync packet."""

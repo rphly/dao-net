@@ -56,16 +56,14 @@ class Lobby():
                 except socket.timeout:
                     pass
             print("Exiting lobby, entering game")
-            return self.tracker
+            return self.mysocket, self.tracker
         except KeyboardInterrupt:
             self.thread_mgr.shutdown()
             print("\nExiting lobby")
         finally:
-            sock.close()
             for connection in self.connections.values():
                 connection.close()
             keyboard.remove_all_hotkeys()
-        return True
 
     def join(self, host_ip="127.0.0.1", player_ip="127.0.0.1", host_port=9999, player_port=9997, player_name="Player") -> Tracker:
         """
@@ -80,22 +78,21 @@ class Lobby():
 
         self.send(self.lobby_register_pkt(), sock)
 
-        while True:
-            try:
-                while not self.game_started and not self.lobby_host_exited:
-                    buf = sock.recv(1024)
-                    if buf:
-                        self.handle_player(buf.decode(
-                            'utf-8').rstrip("\0"), sock)
-                print("Exiting lobby, entering game")
-                return self.tracker
-            except KeyboardInterrupt:
-                self.send(self.lobby_deregister_pkt(), sock)
-                sock.close()
-                print("\nExiting lobby")
-                exit()
-            finally:
-                sock.close()
+        try:
+            while not self.game_started and not self.lobby_host_exited:
+                buf = sock.recv(1024)
+                if buf:
+                    self.handle_player(buf.decode(
+                        'utf-8').rstrip("\0"), sock)
+            print("Exiting lobby, entering game")
+            return None, self.tracker
+        except KeyboardInterrupt:
+            self.send(self.lobby_deregister_pkt(), sock)
+            sock.close()
+            print("\nExiting lobby")
+            exit()
+        finally:
+            sock.close()
 
     # handler triggers
 
