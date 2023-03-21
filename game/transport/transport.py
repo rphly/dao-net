@@ -18,7 +18,8 @@ class Transport:
         self.thread_mgr = thread_manager
         self.queue = Queue()
         self.chunksize = 1024
-        self.NUM_PLAYERS = 4
+        self.NUM_PLAYERS = 3
+        self.lock = threading.Lock()
 
         self.tracker = tracker
         self._connection_pool: dict[str, socket.socket] = {}
@@ -31,8 +32,7 @@ class Transport:
             self.my_socket = s
         else:
             self.my_socket = host_socket
-
-        self.my_socket.settimeout(0.5)
+        time.sleep(2)
 
         t1 = threading.Thread(target=self.accept_connections, daemon=True)
         t2 = threading.Thread(target=self.make_connections, daemon=True)
@@ -62,38 +62,51 @@ class Transport:
         """
         Attempt to make outgoing connections to all players
         """
-        while not self.all_connected():
-            for player_id in self.tracker.get_players():
-                if player_id == self.myself:
+
+        for player_id in self.tracker.get_players():
+            if player_id == self.myself:
+                continue
+            self.lock.acquire()
+            if player_id not in self._connection_pool:
+                ip, port = self.tracker.get_ip_port(
+                    player_id)
+                if ip is None or port is None:
                     continue
-                if player_id not in self._connection_pool:
-                    ip, port = self.tracker.get_ip_port(
-                        player_id)
-                    if ip is None or port is None:
-                        continue
-                    # waiting for player to start server
-                    try:
-                        sock = socket.socket(
-                            socket.AF_INET, socket.SOCK_STREAM)
-                        sock.connect((ip, port))
-                        # send a player my conn request
-                        sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
-                            'utf-8').ljust(self.chunksize, b"\0"))
-                        print("[Make Conn] Sent conn req")
-                        time.sleep(1)
-                    except (ConnectionRefusedError, TimeoutError):
-                        pass
+                # waiting for player to start server
+                try:
+                    sock = socket.socket(
+                        socket.AF_INET, socket.SOCK_STREAM)
+                    sock.connect((ip, port))
+                    # send a player my conn request
+                    sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
+                        'utf-8').ljust(self.chunksize, b"\0"))
+                    print(
+                        f"{time.time()} [Make Conn] Sent conn req to {player_id}")
+                    time.sleep(1)
+                except (ConnectionRefusedError, TimeoutError):
+                    pass
+            self.lock.release()
 
     def send(self, packet: Packet, player_id):
-
+        padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
+        # try:
+        #     print("old")
+        #     conn = self._connection_pool[player_id]
+        #     conn.sendall(padded)
+        # except (BrokenPipeError, OSError):
+        #     print("new")
+        #     ip, port = self.tracker.get_ip_port(
+        #         player_id)
+        #     conn = socket.socket(
+        #         socket.AF_INET, socket.SOCK_STREAM)
+        #     conn.connect((ip, port))
+        #     conn.sendall(padded)
+        #     self._connection_pool[player_id] = conn
         ip, port = self.tracker.get_ip_port(
             player_id)
         conn = socket.socket(
             socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((ip, port))
-
-        # pad data to 1024 bytes
-        padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         conn.sendall(padded)
 
     def sendall(self, packet: Packet):
@@ -126,20 +139,26 @@ class Transport:
     def handle_connection_request(self, data, connection):
         player: Player = Player(data["player"]["name"])
         player_name = player.get_name()
+        self.lock.acquire()
         if not player_name in self._connection_pool:
             # add player to connection pool
             self._connection_pool[player_name] = connection
+
         # send estab and trigger the other player to add back same conn
-        print(f"[Receive Conn Request] Sending conn estab to {player_name}")
+        print(
+            f"{time.time()} [Receive Conn Request] Sending conn estab to {player_name}")
         self.send(ConnectionEstab(Player(self.myself)), player_name)
+        self.lock.release()
 
     def handle_connection_estab(self, data, connection):
         player: Player = Player(data["player"]["name"])
         player_name = player.get_name()
+        self.lock.acquire()
         if not player_name in self._connection_pool:
             # only add player to connection pool if not already inside
-            print("[Receive Conn Estab] Saving conn")
+            print(f"{time.time()} [Receive Conn Estab] Saving connection")
             self._connection_pool[player_name] = connection
+        self.lock.release()
 
     def handle_incoming(self, connection: socket.socket):
         """
@@ -149,12 +168,11 @@ class Transport:
         while True:
             try:
                 data = connection.recv(self.chunksize)
-                if data and self.all_connected():
-                    self.queue.put(data)
-                else:
-                    if data:
-                        # for peering
+                if data:
+                    if not self.all_connected():
                         self.check_if_peering_and_handle(data, connection)
+                        continue
+                    self.queue.put(data)
             except:
                 break
 
