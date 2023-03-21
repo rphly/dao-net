@@ -71,3 +71,18 @@ class PeeringCompleted(Packet):
 
     def __init__(self, player: Player):
         super().__init__(None, player, "peering_completed")
+
+
+# initial transport layer initiation
+class ConnectionRequest(Packet):
+    """Initial request to connect"""
+
+    def __init__(self, player: Player):
+        super().__init__(None, player, "connection_req")
+
+
+class ConnectionEstab(Packet):
+    """Connection has been established."""
+
+    def __init__(self, player: Player):
+        super().__init__(None, player, "connection_estab")

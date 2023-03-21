@@ -7,6 +7,9 @@ class Player:
         self.name = name
         self.id = str(uuid.uuid4())
 
+    def get_name(self):
+        return self.name
+
     def id(self):
         return self.id
 

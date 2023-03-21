@@ -1,8 +1,9 @@
+import json
 import socket
+from game.models.player import Player
 
-from game.transport.packet import Packet
+from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet
 from game.lobby.tracker import Tracker
-from game.thread_manager import ThreadManager
 
 from queue import Queue, Empty
 import threading
@@ -11,37 +12,39 @@ import threading
 class Transport:
 
     def __init__(self, myself, port, thread_manager, tracker: Tracker, host_socket: socket.socket = None):
-        self.tracker = tracker
         self.myself = myself
         self.thread_mgr = thread_manager
         self.queue = Queue()
         self.chunksize = 1024
         self.NUM_PLAYERS = 2
-        self._incoming_connection_pool: dict[str, socket.socket] = {}
-        self._outgoing_connection_pool: dict[str, socket.socket] = {}
+
+        self.tracker = tracker
+        self._connection_pool: dict[str, socket.socket] = {}
 
         # start my socket
         if not host_socket:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.bind(("0.0.0.0", port))
             s.listen(self.NUM_PLAYERS)
-            s.settimeout(0.5)
             self.my_socket = s
         else:
-            host_socket.settimeout(0.5)
             self.my_socket = host_socket
+
+        self.my_socket.settimeout(0.5)
 
         t1 = threading.Thread(target=self.accept_connections, daemon=True)
         t2 = threading.Thread(target=self.make_connections, daemon=True)
-
         t1.start()
         t2.start()
 
     def all_connected(self):
-        return len(self._outgoing_connection_pool) == self.NUM_PLAYERS - 1
+        return len(self._connection_pool) == self.NUM_PLAYERS - 1
 
     def accept_connections(self):
-        while True:
+        """
+        Accept all incoming connections 
+        """
+        while not self.all_connected():
             try:
                 connection, _ = self.my_socket.accept()
                 if connection:
@@ -55,36 +58,38 @@ class Transport:
                 pass
 
     def make_connections(self):
-        while True:
+        """
+        Attempt to make outgoing connections to all players
+        """
+        while not self.all_connected():
             for player_id in self.tracker.get_players():
                 if player_id == self.myself:
                     continue
-                if player_id not in self._outgoing_connection_pool:
+                if player_id not in self._connection_pool:
                     ip, port = self.tracker.get_ip_port(
                         player_id)
                     if ip is None or port is None:
                         continue
                     # waiting for player to start server
                     try:
-                        conn = socket.socket(
+                        sock = socket.socket(
                             socket.AF_INET, socket.SOCK_STREAM)
-                        conn.connect((ip, port))
-                        print(f"Connected to {player_id} at {ip}:{port}")
-                        self._outgoing_connection_pool[player_id] = conn
-
+                        sock.connect((ip, port))
+                        # send a player my conn request
+                        sock.send(ConnectionRequest(Player(self.myself)).json().encode(
+                            'utf-8').ljust(self.chunksize, b"\0"))
                     except (ConnectionRefusedError, TimeoutError):
                         pass
 
     def send(self, packet: Packet, player_id):
-        conn = self._outgoing_connection_pool[player_id]
+        conn = self._connection_pool[player_id]
         # pad data to 1024 bytes
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         conn.sendall(padded)
 
     def sendall(self, packet: Packet):
-        for conn in self._outgoing_connection_pool.values():
-            padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
-            conn.sendall(padded)
+        for player_id in self._connection_pool:
+            self.send(packet, player_id)
 
     def receive(self) -> str:
         """
@@ -94,9 +99,33 @@ class Transport:
             data = self.queue.get_nowait()
             self.queue.task_done()
             if data:
-                return data.decode('utf-8').rstrip("\0")
+                return data
         except Empty:
             return
+
+    def check_if_peering_and_handle(self, data, connection):
+        data = json.loads(data)
+        packet_type = data["payload_type"]
+        if packet_type == "connection_req":
+            self.handle_connection_request(data, connection)
+        elif packet_type == "connection_estab":
+            self.handle_connection_estab(data, connection)
+
+    def handle_connection_request(self, data, connection):
+        player: Player = Player(data["player"]["name"])
+        player_name = player.get_name()
+        if not player_name in self._connection_pool:
+            # add player to connection pool
+            self._connection_pool[player_name] = connection
+        # send estab and trigger the other player to add back same conn
+        self.send(ConnectionEstab(Player(self.myself)), player_name)
+
+    def handle_connection_estab(self, data, connection):
+        player: Player = Player(data["player"]["name"])
+        player_name = player.get_name()
+        if not player_name in self._connection_pool:
+            # only add player to connection pool if not already inside
+            self._connection_pool[player_name] = connection
 
     def handle_incoming(self, connection: socket.socket):
         """
@@ -105,13 +134,17 @@ class Transport:
         """
         while True:
             data = connection.recv(self.chunksize)
-            if data:
+            if data and self.all_connected():
                 self.queue.put(data)
+            else:
+                if data:
+                    # for peering
+                    decoded = data.decode('utf-8').rstrip("\0")
+                    print(decoded)
+                    self.check_if_peering_and_handle(decoded, connection)
 
     def shutdown(self):
         self.my_socket.close()
-        for connection in self._incoming_connection_pool.values():
-            connection.close()
-        for connection in self._outgoing_connection_pool.values():
+        for connection in self._connection_pool:
             connection.close()
         self.thread_mgr.shutdown()

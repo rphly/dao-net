@@ -48,6 +48,7 @@ class Client():
                                          ThreadManager(),
                                          tracker=self.tracker,
                                          host_socket=host_socket)
+        self.is_peering_completed = False
 
     def _state(self):
         return self._state
@@ -83,11 +84,12 @@ class Client():
             self.end_game()
 
     def peering(self):
-        if self._transportLayer.all_connected():
+        if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
             print("Notifying ready to start")
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
-            self._state = "INIT"
+            self.is_peering_completed = True
+            #self._state = "INIT"
 
     def sync_clock(self):
         # logic to sync clocks here
@@ -162,6 +164,9 @@ class Client():
             elif pkt_json.get("payload_type") == "peering_completed":
                 print(
                     f"Received peering completed from {pkt_json.get('player', {}).get('name')}")
+
+            elif pkt_json.get("payload_type") == "connection_req":
+                self._transportLayer.handle_connection_req(pkt_json)
 
     def _selecting_seats(self):
         self._is_selecting_seat = True
