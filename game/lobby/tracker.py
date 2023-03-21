@@ -12,13 +12,12 @@ class Tracker():
     def add(self, player_id, ip_address, port):
         # save port number
         self.tracker_list[player_id] = (ip_address, port)
-        self.leader_list.append(ip_address)
+        self.leader_list.append(player_id)
 
     def remove(self, player_id):
         # remove player from tracker
-        ip_port = self.tracker_list[player_id]
         self.tracker_list.pop(player_id)
-        self.leader_list.remove(ip_port)
+        self.leader_list.remove(player_id)
 
     def get_ip_port(self, player_id):
         # return port number

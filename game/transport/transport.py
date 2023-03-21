@@ -73,6 +73,7 @@ class Transport:
             conn.sendall(padded)
 
     def receive(self) -> str:
+        # TODO handle receiving of sync req
         """
         Drain the queue when we are ready to handle data.
         """
