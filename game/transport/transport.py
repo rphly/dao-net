@@ -8,6 +8,8 @@ from game.lobby.tracker import Tracker
 from queue import Queue, Empty
 import threading
 
+import time
+
 
 class Transport:
 
@@ -16,7 +18,7 @@ class Transport:
         self.thread_mgr = thread_manager
         self.queue = Queue()
         self.chunksize = 1024
-        self.NUM_PLAYERS = 2
+        self.NUM_PLAYERS = 4
 
         self.tracker = tracker
         self._connection_pool: dict[str, socket.socket] = {}
@@ -44,11 +46,10 @@ class Transport:
         """
         Accept all incoming connections 
         """
-        while not self.all_connected():
+        while True:
             try:
                 connection, _ = self.my_socket.accept()
                 if connection:
-                    print("incoming connection")
                     # start a thread to handle incoming data
                     t = threading.Thread(target=self.handle_incoming, args=(
                         connection,), daemon=True)
@@ -76,13 +77,21 @@ class Transport:
                             socket.AF_INET, socket.SOCK_STREAM)
                         sock.connect((ip, port))
                         # send a player my conn request
-                        sock.send(ConnectionRequest(Player(self.myself)).json().encode(
+                        sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
                             'utf-8').ljust(self.chunksize, b"\0"))
+                        print("[Make Conn] Sent conn req")
+                        time.sleep(1)
                     except (ConnectionRefusedError, TimeoutError):
                         pass
 
     def send(self, packet: Packet, player_id):
-        conn = self._connection_pool[player_id]
+
+        ip, port = self.tracker.get_ip_port(
+            player_id)
+        conn = socket.socket(
+            socket.AF_INET, socket.SOCK_STREAM)
+        conn.connect((ip, port))
+
         # pad data to 1024 bytes
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         conn.sendall(padded)
@@ -96,20 +105,23 @@ class Transport:
         Drain the queue when we are ready to handle data.
         """
         try:
-            data = self.queue.get_nowait()
+            data: bytes = self.queue.get_nowait()
             self.queue.task_done()
             if data:
-                return data
+                return data.decode('utf-8').rstrip("\0")
         except Empty:
             return
 
     def check_if_peering_and_handle(self, data, connection):
-        data = json.loads(data)
-        packet_type = data["payload_type"]
+        decoded = data.decode('utf-8').rstrip("\0")
+        d = json.loads(decoded)
+        packet_type = d["payload_type"]
         if packet_type == "connection_req":
-            self.handle_connection_request(data, connection)
+            self.handle_connection_request(d, connection)
         elif packet_type == "connection_estab":
-            self.handle_connection_estab(data, connection)
+            self.handle_connection_estab(d, connection)
+        else:
+            self.queue.put(data)
 
     def handle_connection_request(self, data, connection):
         player: Player = Player(data["player"]["name"])
@@ -118,6 +130,7 @@ class Transport:
             # add player to connection pool
             self._connection_pool[player_name] = connection
         # send estab and trigger the other player to add back same conn
+        print(f"[Receive Conn Request] Sending conn estab to {player_name}")
         self.send(ConnectionEstab(Player(self.myself)), player_name)
 
     def handle_connection_estab(self, data, connection):
@@ -125,6 +138,7 @@ class Transport:
         player_name = player.get_name()
         if not player_name in self._connection_pool:
             # only add player to connection pool if not already inside
+            print("[Receive Conn Estab] Saving conn")
             self._connection_pool[player_name] = connection
 
     def handle_incoming(self, connection: socket.socket):
@@ -133,18 +147,19 @@ class Transport:
         note: queue.put is blocking,
         """
         while True:
-            data = connection.recv(self.chunksize)
-            if data and self.all_connected():
-                self.queue.put(data)
-            else:
-                if data:
-                    # for peering
-                    decoded = data.decode('utf-8').rstrip("\0")
-                    print(decoded)
-                    self.check_if_peering_and_handle(decoded, connection)
+            try:
+                data = connection.recv(self.chunksize)
+                if data and self.all_connected():
+                    self.queue.put(data)
+                else:
+                    if data:
+                        # for peering
+                        self.check_if_peering_and_handle(data, connection)
+            except:
+                break
 
     def shutdown(self):
         self.my_socket.close()
-        for connection in self._connection_pool:
+        for connection in self._connection_pool.values():
             connection.close()
         self.thread_mgr.shutdown()

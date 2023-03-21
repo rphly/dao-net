@@ -11,7 +11,7 @@ class Lobby():
         self.game_started = False
         self.lobby_host_exited = False
         self.chunksize = 1024
-        self.NUM_PLAYERS = 2  # grab from config
+        self.NUM_PLAYERS = 4  # grab from config
 
         self.lock = threading.Lock()
         self.game_start_lock = threading.Lock()

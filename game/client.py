@@ -89,7 +89,7 @@ class Client():
             print("Notifying ready to start")
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
-            #self._state = "INIT"
+            self._state = "INIT"
 
     def sync_clock(self):
         # logic to sync clocks here
@@ -142,7 +142,6 @@ class Client():
         data = self._transportLayer.receive()
 
         if data:
-            print("DATA RECEIVED")
             pkt_json = json.loads(data)
 
             if pkt_json.get("payload_type") == "action":
@@ -164,9 +163,6 @@ class Client():
             elif pkt_json.get("payload_type") == "peering_completed":
                 print(
                     f"Received peering completed from {pkt_json.get('player', {}).get('name')}")
-
-            elif pkt_json.get("payload_type") == "connection_req":
-                self._transportLayer.handle_connection_req(pkt_json)
 
     def _selecting_seats(self):
         self._is_selecting_seat = True
