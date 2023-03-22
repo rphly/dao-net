@@ -44,9 +44,17 @@ class Packet:
         return json.dumps(dict(
             data=self.data,
             player=self.player.dict(),
-            payload_type=self.packet_type,
+            packet_type=self.packet_type,
             created_at=self.createdAt
         ))
+
+    def from_json(d):
+        """Return a packet from a json representation."""
+        return Packet(
+            d["data"],
+            Player(d["player"].get("name")),
+            d["packet_type"]
+        )
 
     def __str__(self):
         return f"Packet: {str(self.data)}"
@@ -71,6 +79,20 @@ class PeeringCompleted(Packet):
 
     def __init__(self, player: Player):
         super().__init__(None, player, "peering_completed")
+
+
+class ReadyToStart(Packet):
+    """Ready to start game"""
+
+    def __init__(self, player: Player):
+        super().__init__(None, player, "ready_to_start")
+
+
+class AckStart(Packet):
+    """AckReady and Start"""
+
+    def __init__(self, player: Player):
+        super().__init__(None, player, "ack_start")
 
 
 # initial transport layer initiation

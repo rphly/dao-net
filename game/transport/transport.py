@@ -1,9 +1,10 @@
 import json
 import socket
 from game.models.player import Player
-
 from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet
 from game.lobby.tracker import Tracker
+
+from config import NUM_PLAYERS
 
 from queue import Queue, Empty
 import threading
@@ -18,7 +19,7 @@ class Transport:
         self.thread_mgr = thread_manager
         self.queue = Queue()
         self.chunksize = 1024
-        self.NUM_PLAYERS = 3
+        self.NUM_PLAYERS = NUM_PLAYERS
         self.lock = threading.Lock()
 
         self.tracker = tracker
@@ -121,14 +122,14 @@ class Transport:
             data: bytes = self.queue.get_nowait()
             self.queue.task_done()
             if data:
-                return data.decode('utf-8').rstrip("\0")
+                return Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0")))
         except Empty:
             return
 
     def check_if_peering_and_handle(self, data, connection):
         decoded = data.decode('utf-8').rstrip("\0")
         d = json.loads(decoded)
-        packet_type = d["payload_type"]
+        packet_type = d["packet_type"]
         if packet_type == "connection_req":
             self.handle_connection_request(d, connection)
         elif packet_type == "connection_estab":
