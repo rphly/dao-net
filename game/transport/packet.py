@@ -82,21 +82,25 @@ class PeeringCompleted(Packet):
 
 class SyncReq(Packet):
     """Send a Sync packet."""
+
     def __init__(self, player: Player):
         super().__init__(None, player, "sync req")
 
 class SyncAck(Packet):
     """Send a Sync packet."""
+
     def __init__(self, player: Player):
         super().__init__(None, player, "sync ack")
 
 class PeerSyncAck(Packet):
     """Send peer their delay measurement."""
+
     def __init__(self, data, player: Player):
         super().__init__(data, player, "peer sync ack")
 
-class updateLeader(Packet):
+class UpdateLeader(Packet):
     """Update the leader of syncing."""
+
     def __init__(self, data: int, player: Player):
         super().__init__(data, player, "sync ack")
 

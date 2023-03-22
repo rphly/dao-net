@@ -6,7 +6,7 @@ import json
 from game.models.player import Player
 from game.lobby.tracker import Tracker
 from game.transport.transport import Transport
-from game.transport.packet import SyncReq, SyncAck, PeerSyncAck
+from game.transport.packet import SyncReq, SyncAck, PeerSyncAck, UpdateLeader
 
 class Sync:
     """Synchronizes game actions."""
@@ -26,6 +26,7 @@ class Sync:
             if self._player_id == self.leader_list[self.leader_idx] \
             and self.leader_idx != len(self.leader_list)-1:
                 self.measure_delays()
+                self.send_update_leader()
 
             # you are last to be leader, reset leader idx
             elif self._player_id == self.leader_list[self.leader_idx] \
@@ -64,9 +65,15 @@ class Sync:
                 
             except KeyboardInterrupt:
                 pass
-                    
+        
 
+                    
+    def send_update_leader(self, player_id: str):
+        self.leader_idx += 1
+        update_leader_pkt = UpdateLeader(None, player_id)
+        self._transport_layer.sendall(update_leader_pkt, player_id)
     
+
     def send_sync_req(self, player_id: str):
         sync_req_pkt = SyncReq(None, player_id)
         self._transport_layer.sendall(sync_req_pkt, player_id)
