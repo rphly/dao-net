@@ -3,7 +3,7 @@ from game.models.action import Action
 from game.lobby.tracker import Tracker
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
-from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart,
+from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart
 import config
 import keyboard
 from time import time
@@ -101,7 +101,7 @@ class Client():
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
         self._transportLayer.sendall(ReadyToStart(self._myself))
-        
+
         if len(self._round_ready.keys()) == config.NUM_PLAYERS:
             print("All players are ready to start.")
             print("Voting to start now...")
@@ -112,7 +112,7 @@ class Client():
         if len(self._round_ackstart.keys()) >= config.NUM_PLAYERS:
             # waiting for everyone to ackstart
             return
-        
+
         # 1) Received local keypress
         if self._my_keypress is None:
             for k in self._round_inputs.keys():
@@ -147,7 +147,6 @@ class Client():
 
 ######### helper functions #########
 
-
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         pkt: Packet = self._transportLayer.receive()
@@ -180,7 +179,6 @@ class Client():
                 player_name = pkt.get_player().get_name()
                 self._round_ackstart[player_name] = True
                 print(f"Received vote to start from {player_name}")
-
 
     def _selecting_seats(self):
         self._is_selecting_seat = True
