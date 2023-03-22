@@ -28,6 +28,7 @@ class Client():
         self.tracker = tracker
 
         self._round_inputs: dict[str, str] = {
+            # Q W E R T Y = 12, 13, 14, 15, 17, 16            
             "12": None,
             "13": None,
             "14": None,
@@ -98,6 +99,7 @@ class Client():
     def init(self):
         print(f"Starting round")
         print(f"Players left: {self._players}")
+        print(f"Seats available: {self._round_inputs}")
         # reset votekick
         self._votekick = dict.fromkeys(self._players, 0)
 
@@ -105,10 +107,11 @@ class Client():
 
     def await_keypress(self):
         # # 1) Received local keypress
-        # if self._my_keypress is None:
-        #     for k in ["q", "w", "e", "r", "t", "y"]:
-        #         keyboard.add_hotkey(k, lambda: self._insert_input(k))
-        # else:
+        if self._my_keypress is None:
+            for k in self._round_inputs.keys():
+                keyboard.add_hotkey(k, lambda: self._insert_input(k))
+        else:
+            self._state = "END_ROUND"
         #     # 2) SelectingSeat
         #     self._selecting_seats()
 
@@ -124,7 +127,6 @@ class Client():
         #     if self._ack_count > thresh:
         #         # SelectingSeat success
         #         self._state("END_ROUND")
-        #         self._next()
         #         return
 
         # 4) Check for others' keypress, let transport layer handler handle it
@@ -144,21 +146,16 @@ class Client():
     def byzantine_recv(self):
         self._rcv_vote()
 
-        # if num of votes == num of players
         if sum(self._votekick.values()) == len(self._players):
             max_vote = max(self._votekick.values())
             # in case there is a tie
-
             to_be_kicked = [key for key,
                             value in self._votekick.items() if value == max_vote]
-
             # 1) if only one voted, remove from player_list
             if len(to_be_kicked) == 1:
                 self._players.pop(to_be_kicked[0])
-
             # 2) if tied, just go to next round
             self._state = "END_ROUND"
-
         else:
             self._state = "BYZANTINE_RCV"
 
