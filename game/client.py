@@ -1,15 +1,13 @@
-import json
 from game.models.player import Player
 from game.models.action import Action
 from game.lobby.tracker import Tracker
 from game.models.vote import Vote
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
-from game.transport.packet import Nak, Ack, PeeringCompleted
+from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart
 import config
 import keyboard
-import socket
-from time import time
+from time import time, sleep
 
 
 class Client():
@@ -27,15 +25,19 @@ class Client():
         self.game_over = False
         self.tracker = tracker
 
-        self._round_inputs: dict[str, str] = {
-            # Q W E R T Y = 12, 13, 14, 15, 17, 16            
-            "12": None,
-            "13": None,
-            "14": None,
-            "15": None,
-            "16": None,
-            "17": None,
+        self._round_inputs: dict[int, str] = {
+            # Q W E R T Y = 12, 13, 14, 15, 17, 16
+            12: None,
+            13: None,
+            14: None,
+            15: None,
+            17: None,
+            16: None,
         }
+        self.hotkeys_added = False
+        self._round_started = False
+        self._round_ready = {}
+        self._round_ackstart = {}
 
         self._current_chairs: int = config.NUM_CHAIRS
         self._my_keypress = None
@@ -60,6 +62,7 @@ class Client():
         print("Game has started!")
         try:
             while not self.game_over:
+                sleep(0.5)  # slow down game loop
                 self.trigger_handler(self._state)
         except KeyboardInterrupt:
             print("Exiting game")
@@ -87,7 +90,7 @@ class Client():
     def peering(self):
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
-            print("Notifying ready to start")
+            print("Notify peers that peering is completed")
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
             self._state = "INIT"
@@ -98,36 +101,55 @@ class Client():
         self._state = "INIT"
 
     def init(self):
-        print(f"Starting round")
-        print(f"Players left: {self._players}")
-        print(f"Seats available: {self._round_inputs}")
-        # reset votekick
-        self._votekick = dict.fromkeys(self._players, 0)
-
-
+        # we only reach here once peering is completed
+        # everybody sends ok start to everyone else
+        self._transportLayer.sendall(ReadyToStart(self._myself))
+        self._checkTransportLayerForIncomingData()
+        if len(self._round_ready.keys()) == config.NUM_PLAYERS-1:
+            print("All players are ready to start.")
+            print("Voting to start now...")
+            self._transportLayer.sendall(AckStart(self._myself))
+            self._state = "AWAIT_KEYPRESS"
 
     def await_keypress(self):
-        # # 1) Received local keypress
-        # if self._my_keypress is None:
-        #     for k in self._round_inputs.keys():
-        #         keyboard.add_hotkey(k, lambda: self._insert_input(k))
-        # else:
-        #     # 2) SelectingSeat
-        #     self._selecting_seats()
+        self._checkTransportLayerForIncomingData()
+        if not self._all_voted_to_start():
+            # waiting for everyone to ackstart
+            return
 
-        # if self._is_selecting_seat:
-        #     thresh = (config.NUM_PLAYERS // 2)
-        #     if self._nak_count >= thresh:
-        #         # SelectingSeat failed
-        #         self._my_keypress = None
-        #         self._nak_count = 0
-        #         self._ack_count = 0
-        #         self._is_selecting_seat = False
+        if not self._round_started:
+            self._round_started = True
+            print("All have voted to start...")
+            print("Let's begin!")
+            print("Good luck and have fun!")
+            print("Grab a seat now!")
 
-        #     if self._ack_count > thresh:
-        #         # SelectingSeat success
-        #         self._state("END_ROUND")
-        #         return
+        if self._round_started:
+            # 1) Received local keypress
+            if self._my_keypress is None:
+                for k in self._round_inputs.keys():
+                    if not self.hotkeys_added:
+                        keyboard.add_hotkey(k, lambda: self._insert_input(k))
+                        self.hotkeys_added = True
+            else:
+                # 2) SelectingSeat
+                self._selecting_seats()
+
+            if self._is_selecting_seat:
+                thresh = (config.NUM_PLAYERS // 2)
+                if self._nak_count >= thresh:
+                    # SelectingSeat failed
+                    self._my_keypress = None
+                    self._nak_count = 0
+                    self._ack_count = 0
+                    self._is_selecting_seat = False
+                    self.hotkeys_added = False
+
+                if self._ack_count > thresh:
+                    # SelectingSeat success
+                    self._state("END_ROUND")
+                    self._next()
+                    return
 
         # 4) Check for others' keypress, let transport layer handler handle it
         self._checkTransportLayerForIncomingData()
@@ -177,7 +199,7 @@ class Client():
             self._state = "INIT"
 
     def end_game(self):
-        # terminate all connections
+        # terminate all connectionsidk
         self._transportLayer.shutdown()
         self.game_over = True
 
@@ -187,45 +209,52 @@ class Client():
 
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
-        data = self._transportLayer.receive()
+        pkt: Packet = self._transportLayer.receive()
 
-        if data:
-            pkt_json = json.loads(data)
-
-            if pkt_json.get("payload_type") == "action":
+        if pkt:
+            if pkt.get_packet_type() == "action":
                 # keypress
-                action = Action(pkt_json.get("data"), Player(
-                    pkt_json.get("player").get("id")))
+                p = Player(pkt.get_player().get_name())
+                action = Action(pkt.get_data(), p)
                 self._receiving_seats(action)
 
-            elif pkt_json.get("payload_type") == "ss_nak":
+            elif pkt.get_packet_type() == "ss_nak":
                 # drop the nak/ack if we've moved on
                 if self._is_selecting_seat:
                     self._nak_count += 1
 
-            elif pkt_json.get("payload_type") == "ss_ack":
+            elif pkt.get_packet_type() == "ss_ack":
                 # drop the nak/ack if we've moved on
                 if self._is_selecting_seat:
                     self._ack_count += 1
 
-            elif pkt_json.get("payload_type") == "peering_completed":
+            elif pkt.get_packet_type() == "peering_completed":
                 print(
-                    f"Received peering completed from {pkt_json.get('player', {}).get('name')}")
+                    f"Received peering completed from {pkt.get_player().get_name()}")
+
+            elif pkt.get_packet_type() == "ready_to_start":
+                player_name = pkt.get_player().get_name()
+                self._round_ready[player_name] = True
+                print(f"Received ready to start from {player_name}")
+
+            elif pkt.get_packet_type() == "ack_start":
+                player_name = pkt.get_player().get_name()
+                self._round_ackstart[player_name] = True
+                print(f"Received vote to start from {player_name}")
+
+    def _all_voted_to_start(self):
+        return len(self._round_ackstart.keys()) >= config.NUM_PLAYERS-1
 
     def _selecting_seats(self):
         self._is_selecting_seat = True
-        for player in self._players().values():  # TODO: send in order using time clock
-            self._send_seat(player)
-
-    def _send_seat(self, player: Player):
-        pkt = Action(dict(seat=self._my_keypress), player)
-        self._transportLayer.send(pkt, player.id)
+        pkt = Action(dict(seat=self._my_keypress), self._myself)
+        self._transportLayer.sendall(pkt)
 
     def _send_ack(self, player: Player):
-        self._transportLayer.send(Ack(self._myself), player.id)
+        self._transportLayer.send(Ack(self._myself), player.get_name())
 
     def _send_nak(self, player: Player):
-        self._transportLayer.send(Nak(self._myself), player.id)
+        self._transportLayer.send(Nak(self._myself), player.get_name())
 
     def _next(self):
         self._state = self.trigger_handler(self._state)
