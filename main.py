@@ -47,16 +47,18 @@ if __name__ == "__main__":
     if not is_player_mode:
         host_port = host_port or 9999
         print(f"Starting host mode on port {host_port}.")
-        tracker = Lobby().start(ip="127.0.0.1",
-                                host_port=host_port or 9999, player_name=player_name)
+        socket, tracker = Lobby().start(ip=host_ip,
+                                        host_port=host_port or 9999, player_name=player_name)
     else:
         print("Starting in player mode.")
-        tracker = Lobby().join(host_ip, player_ip, host_port, player_port, player_name)
+        _, tracker = Lobby().join(host_ip, player_ip, host_port, player_port, player_name)
 
     if tracker is None:
         print("Failed to start game.")
         exit(1)
 
     print("Entering game...")
-    GameClient(player_name, tracker).start()
+    GameClient(player_name,
+               tracker,
+               socket if not is_player_mode else None).start()
     print("Hope you had fun!")

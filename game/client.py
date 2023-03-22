@@ -1,10 +1,10 @@
 import json
-from game.engine.core import Core
 from game.models.player import Player
 from game.models.action import Action
 from game.lobby.tracker import Tracker
+from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
-from game.transport.packet import Packet, Nak, Ack
+from game.transport.packet import Nak, Ack, PeeringCompleted
 import config
 import keyboard
 import socket
@@ -16,7 +16,7 @@ class Client():
     Game FSM 
     """
 
-    def __init__(self, my_name: str, tracker: Tracker):
+    def __init__(self, my_name: str, tracker: Tracker, host_socket=None):
         super().__init__()
 
         self._state: str = "PEERING"
@@ -44,15 +44,23 @@ class Client():
         self._is_selecting_seat = False
 
         # transport layer stuff
-        self._transportLayer = Transport(
-            self.tracker.get_ip_port(my_name)[1], tracker=self.tracker)
+        self._transportLayer = Transport(my_name,
+                                         self.tracker.get_ip_port(my_name)[1],
+                                         ThreadManager(),
+                                         tracker=self.tracker,
+                                         host_socket=host_socket)
+        self.is_peering_completed = False
 
     def _state(self):
         return self._state
 
     def start(self):
-        while not self.game_over:
-            self._next()
+        try:
+            while not self.game_over:
+                self.trigger_handler(self._state)
+        except KeyboardInterrupt:
+            print("Exiting game")
+            self._transportLayer.shutdown()
 
     def trigger_handler(self, state):
         if state == "PEERING":
@@ -77,49 +85,49 @@ class Client():
             self.end_game()
 
     def peering(self):
-        if self._transportLayer.all_connected():
-            self._state = "SYNCHRONIZE_CLOCK"
-        self._next()
+        if self._transportLayer.all_connected() and not self.is_peering_completed:
+            print("Connected to all peers")
+            print("Notifying ready to start")
+            self._transportLayer.sendall(PeeringCompleted(player=self._myself))
+            self.is_peering_completed = True
+            self._state = "INIT"
 
     def sync_clock(self):
         # logic to sync clocks here
         time.sleep(10)
         self._state = "INIT"
-        self._next()
 
     def init(self):
         # start counting down
         # do all the network stuff here
-        self._state("AWAIT_KEYPRESS")
-        self._next()
+        self._state = "AWAIT_KEYPRESS"
 
     def await_keypress(self):
-        # 1) Received local keypress
-        if self._my_keypress is None:
-            for k in ["Q", "W", "E", "R", "T", "Y"]:
-                keyboard.add_hotkey(k, lambda: self._insert_input(k))
-        else:
-            # 2) SelectingSeat
-            self._selecting_seats()
+        # # 1) Received local keypress
+        # if self._my_keypress is None:
+        #     for k in ["q", "w", "e", "r", "t", "y"]:
+        #         keyboard.add_hotkey(k, lambda: self._insert_input(k))
+        # else:
+        #     # 2) SelectingSeat
+        #     self._selecting_seats()
 
-        if self._is_selecting_seat:
-            thresh = (config.NUM_PLAYERS // 2)
-            if self._nak_count >= thresh:
-                # SelectingSeat failed
-                self._my_keypress = None
-                self._nak_count = 0
-                self._ack_count = 0
-                self._is_selecting_seat = False
+        # if self._is_selecting_seat:
+        #     thresh = (config.NUM_PLAYERS // 2)
+        #     if self._nak_count >= thresh:
+        #         # SelectingSeat failed
+        #         self._my_keypress = None
+        #         self._nak_count = 0
+        #         self._ack_count = 0
+        #         self._is_selecting_seat = False
 
-            if self._ack_count > thresh:
-                # SelectingSeat success
-                self._state("END_ROUND")
-                self._next()
-                return
+        #     if self._ack_count > thresh:
+        #         # SelectingSeat success
+        #         self._state("END_ROUND")
+        #         self._next()
+        #         return
 
         # 4) Check for others' keypress, let transport layer handler handle it
         self._checkTransportLayerForIncomingData()
-        self._next()
 
     def byzantine_send(self):
         # determine who has lost
@@ -216,20 +224,24 @@ class Client():
                 if self._is_selecting_seat:
                     self._ack_count += 1
 
+            elif pkt_json.get("payload_type") == "peering_completed":
+                print(
+                    f"Received peering completed from {pkt_json.get('player', {}).get('name')}")
+
     def _selecting_seats(self):
         self._is_selecting_seat = True
         for player in self._players().values():  # TODO: send in order using time clock
             self._send_seat(player)
 
     def _send_seat(self, player: Player):
-        pkt = Packet(Action(dict(seat=self._my_keypress), player))
+        pkt = Action(dict(seat=self._my_keypress), player)
         self._transportLayer.send(pkt, player.id)
 
     def _send_ack(self, player: Player):
-        self._transportLayer.send(Packet(Ack(self._myself)), player.id)
+        self._transportLayer.send(Ack(self._myself), player.id)
 
     def _send_nak(self, player: Player):
-        self._transportLayer.send(Packet(Nak(self._myself)), player.id)
+        self._transportLayer.send(Nak(self._myself), player.id)
 
     def _next(self):
         self._state = self.trigger_handler(self._state)
