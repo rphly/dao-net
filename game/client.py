@@ -108,11 +108,10 @@ class Client():
 
     def await_keypress(self):
         # # 1) Received local keypress
-        if self._my_keypress is None:
-            for k in self._round_inputs.keys():
-                keyboard.add_hotkey(k, lambda: self._insert_input(k))
-        else:
-            self._state = "END_ROUND"
+        # if self._my_keypress is None:
+        #     for k in self._round_inputs.keys():
+        #         keyboard.add_hotkey(k, lambda: self._insert_input(k))
+        # else:
         #     # 2) SelectingSeat
         #     self._selecting_seats()
 
@@ -165,6 +164,7 @@ class Client():
 
 
     def end_round(self):
+        # clear round inputs, reduce number of chairs
         d = self._round_inputs
         d = {value: None for value in d}
         d.popitem()
