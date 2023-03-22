@@ -57,7 +57,7 @@ class Packet:
         )
 
     def __str__(self):
-        return f"Packet: {str(self.data)}"
+        return f"Packet: {self.get_packet_type()}"
 
 
 class Ack(Packet):

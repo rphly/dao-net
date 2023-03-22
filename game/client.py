@@ -6,7 +6,7 @@ from game.transport.transport import Transport
 from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart
 import config
 import keyboard
-from time import time
+from time import time, sleep
 
 
 class Client():
@@ -32,6 +32,8 @@ class Client():
             17: None,
             16: None,
         }
+        self.hotkeys_added = False
+        self._round_started = False
         self._round_ready = {}
         self._round_ackstart = {}
 
@@ -57,6 +59,7 @@ class Client():
     def start(self):
         try:
             while not self.game_over:
+                sleep(0.5)  # slow down game loop
                 self.trigger_handler(self._state)
         except KeyboardInterrupt:
             print("Exiting game")
@@ -87,7 +90,7 @@ class Client():
     def peering(self):
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
-            print("Notifying peering completed")
+            print("Notify peers that peering is completed")
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
             self._state = "INIT"
@@ -101,40 +104,52 @@ class Client():
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
         self._transportLayer.sendall(ReadyToStart(self._myself))
-
-        if len(self._round_ready.keys()) == config.NUM_PLAYERS:
+        self._checkTransportLayerForIncomingData()
+        if len(self._round_ready.keys()) == config.NUM_PLAYERS-1:
             print("All players are ready to start.")
             print("Voting to start now...")
             self._transportLayer.sendall(AckStart(self._myself))
             self._state = "AWAIT_KEYPRESS"
 
     def await_keypress(self):
-        if len(self._round_ackstart.keys()) >= config.NUM_PLAYERS:
+        self._checkTransportLayerForIncomingData()
+        if not self._all_voted_to_start():
             # waiting for everyone to ackstart
             return
 
-        # 1) Received local keypress
-        if self._my_keypress is None:
-            for k in self._round_inputs.keys():
-                keyboard.add_hotkey(k, lambda: self._insert_input(k))
-        else:
-            # 2) SelectingSeat
-            self._selecting_seats()
+        if not self._round_started:
+            self._round_started = True
+            print("All have voted to start...")
+            print("Let's begin!")
+            print("Good luck and have fun!")
+            print("Grab a seat now!")
 
-        if self._is_selecting_seat:
-            thresh = (config.NUM_PLAYERS // 2)
-            if self._nak_count >= thresh:
-                # SelectingSeat failed
-                self._my_keypress = None
-                self._nak_count = 0
-                self._ack_count = 0
-                self._is_selecting_seat = False
+        if self._round_started:
+            # 1) Received local keypress
+            if self._my_keypress is None:
+                for k in self._round_inputs.keys():
+                    if not self.hotkeys_added:
+                        keyboard.add_hotkey(k, lambda: self._insert_input(k))
+                        self.hotkeys_added = True
+            else:
+                # 2) SelectingSeat
+                self._selecting_seats()
 
-            if self._ack_count > thresh:
-                # SelectingSeat success
-                self._state("END_ROUND")
-                self._next()
-                return
+            if self._is_selecting_seat:
+                thresh = (config.NUM_PLAYERS // 2)
+                if self._nak_count >= thresh:
+                    # SelectingSeat failed
+                    self._my_keypress = None
+                    self._nak_count = 0
+                    self._ack_count = 0
+                    self._is_selecting_seat = False
+                    self.hotkeys_added = False
+
+                if self._ack_count > thresh:
+                    # SelectingSeat success
+                    self._state("END_ROUND")
+                    self._next()
+                    return
 
         # 4) Check for others' keypress, let transport layer handler handle it
         self._checkTransportLayerForIncomingData()
@@ -146,6 +161,7 @@ class Client():
 
 
 ######### helper functions #########
+
 
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
@@ -171,14 +187,19 @@ class Client():
             elif pkt.get_packet_type() == "peering_completed":
                 print(
                     f"Received peering completed from {pkt.get_player().get_name()}")
+
             elif pkt.get_packet_type() == "ready_to_start":
                 player_name = pkt.get_player().get_name()
                 self._round_ready[player_name] = True
                 print(f"Received ready to start from {player_name}")
+
             elif pkt.get_packet_type() == "ack_start":
                 player_name = pkt.get_player().get_name()
                 self._round_ackstart[player_name] = True
                 print(f"Received vote to start from {player_name}")
+
+    def _all_voted_to_start(self):
+        return len(self._round_ackstart.keys()) >= config.NUM_PLAYERS-1
 
     def _selecting_seats(self):
         self._is_selecting_seat = True

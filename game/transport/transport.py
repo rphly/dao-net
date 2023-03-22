@@ -112,6 +112,7 @@ class Transport:
 
     def sendall(self, packet: Packet):
         for player_id in self._connection_pool:
+            print("Sending packet", packet, "to", player_id)
             self.send(packet, player_id)
 
     def receive(self) -> str:
