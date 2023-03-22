@@ -47,7 +47,7 @@ if __name__ == "__main__":
     if not is_player_mode:
         host_port = host_port or 9999
         print(f"Starting host mode on port {host_port}.")
-        socket, tracker = Lobby().start(ip="127.0.0.1",
+        socket, tracker = Lobby().start(ip=host_ip,
                                         host_port=host_port or 9999, player_name=player_name)
     else:
         print("Starting in player mode.")

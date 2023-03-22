@@ -5,13 +5,15 @@ import keyboard
 from game.thread_manager import ThreadManager
 import threading
 
+from config import NUM_PLAYERS
+
 
 class Lobby():
     def __init__(self):
         self.game_started = False
         self.lobby_host_exited = False
         self.chunksize = 1024
-        self.NUM_PLAYERS = 2  # grab from config
+        self.NUM_PLAYERS = NUM_PLAYERS
 
         self.lock = threading.Lock()
         self.game_start_lock = threading.Lock()
@@ -98,14 +100,14 @@ class Lobby():
 
     def handle_player(self, packet, connection):
         req = json.loads(packet)
-        payload_type = req.get("payload_type")
+        packet_type = req.get("packet_type")
 
-        if payload_type == "lobby_shutdown":
+        if packet_type == "lobby_shutdown":
             connection.close()
             self.lobby_host_exited = True
             return
 
-        if payload_type == "lobby_start":
+        if packet_type == "lobby_start":
             # game is starting, save tracker
             data = req.get("data")
             tracker = data.get("tracker")
@@ -122,17 +124,17 @@ class Lobby():
         req = json.loads(packet)
 
         # read packet
-        payload_type = req.get("payload_type")
+        packet_type = req.get("packet_type")
 
-        if (payload_type == "lobby_register"):
+        if (packet_type == "lobby_register"):
             data = req.get("data")
             self.lobby_register(data, connection)
-        elif (payload_type == "lobby_deregister"):
+        elif (packet_type == "lobby_deregister"):
             data = req.get("data")
             self.lobby_deregister(data, connection)
         else:
             self.send(self.nak("Unknown payload type: " +
-                      payload_type), connection)
+                      packet_type), connection)
 
     # state handlers
 
@@ -219,7 +221,7 @@ class Lobby():
                 players=self.tracker.get_players(),
                 tracker=self.tracker.get_tracker_list()
             ),
-            payload_type="lobby_start",
+            packet_type="lobby_start",
         )).encode('utf-8')
 
     def lobby_register_pkt(self):
@@ -229,7 +231,7 @@ class Lobby():
                 ip_address=self.player_ip,
                 port=self.player_port,
             ),
-            payload_type="lobby_register",
+            packet_type="lobby_register",
         )).encode('utf-8')
 
     def lobby_deregister_pkt(self):
@@ -239,7 +241,7 @@ class Lobby():
                 ip_address=self.player_ip,
                 port=self.player_port,
             ),
-            payload_type="lobby_deregister",
+            packet_type="lobby_deregister",
         )).encode('utf-8')
 
     def nak(self, error_msg="Error"):
@@ -247,7 +249,7 @@ class Lobby():
             data=dict(
                 message=error_msg
             ),
-            payload_type="lobby_nak",
+            packet_type="lobby_nak",
         )).encode('utf-8')
 
     def ack(self):
@@ -255,6 +257,6 @@ class Lobby():
             data=dict(
                 message="Success"
             ),
-            payload_type="lobby_ack",
+            packet_type="lobby_ack",
         )).encode('utf-8')
         

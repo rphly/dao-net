@@ -44,9 +44,17 @@ class Packet:
         return json.dumps(dict(
             data=self.data,
             player=self.player.dict(),
-            payload_type=self.packet_type,
+            packet_type=self.packet_type,
             created_at=self.createdAt
         ))
+
+    def from_json(d):
+        """Return a packet from a json representation."""
+        return Packet(
+            d["data"],
+            Player(d["player"].get("name")),
+            d["packet_type"]
+        )
 
     def __str__(self):
         return f"Packet: {str(self.data)}"
@@ -91,3 +99,31 @@ class updateLeader(Packet):
     """Update the leader of syncing."""
     def __init__(self, data: int, player: Player):
         super().__init__(data, player, "sync ack")
+
+class ReadyToStart(Packet):
+    """Ready to start game"""
+
+    def __init__(self, player: Player):
+        super().__init__(None, player, "ready_to_start")
+
+
+class AckStart(Packet):
+    """AckReady and Start"""
+
+    def __init__(self, player: Player):
+        super().__init__(None, player, "ack_start")
+
+
+# initial transport layer initiation
+class ConnectionRequest(Packet):
+    """Initial request to connect"""
+
+    def __init__(self, player: Player):
+        super().__init__(None, player, "connection_req")
+
+
+class ConnectionEstab(Packet):
+    """Connection has been established."""
+
+    def __init__(self, player: Player):
+        super().__init__(None, player, "connection_estab")
