@@ -1,3 +1,4 @@
+import json
 from game.models.player import Player
 from game.models.action import Action
 from game.lobby.tracker import Tracker
@@ -156,11 +157,12 @@ class Client():
 
     def byzantine_send(self):
         player_to_kick = None
-        for player in self._players.keys():
-            if player not in self._round_inputs.values():
-                player_to_kick = player
+        for playerid in self._players.keys():
+            if playerid not in self._round_inputs.values():
+                player_to_kick = playerid
 
-        self._send_vote(player_to_kick, player)
+        print(f"Sending vote to kick player: {self._players[playerid].get_name()}")
+        self._send_vote(player_to_kick, playerid)
 
         # my own vote
         self._votekick[player_to_kick] = 1
@@ -178,14 +180,23 @@ class Client():
                             value in self._votekick.items() if value == max_vote]
             # 1) if only one voted, remove from player_list
             if len(to_be_kicked) == 1:
+                print(f"Kicking player: {self._players[to_be_kicked].get_name()}")
                 self._players.pop(to_be_kicked[0])
             # 2) if tied, just go to next round
-            self._state = "END_ROUND"
+            else:
+                print("Vote tied; moving onto the next round with nobody kicked")
+                self._state = "END_ROUND"
         else:
             self._state = "BYZANTINE_RCV"
 
 
     def end_round(self):
+        # log all inputs
+        self._log(f"---- Round #{7 - len(self._round_inputs.keys())} Details ----")
+        self._log(f"My Keypress: {self._my_keypress}")
+        self._log(f"Round inputs: {self._round_inputs}")
+        self._log(f"Votekick: {self._votekick}")
+        
         # clear round inputs, reduce number of chairs
         d = self._round_inputs
         d = {value: None for value in d}
@@ -265,6 +276,7 @@ class Client():
 
     def _insert_input(self, keypress):
         self._my_keypress = keypress
+        self._log(f"Inserting keypress: {keypress}")
         keyboard.remove_all_hotkeys()
 
     def _receiving_seats(self, action: Action):
@@ -295,3 +307,9 @@ class Client():
 
     def _clear_round_data(self):
         ...
+
+    def _log(self, data:str):
+        timestamp = time.time()
+        f = open("game_logs.txt","w")
+        f.write(timestamp + data)
+        f.close()
