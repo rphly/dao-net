@@ -82,6 +82,11 @@ class SyncAck(Packet):
     def __init__(self, player: Player):
         super().__init__(None, player, "sync ack")
 
+class PeerSyncAck(Packet):
+    """Send peer their delay measurement."""
+    def __init__(self, data, player: Player):
+        super().__init__(data, player, "peer sync ack")
+
 class updateLeader(Packet):
     """Update the leader of syncing."""
     def __init__(self, data: int, player: Player):
