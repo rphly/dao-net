@@ -57,6 +57,7 @@ class Client():
         return self._state
 
     def start(self):
+        print("Game has started!")
         try:
             while not self.game_over:
                 self.trigger_handler(self._state)
@@ -139,6 +140,9 @@ class Client():
                 player_to_kick = player
 
         self._send_vote(player_to_kick, player)
+
+        # my own vote
+        self._votekick[player_to_kick] = 1
 
         self._state = "BYZANTINE_RCV"
 
