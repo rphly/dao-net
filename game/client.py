@@ -2,6 +2,7 @@ import json
 from game.models.player import Player
 from game.models.action import Action
 from game.lobby.tracker import Tracker
+from game.models.vote import Vote
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
 from game.transport.packet import Nak, Ack, PeeringCompleted
@@ -27,12 +28,12 @@ class Client():
         self.tracker = tracker
 
         self._round_inputs: dict[str, str] = {
-            "Q": None,
-            "W": None,
-            "E": None,
-            "R": None,
-            "T": None,
-            "Y": None,
+            "12": None,
+            "13": None,
+            "14": None,
+            "15": None,
+            "16": None,
+            "17": None,
         }
 
         self._current_chairs: int = config.NUM_CHAIRS
@@ -75,9 +76,6 @@ class Client():
         elif state == "AWAIT_KEYPRESS":
             self.await_keypress()
 
-        elif state == "PROC_OTHERS_KEYPRESS":
-            self.process_others_keypress()
-
         elif state == "END_ROUND":
             self.end_round
 
@@ -98,9 +96,12 @@ class Client():
         self._state = "INIT"
 
     def init(self):
-        # start counting down
-        # do all the network stuff here
-        self._state = "AWAIT_KEYPRESS"
+        print(f"Starting round")
+        print(f"Players left: {self._players}")
+        # reset votekick
+        self._votekick = dict.fromkeys(self._players, 0)
+
+
 
     def await_keypress(self):
         # # 1) Received local keypress
@@ -130,30 +131,18 @@ class Client():
         self._checkTransportLayerForIncomingData()
 
     def byzantine_send(self):
-        # determine who has lost
-        # send who to kick to everyone else
         player_to_kick = None
         for player in self._players.keys():
             if player not in self._round_inputs.values():
                 player_to_kick = player
 
-        for player in self._players.keys():
-            _send_vote(player_to_kick, player)
-
-        # init votekick dict
-        # should put at init/ start of round
-        self._votekick = self._players
-        self._votekick = dict.fromkeys(self._votekick, 0)
+        self._send_vote(player_to_kick, player)
 
         self._state = "BYZANTINE_RCV"
 
-        self._next()
 
     def byzantine_recv(self):
-        # wait till we receive everyone's vote
-        # remove the most voted player
-        if _rcv_vote(data):
-            self._votekick[data.player_to_kick] = self._votekick[data.player_to_kick] + 1
+        self._rcv_vote()
 
         # if num of votes == num of players
         if sum(self._votekick.values()) == len(self._players):
@@ -168,17 +157,13 @@ class Client():
                 self._players.pop(to_be_kicked[0])
 
             # 2) if tied, just go to next round
-            self._votekick = {}
             self._state = "END_ROUND"
 
         else:
             self._state = "BYZANTINE_RCV"
 
-        self._next()
 
     def end_round(self):
-
-        # clear all inputs, remove last chair
         d = self._round_inputs
         d = {value: None for value in d}
         d.popitem()
@@ -188,9 +173,7 @@ class Client():
         if len(self._round_inputs.keys() < 1):
             self._state = "END_GAME"
         else:
-            self._state = "AWAIT_INPUT"
-
-        self._next()
+            self._state = "INIT"
 
     def end_game(self):
         # terminate all connections
@@ -263,3 +246,22 @@ class Client():
                 self._send_ack(player)
                 return
         self._send_nak(player)
+
+    def _send_vote(self, voted_playerid: str, player:Player):
+        """Send everyone to agree on who has lost the round"""
+        packet = Vote(dict(voted=voted_playerid), player)
+        Transport.sendall(packet)
+
+    def _rcv_vote(self):
+        """Receive the votes to kick losing player"""
+        data = self._transportLayer.receive()
+        if data:
+            pkt_json = json.loads(data)
+
+            if pkt_json.get("payload_type") == "vote":
+                player_to_kick = pkt_json.get("data")
+                self._votekick[player_to_kick] = self._votekick[player_to_kick] + 1
+
+
+    def _clear_round_data(self):
+        ...

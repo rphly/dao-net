@@ -19,6 +19,7 @@ class Packet:
     - LobbySaveTracker
     - ss_nak
     - ss_ack
+    - vote
     """
 
     def __init__(self, data, player: Player, packet_type: str):
