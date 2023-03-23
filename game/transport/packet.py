@@ -20,6 +20,7 @@ class Packet:
     - ss_nak
     - ss_ack
     - vote
+    - sat_down
     """
 
     def __init__(self, data, player: Player, packet_type: str):
@@ -95,6 +96,12 @@ class AckStart(Packet):
     def __init__(self, player: Player):
         super().__init__(None, player, "ack_start")
 
+
+class SatDown(Packet):
+    """Player has sat down."""
+
+    def __init__(self, player: Player):
+        super().__init__(None, player, "sat_down")
 
 # initial transport layer initiation
 class ConnectionRequest(Packet):

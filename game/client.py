@@ -6,7 +6,7 @@ from game.lobby.tracker import Tracker
 from game.models.vote import Vote
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
-from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart
+from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart, SatDown
 import config
 import keyboard
 from time import time, sleep
@@ -44,6 +44,7 @@ class Client():
         self._round_started = False
         self._round_ready = {}
         self._round_ackstart = {}
+        self._sat_down_count = 0
 
         self._current_chairs: int = config.NUM_CHAIRS
         self._my_keypress = None
@@ -86,6 +87,15 @@ class Client():
 
         elif state == "AWAIT_KEYPRESS":
             self.await_keypress()
+
+        elif state == "AWAIT_ROUND_END":
+            self.await_round_end()
+
+        elif state == "BYZANTINE_SEND":
+            self.byzantine_send()
+
+        elif state == "BYZANTINE_RECV":
+            self.byzantine_recv()
 
         elif state == "END_ROUND":
             self.end_round()
@@ -165,64 +175,64 @@ class Client():
                         self._round_inputs[self._my_keypress] = self._myself.get_name(
                         )
                         self.lock.release()
-                        self._state = "END_ROUND"
+                        self._transportLayer.sendall(SatDown(Player(self._myself)))
+                        self._sat_down_count += 1
+                        self._state = "AWAIT_ROUND_END"
+                        return
 
         # 4) Check for others' keypress, let transport layer handler handle it
         self._checkTransportLayerForIncomingData()
 
-    def byzantine_send(self):
-        player_to_kick = None
-        for playerid in self._players.keys():
-            if playerid not in self._round_inputs.values():
-                player_to_kick = playerid
-
-        print(f"Sending vote to kick player: {self._players[playerid].get_name()}")
-        self._send_vote(player_to_kick, playerid)
-
-        # my own vote
-        self._votekick[player_to_kick] = 1
-
-        self._state = "BYZANTINE_RCV"
-
-
-    def byzantine_recv(self):
+    def await_round_end(self):
         self._checkTransportLayerForIncomingData()
+        if self._sat_down_count >= len(self._round_inputs.keys()):
+            # everyone is ready to vote
+            if not self._done_voting:
+                # choosing who to kick
+                player_to_kick = None
+                for playerid in self._players.keys():
+                    if playerid not in self._round_inputs.values():
+                        player_to_kick = playerid
 
-        if sum(self._votekick.values()) == len(self._players):
-            max_vote = max(self._votekick.values())
-            # in case there is a tie
-            to_be_kicked = [key for key,
-                            value in self._votekick.items() if value == max_vote]
-            # 1) if only one voted, remove from player_list
-            if len(to_be_kicked) == 1:
-                print(f"Kicking player: {self._players[to_be_kicked].get_name()}")
-                self._players.pop(to_be_kicked[0])
-            # 2) if tied, just go to next round
+                print(f"Sending vote to kick player: {self._players[playerid].get_name()}")
+                packet = Vote(dict(voted=player_to_kick), Player(self._myself))
+                self._transportLayer.sendall(packet)
+                # my own vote
+                self._votekick[player_to_kick] = 1
+                self._done_voting = True
+
+            # tallying votes
             else:
-                print("Vote tied; moving onto the next round with nobody kicked")
-                self._state = "END_ROUND"
-        else:
-            self._state = "BYZANTINE_RCV"
+                print("waiting for votes")
+                if sum(self._votekick.values()) == len(self._players):
+                    print("all votes in")
+                    max_vote = max(self._votekick.values())
+                    # in case there is a tie
+                    to_be_kicked = [key for key,
+                                    value in self._votekick.items() if value == max_vote]
+                    # 1) if only one voted, remove from player_list
+                    if len(to_be_kicked) == 1:
+                        print(f"Kicking player: {self._players[to_be_kicked].get_name()}")
+                        self._players.pop(to_be_kicked[0])
+                    # 2) if tied, just go to next round
+                    else:
+                        print("Vote tied; moving onto the next round with nobody kicked")
+                        self._state = "END_ROUND"
+                        return
 
 
     def end_round(self):
-        # log all inputs
-        self._log(f"---- Round #{7 - len(self._round_inputs.keys())} Details ----")
-        self._log(f"My Keypress: {self._my_keypress}")
-        self._log(f"Round inputs: {self._round_inputs}")
-        self._log(f"Votekick: {self._votekick}")
+        # clear all variables
+
         
-        # clear round inputs, reduce number of chairs
-        d = self._round_inputs
-        d = {value: None for value in d}
-        d.popitem()
-        self._round_inputs = d
+
 
         # if no chairs left, end the game, else reset
-        if len(self._round_inputs.keys() < 1):
+        if len(self._round_inputs.keys()) < 1:
             self._state = "END_GAME"
         else:
-            self._state = "INIT"
+            # must wait for everyone to signal end round before moving on to next round
+            self._state = "AWAIT_KEYPRESS"
 
     def end_game(self):
         # terminate all connectionsidk
@@ -275,9 +285,14 @@ class Client():
                 self._nak_count += 1
                 print(f"Received nak to sit from {player_name}")
 
+            elif pkt.get_packet_type() == "sat_down":
+                player_name = pkt.get_player().get_name()
+                self._sat_down_count += 1
+                print(f"Received {player_name} has sat down")
+
             elif pkt.get_packet_type() == "vote":
                 player_to_kick = pkt.get_data("data")
-                self._votekick[player_to_kick] = self._votekick[player_to_kick] + 1
+                self._votekick[player_to_kick] += 1
 
     def _all_voted_to_start(self):
         return len(self._round_ackstart.keys()) >= len(self._round_inputs)-1
@@ -300,7 +315,6 @@ class Client():
     def _insert_input(self, keypress):
         print(keypress)
         self._my_keypress = keypress
-        self._log(f"Inserting keypress: {keypress}")
         keyboard.remove_all_hotkeys()
 
     def _receiving_seats(self, action: Packet):
@@ -320,17 +334,28 @@ class Client():
             print(self._round_inputs)
             return
 
-    def _send_vote(self, voted_playerid: str, player:Player):
-        """Send everyone to agree on who has lost the round"""
-        packet = Vote(dict(voted=voted_playerid), player)
-        Transport.sendall(packet)
+
+    def _reset_round(self):
+        # init
+        self._round_ready = {}
+        self._round_ackstart = {}
+        self._round_started = False
+        
+        # reset round inputs, num chairs - 1
+        d = self._round_inputs
+        d = {value: None for value in d}
+        d.popitem()
+        self._round_inputs = d
+
+        #
+        self._my_keypress = None
+        self._nak_count = 0
+        self._ack_count = 0
+        self._is_selecting_seat = False
+        self.hotkeys_added = False
+
+        self._sat_down_count = 0
+        self._votekick = {}
 
 
-    def _clear_round_data(self):
-        ...
-
-    def _log(self, data:str):
-        timestamp = time.time()
-        f = open("game_logs.txt","w")
-        f.write(timestamp + data)
-        f.close()
+    
