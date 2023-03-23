@@ -9,7 +9,7 @@ import config
 import keyboard
 from time import time, sleep
 
-## Modify client.py to handle the FSM diagram
+
 class Client():
     """
     Game FSM
@@ -68,7 +68,7 @@ class Client():
         if state == "PEERING":
             self.peering()
 
-        if state == "":
+        if state == "SYNCHRONIZE_CLOCK":
             self.sync_clock()
 
         if state == "INIT":
@@ -95,8 +95,13 @@ class Client():
             self._state = "INIT"
 
     def sync_clock(self):
-        # logic to sync clocks here
-        time.sleep(10)
+        while self._sync.leader_idx != len(self._sync.leader_list)-1:
+            self._sync.sync_state_checker() # Control Flow Moves to Check_Leader Function
+
+
+        #If the condition is met
+        self._sync.leader_idx = 0
+        # If self.leader_idx == len(self.leader_list)-1 you move into Game Play
         self._state = "INIT"
 
     def init(self):
