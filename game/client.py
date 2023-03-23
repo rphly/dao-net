@@ -21,8 +21,6 @@ class Client():
         super().__init__()
 
         self._state: str = "PEERING"
-        self._players: dict[str, Player] = {}
-        self._votekick: dict[str, int] = {}
         self._myself = Player(name=my_name)
         self.game_over = False
         self.tracker = tracker
@@ -30,6 +28,8 @@ class Client():
 
         self.lock = threading.Lock()
 
+        self._players: dict[str, Player] = {self._myself.get_name(): self._myself}
+        self._votekick: dict[str, int] = {}
         self._round_inputs: dict[int, str] = {
             # Q W E R T Y = 12, 13, 14, 15, 17, 16
             12: None,
@@ -126,6 +126,7 @@ class Client():
             print("All players are ready to start.")
             print("Voting to start now...")
             self._transportLayer.sendall(AckStart(self._myself))
+            # self._round_inputs = { k:None for k in range(12, 12 + len(self._players) -1) }
             self._state = "AWAIT_KEYPRESS"
 
     def await_keypress(self):
@@ -136,9 +137,11 @@ class Client():
 
         if not self._round_started:
             self._round_started = True
-            print("All have voted to start...")
-            print("Let's begin!")
-            print("Good luck and have fun!")
+            # print("All have voted to start...")
+            # print("Let's begin!")
+            # print("Good luck and have fun!")
+            print(f"\n---- Available seats: {self._round_inputs} ----")
+            print(f"Current players: {self._players}")
             print("Grab a seat now!")
 
         if self._round_started:
@@ -180,56 +183,75 @@ class Client():
                         self._sat_down_count += 1
                         self._state = "AWAIT_ROUND_END"
                         return
+                    
+            # if everyone else has sat down, move onto next state
+            elif self._sat_down_count >= len(self._round_inputs.keys()):
+                self._state = "AWAIT_ROUND_END"
 
         # 4) Check for others' keypress, let transport layer handler handle it
-        self._checkTransportLayerForIncomingData()
+        # self._checkTransportLayerForIncomingData()
 
     def await_round_end(self):
+        print("Waiting for all votes to come in...")
         self._checkTransportLayerForIncomingData()
         if self._sat_down_count >= len(self._round_inputs.keys()):
             # everyone is ready to vote
             if not self._done_voting:
+                print(f"preparing to vote, current inputs: {self._round_inputs}")
+                print(f"preparing to vote, current players: {self._players}")
                 # choosing who to kick
                 player_to_kick = None
                 for playerid in self._players.keys():
                     if playerid not in self._round_inputs.values():
                         player_to_kick = playerid
                         print(f"Sending vote to kick player: {self._players[playerid].get_name()}")
-                        packet = Vote(dict(voted=player_to_kick), Player(self._myself))
+                        packet = Vote(player_to_kick, self._myself)
                         self._transportLayer.sendall(packet)
                         # my own vote
+                        # TODO: might need to change; player might be assigning vote after it has received votes
                         self._votekick[player_to_kick] = 1
                         break # break after the first player to kick
                 self._done_voting = True
 
+                if player_to_kick == None:
+                    print("Cannot find player to kick, moving to next round")
+                    self._state = "END_ROUND"
+                    return
+
+
             # tallying votes
             else:
-                print("waiting for votes")
+                print(f"i have voted. Waiting for votes: {self._votekick}")
                 if sum(self._votekick.values()) == len(self._players):
                     print("all votes in")
                     max_vote = max(self._votekick.values())
+                    print(f"votekick dict: {self._votekick}")
                     # in case there is a tie
                     to_be_kicked = [key for key,
                                     value in self._votekick.items() if value == max_vote]
+                    
+                    print(f"tobekicked = {to_be_kicked}")
                     # 1) if only one voted, remove from player_list
                     if len(to_be_kicked) == 1:
-                        print(f"Kicking player: {self._players[to_be_kicked].get_name()}")
+                        print(f"Kicking player: {to_be_kicked[0]}")
                         self._players.pop(to_be_kicked[0])
-                    # 2) if tied, just go to next round
+
                     else:
                         print("Vote tied; moving onto the next round with nobody kicked")
-                        self._state = "END_ROUND"
-                        return
+
+                    self._state = "END_ROUND"
+
 
 
     def end_round(self):
         # clear all variables
-
-        
-
+        print(f"---- Round has ended. Players left: {self._players.keys()} ----")
+        sleep(5)
+        self._reset_round()
 
         # if no chairs left, end the game, else reset
         if len(self._round_inputs.keys()) < 1:
+            print("No more seats left, ending game!")
             self._state = "END_GAME"
         else:
             # must wait for everyone to signal end round before moving on to next round
@@ -293,8 +315,14 @@ class Client():
                 print(f"Received {player_name} has sat down")
 
             elif pkt.get_packet_type() == "vote":
-                player_to_kick = pkt.get_data("data")
-                self._votekick[player_to_kick] += 1
+                player_to_kick = pkt.get_data()
+                print(f"receiving data: {player_to_kick}")
+                if player_to_kick in self._votekick:
+                    self._votekick[player_to_kick] += 1
+                else: 
+                    self._votekick[player_to_kick] = 1
+
+                print(f"Updated votekick table: {self._votekick}")
 
     def _all_voted_to_start(self):
         return len(self._round_ackstart.keys()) >= len(self._round_inputs)-1
@@ -338,12 +366,15 @@ class Client():
 
 
     def _reset_round(self):
+        #TODO: SAVE TO LOGS
+        print("Clearing round data...")
         # init
         self._round_ready = {}
         self._round_ackstart = {}
         self._round_started = False
         
         # reset round inputs, num chairs - 1
+        print("Reducing number of chairs...")
         d = self._round_inputs
         d = {value: None for value in d}
         d.popitem()
@@ -359,6 +390,5 @@ class Client():
         self._sat_down_count = 0
         self._votekick = {}
         self._done_voting = False
-
 
     
