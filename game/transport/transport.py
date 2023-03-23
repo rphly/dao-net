@@ -11,7 +11,10 @@ import threading
 
 import time
 
-
+"""
+Transport is responsible for sending and receiving data from other players.
+It is also responsible for maintaining a connection pool of all players. 
+"""
 class Transport:
 
     def __init__(self, myself, port, thread_manager, tracker: Tracker, host_socket: socket.socket = None):
