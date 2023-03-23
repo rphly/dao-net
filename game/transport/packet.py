@@ -57,7 +57,7 @@ class Packet:
         )
 
     def __str__(self):
-        return f"Packet: {self.get_packet_type()}"
+        return f"Packet: {str(self.data)}"
 
 
 class Ack(Packet):
@@ -79,31 +79,31 @@ class PeeringCompleted(Packet):
 
     def __init__(self, player: Player):
         super().__init__(None, player, "peering_completed")
-
+# Timer Packets
 class SyncReq(Packet):
-    """Send a Sync packet."""
+    """Send a Sync packet"""
 
     def __init__(self, player: Player):
-        super().__init__(None, player, "sync req")
+        super().__init__(None, player, "sync_req")
 
 class SyncAck(Packet):
     """Send a Sync packet."""
 
     def __init__(self, player: Player):
-        super().__init__(None, player, "sync ack")
+        super().__init__(None, player, "sync_ack")
 
 class PeerSyncAck(Packet):
     """Send peer their delay measurement."""
 
     def __init__(self, data, player: Player):
-        super().__init__(data, player, "peer sync ack")
+        super().__init__(data, player, "peer_sync_ack")
 
 class UpdateLeader(Packet):
     """Update the leader of syncing."""
 
     def __init__(self, data: int, player: Player):
-        super().__init__(data, player, "sync ack")
-
+        super().__init__(data, player, "update_leader")
+# End of Timer Packets
 class ReadyToStart(Packet):
     """Ready to start game"""
 
