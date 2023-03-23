@@ -2,6 +2,7 @@ import functools
 import time
 import socket
 import json
+from random import randrange
 
 from game.models.player import Player
 from game.lobby.tracker import Tracker
@@ -89,7 +90,7 @@ class Sync:
                 if pkt:
                     data_dict = json.loads(pkt)
                     if data_dict["player"]["id"] == self.leader:
-                        delay = int(rcv_time) - data_dict["created_at"]
+                        delay = (float(rcv_time) + self.add_delay(rcv_time)) - data_dict["created_at"]
                         sync_ack_pkt = SyncAck(delay, self._myself)
                         self._transport_layer.send(sync_ack_pkt, self.leader)
         return
@@ -97,7 +98,6 @@ class Sync:
 
     def peer_sync_ack(self):
         pkt: Packet = self._transportLayer.receive()
-
         if pkt:
             if pkt.get_packet_type() == "peer_sync_ack":
                 if pkt:
@@ -112,12 +112,5 @@ class Sync:
         return
 
     #TODO @Fauzaan
-    def add_delay(delay=0):
-        def wr(fn):
-            @functools.wraps(fn)
-            def w(*args, **kwargs):
-                print("adding delay to function")
-                time.sleep(delay)
-                return fn(*args, **kwargs)
-            return w
-        return wr
+    def add_delay(rcv_time: float):
+        return rcv_time + 0.1 * randrange(1, 9)
