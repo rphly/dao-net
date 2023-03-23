@@ -28,16 +28,7 @@ class Client():
 
         self._round_inputs: dict[int, str] = {
             # Q W E R T Y = 12, 13, 14, 15, 17, 16
-<<<<<<< Updated upstream
-            12: None,
-            13: None,
-            # 14: None,
-            # 15: None,
-            # 17: None,
-            # 16: None,
-=======
             i: None for i in range(12, 18)
->>>>>>> Stashed changes
         }
 
         self.hotkeys_added = False
