@@ -186,7 +186,7 @@ class Client():
 
 
     def byzantine_recv(self):
-        self._rcv_vote()
+        self._checkTransportLayerForIncomingData()
 
         if sum(self._votekick.values()) == len(self._players):
             max_vote = max(self._votekick.values())
@@ -275,6 +275,10 @@ class Client():
                 self._nak_count += 1
                 print(f"Received nak to sit from {player_name}")
 
+            elif pkt.get_packet_type() == "vote":
+                player_to_kick = pkt.get_data("data")
+                self._votekick[player_to_kick] = self._votekick[player_to_kick] + 1
+
     def _all_voted_to_start(self):
         return len(self._round_ackstart.keys()) >= len(self._round_inputs)-1
 
@@ -320,16 +324,6 @@ class Client():
         """Send everyone to agree on who has lost the round"""
         packet = Vote(dict(voted=voted_playerid), player)
         Transport.sendall(packet)
-
-    def _rcv_vote(self):
-        """Receive the votes to kick losing player"""
-        data = self._transportLayer.receive()
-        if data:
-            pkt_json = json.loads(data)
-
-            if pkt_json.get("payload_type") == "vote":
-                player_to_kick = pkt_json.get("data")
-                self._votekick[player_to_kick] = self._votekick[player_to_kick] + 1
 
 
     def _clear_round_data(self):
