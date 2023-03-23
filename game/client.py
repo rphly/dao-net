@@ -53,6 +53,7 @@ class Client():
         self._nak_count = 0
         self._ack_count = 0
         self._is_selecting_seat = False
+        self._done_voting = False
 
         # transport layer stuff
         self._transportLayer = Transport(my_name,
@@ -175,7 +176,7 @@ class Client():
                         self._round_inputs[self._my_keypress] = self._myself.get_name(
                         )
                         self.lock.release()
-                        self._transportLayer.sendall(SatDown(Player(self._myself)))
+                        self._transportLayer.sendall(SatDown(self._myself))
                         self._sat_down_count += 1
                         self._state = "AWAIT_ROUND_END"
                         return
@@ -193,12 +194,12 @@ class Client():
                 for playerid in self._players.keys():
                     if playerid not in self._round_inputs.values():
                         player_to_kick = playerid
-
-                print(f"Sending vote to kick player: {self._players[playerid].get_name()}")
-                packet = Vote(dict(voted=player_to_kick), Player(self._myself))
-                self._transportLayer.sendall(packet)
-                # my own vote
-                self._votekick[player_to_kick] = 1
+                        print(f"Sending vote to kick player: {self._players[playerid].get_name()}")
+                        packet = Vote(dict(voted=player_to_kick), Player(self._myself))
+                        self._transportLayer.sendall(packet)
+                        # my own vote
+                        self._votekick[player_to_kick] = 1
+                        break # break after the first player to kick
                 self._done_voting = True
 
             # tallying votes
@@ -268,6 +269,7 @@ class Client():
             elif pkt.get_packet_type() == "ready_to_start":
                 player_name = pkt.get_player().get_name()
                 self._round_ready[player_name] = True
+                self._players[player_name] = Player(player_name)
                 print(f"Received ready to start from {player_name}")
 
             elif pkt.get_packet_type() == "ack_start":
@@ -356,6 +358,7 @@ class Client():
 
         self._sat_down_count = 0
         self._votekick = {}
+        self._done_voting = False
 
 
     
