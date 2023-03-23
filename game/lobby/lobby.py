@@ -7,7 +7,10 @@ import threading
 
 from config import NUM_PLAYERS
 
-
+"""
+Lobby state helps initialize connections and shift to game state once max number 
+of players have been reached.
+"""
 class Lobby():
     def __init__(self):
         self.game_started = False
@@ -99,6 +102,9 @@ class Lobby():
     # handler triggers
 
     def handle_player(self, packet, connection):
+        """
+        Handle incoming packets from players
+        """
         req = json.loads(packet)
         packet_type = req.get("packet_type")
 

@@ -11,9 +11,10 @@ import threading
 
 import time
 
-
-#TODO
-## Modify receive function in transport.py to handle "I'm done" packet and "timer" packet.
+"""
+Transport is responsible for sending and receiving data from other players.
+It is also responsible for maintaining a connection pool of all players.
+"""
 class Transport:
 
     def __init__(self, myself, port, thread_manager, tracker: Tracker, host_socket: socket.socket = None):
@@ -47,7 +48,7 @@ class Transport:
 
     def accept_connections(self):
         """
-        Accept all incoming connections 
+        Accept all incoming connections
         """
         while True:
             try:
@@ -114,6 +115,7 @@ class Transport:
 
     def sendall(self, packet: Packet):
         for player_id in self._connection_pool:
+            print("Sending packet", packet, "to", player_id)
             self.send(packet, player_id)
 
     def receive(self) -> str:
