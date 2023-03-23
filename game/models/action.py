@@ -7,4 +7,4 @@ class Action(Packet):
         super().__init__(data, player, "action")
 
     def __str__(self):
-        return f"Action: {self.__class__.__name__}"
+        return f"Action: {super().get_packet_type()}"
