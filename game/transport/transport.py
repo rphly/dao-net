@@ -90,25 +90,23 @@ class Transport:
 
     def send(self, packet: Packet, player_id):
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
-        # try:
-        #     print("old")
-        #     conn = self._connection_pool[player_id]
-        #     conn.sendall(padded)
-        # except (BrokenPipeError, OSError):
-        #     print("new")
-        #     ip, port = self.tracker.get_ip_port(
-        #         player_id)
-        #     conn = socket.socket(
-        #         socket.AF_INET, socket.SOCK_STREAM)
-        #     conn.connect((ip, port))
-        #     conn.sendall(padded)
-        #     self._connection_pool[player_id] = conn
-        ip, port = self.tracker.get_ip_port(
-            player_id)
-        conn = socket.socket(
-            socket.AF_INET, socket.SOCK_STREAM)
-        conn.connect((ip, port))
-        conn.sendall(padded)
+        try:
+            conn = self._connection_pool[player_id]
+            conn.sendall(padded)
+        except (BrokenPipeError, OSError):
+            ip, port = self.tracker.get_ip_port(
+                player_id)
+            conn = socket.socket(
+                socket.AF_INET, socket.SOCK_STREAM)
+            conn.connect((ip, port))
+            conn.sendall(padded)
+            self._connection_pool[player_id] = conn
+        # ip, port = self.tracker.get_ip_port(
+        #     player_id)
+        # conn = socket.socket(
+        #     socket.AF_INET, socket.SOCK_STREAM)
+        # conn.connect((ip, port))
+        # conn.sendall(padded)
 
     def sendall(self, packet: Packet):
         for player_id in self._connection_pool:
