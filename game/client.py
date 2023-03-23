@@ -1,3 +1,4 @@
+import threading
 from game.models.player import Player
 from game.models.action import Action
 from game.lobby.tracker import Tracker
@@ -18,20 +19,23 @@ class Client():
         super().__init__()
 
         self._state: str = "PEERING"
-        self._players: dict[str, Player] = {}
         self._myself = Player(name=my_name)
         self.game_over = False
         self.tracker = tracker
+        self.host_socket = host_socket  # for testing only
+
+        self.lock = threading.Lock()
 
         self._round_inputs: dict[int, str] = {
             # Q W E R T Y = 12, 13, 14, 15, 17, 16
             12: None,
             13: None,
-            14: None,
-            15: None,
-            17: None,
-            16: None,
+            # 14: None,
+            # 15: None,
+            # 17: None,
+            # 16: None,
         }
+
         self.hotkeys_added = False
         self._round_started = False
         self._round_ready = {}
@@ -59,7 +63,7 @@ class Client():
     def start(self):
         try:
             while not self.game_over:
-                sleep(0.5)  # slow down game loop
+                sleep(0.2)  # slow down game loop
                 self.trigger_handler(self._state)
         except KeyboardInterrupt:
             print("Exiting game")
@@ -82,7 +86,7 @@ class Client():
             self.process_others_keypress()
 
         elif state == "END_ROUND":
-            self.end_round
+            self.end_round()
 
         elif state == "END_GAME":
             self.end_game()
@@ -105,7 +109,7 @@ class Client():
         # everybody sends ok start to everyone else
         self._transportLayer.sendall(ReadyToStart(self._myself))
         self._checkTransportLayerForIncomingData()
-        if len(self._round_ready.keys()) == config.NUM_PLAYERS-1:
+        if len(self._round_ready.keys()) == len(self._round_inputs) - 1:
             print("All players are ready to start.")
             print("Voting to start now...")
             self._transportLayer.sendall(AckStart(self._myself))
@@ -127,32 +131,49 @@ class Client():
         if self._round_started:
             # 1) Received local keypress
             if self._my_keypress is None:
-                for k in self._round_inputs.keys():
-                    if not self.hotkeys_added:
-                        keyboard.add_hotkey(k, lambda: self._insert_input(k))
+                if not self.hotkeys_added:
+                    for k in self._round_inputs.keys():
+                        ## FOR TESTING ONLY ##
+                        # host takes Q and client takes W
+                        if not self.host_socket and k == 12:
+                            continue
+                        if self.host_socket and k == 13:
+                            continue
+                        keyboard.add_hotkey(
+                            k, self._insert_input, args=(k,))
                         self.hotkeys_added = True
-            else:
-                # 2) SelectingSeat
+
+            elif not self._is_selecting_seat:
+                # first time we've received a keypress, and have yet to enter selecting seat
                 self._selecting_seats()
 
             if self._is_selecting_seat:
-                thresh = (config.NUM_PLAYERS // 2)
-                if self._nak_count >= thresh:
-                    # SelectingSeat failed
-                    self._my_keypress = None
-                    self._nak_count = 0
-                    self._ack_count = 0
-                    self._is_selecting_seat = False
-                    self.hotkeys_added = False
-
-                if self._ack_count > thresh:
-                    # SelectingSeat success
-                    self._state("END_ROUND")
-                    self._next()
-                    return
+                thresh = 1  # (len(self._round_inputs)) // 2
+                if (self._nak_count + self._ack_count) == len(self._round_inputs)-1:
+                    if self._nak_count >= thresh:
+                        # SelectingSeat failed
+                        self._my_keypress = None
+                        self._nak_count = 0
+                        self._ack_count = 0
+                        self._is_selecting_seat = False
+                        self.hotkeys_added = False
+                    else:
+                        # SelectingSeat success
+                        self.lock.acquire()
+                        self._round_inputs[self._my_keypress] = self._myself.get_name(
+                        )
+                        self.lock.release()
+                        self._state = "END_ROUND"
 
         # 4) Check for others' keypress, let transport layer handler handle it
         self._checkTransportLayerForIncomingData()
+
+    def end_round(self):
+        self._checkTransportLayerForIncomingData()
+        if all(self._round_inputs.values()) and self._round_started:
+            self._round_started = False
+            print(f"Results: {self._round_inputs}")
+            exit()
 
     def end_game(self):
         # terminate all connectionsidk
@@ -162,7 +183,6 @@ class Client():
 
 ######### helper functions #########
 
-
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         pkt: Packet = self._transportLayer.receive()
@@ -170,9 +190,7 @@ class Client():
         if pkt:
             if pkt.get_packet_type() == "action":
                 # keypress
-                p = Player(pkt.get_player().get_name())
-                action = Action(pkt.get_data(), p)
-                self._receiving_seats(action)
+                self._receiving_seats(pkt)
 
             elif pkt.get_packet_type() == "ss_nak":
                 # drop the nak/ack if we've moved on
@@ -198,8 +216,18 @@ class Client():
                 self._round_ackstart[player_name] = True
                 print(f"Received vote to start from {player_name}")
 
+            elif pkt.get_packet_type() == "ack":
+                player_name = pkt.get_player().get_name()
+                self._ack_count += 1
+                print(f"Received ack to sit from {player_name}")
+
+            elif pkt.get_packet_type() == "nak":
+                player_name = pkt.get_player().get_name()
+                self._nak_count += 1
+                print(f"Received nak to sit from {player_name}")
+
     def _all_voted_to_start(self):
-        return len(self._round_ackstart.keys()) >= config.NUM_PLAYERS-1
+        return len(self._round_ackstart.keys()) >= len(self._round_inputs)-1
 
     def _selecting_seats(self):
         self._is_selecting_seat = True
@@ -216,19 +244,24 @@ class Client():
         self._state = self.trigger_handler(self._state)
         return self._state
 
-    def _register(self, player: Player):
-        self._players[player.id] = player
-
     def _insert_input(self, keypress):
+        print(keypress)
         self._my_keypress = keypress
         keyboard.remove_all_hotkeys()
 
-    def _receiving_seats(self, action: Action):
+    def _receiving_seats(self, action: Packet):
         seat = action.get_data().get("seat")
         player = action.get_player()
         if seat:
-            if self._round_inputs[seat] is None:
-                self._round_inputs[seat] = player
-                self._send_ack(player)
+            print(f"Received seat: {seat} from {player}")
+            self.lock.acquire()
+            if self._round_inputs[seat] is not None:
+                print(4)
+                self._send_nak(player)
+                self.lock.release()
                 return
-        self._send_nak(player)
+            self._round_inputs[seat] = player.get_name()
+            self._send_ack(player)
+            self.lock.release()
+            print(self._round_inputs)
+            return
