@@ -18,8 +18,9 @@ It is also responsible for maintaining a connection pool of all players.
 """
 class Transport:
 
-    def __init__(self, myself, port, thread_manager, tracker: Tracker, host_socket: socket.socket = None):
+    def __init__(self, myself: str, port, thread_manager, tracker: Tracker, host_socket: socket.socket = None):
         self.myself = myself
+        self.my_player = Player(name=self.myself)
         self.thread_mgr = thread_manager
         self.queue = Queue()
         self.chunksize = 1024
@@ -147,54 +148,9 @@ class Transport:
         else:
             self.queue.put(data)
 
-    def handle_sync(self, data):
-        pkt: Packet = data.decode('utf-8').rstrip("\0")
-        packet_type = pkt.get_packet_type()
-        if packet_type == "sync_req":
-            rcv_time = time.time()
-            leader_id = pkt.get_player()
-            delay_from_leader = self.sync.add_delay(float(rcv_time)) - float(pkt.createdAt())
-            
-            sync_ack_pkt = SyncAck(delay_from_leader, self.myself)
-            self.send(packet=sync_ack_pkt, player_id=leader_id)
+    
 
-        elif packet_type == "sync_ack":
-            rcv_time = time.time()
-            self.sync.update_delay_dict(pkt)
-
-            peer_id = pkt.get_player()
-            delay_from_peer = self.sync.add_delay(float(rcv_time)) - float(pkt.createdAt())
-
-            peer_sync_ack_pkt = PeerSyncAck(delay_from_peer, self.myself)
-            self.send(packet=peer_sync_ack_pkt, player_id=peer_id)
-
-            if len(self._delay_dict) == len(self.leader_list):
-                # send update leader
-                if self.sync.leader_idx + 1 == len(self.sync.leader_list) - 1:
-                    self.sync.leader_idx = 0
-                    # set sync state to true, indicating syncing complete
-                    self.sync_state = True
-                    
-
-        elif packet_type == "peer_sync_ack":
-            self.sync.update_delay_dict(pkt)
-
-        elif packet_type == "update_leader":
-            if self.sync.leader_idx + 1 != len(self.sync.leader_list) - 1:
-                self.sync.leader_idx += 1
-            else:
-                self.sync.leader_idx = 0
-        else:
-            self.queue.put(data)
-
-    def syncing(self):
-        player_type = self.sync.sync_state_checker()
-        if player_type == "leader":
-            sync_req_pkt = SyncReq(self._myself)
-            self.sendall(sync_req_pkt)
-        if self.sync_state:
-            return True
-        return False
+    
 
     def handle_connection_request(self, data, connection):
         player: Player = Player(data["player"]["name"])
@@ -237,6 +193,59 @@ class Transport:
                     self.queue.put(data)
             except:
                 break
+
+    # Sync class functions
+    def syncing(self):
+        player_type = self.sync.sync_state_checker()
+        if player_type == "leader":
+            sync_req_pkt = SyncReq(self.my_player)
+            self.sendall(sync_req_pkt)
+        if self.sync_state:
+            return True
+        return False
+    
+    def handle_sync(self, data):
+        pkt: Packet = data.decode('utf-8').rstrip("\0")
+        packet_type = pkt.get_packet_type()
+        if packet_type == "sync_req":
+            rcv_time = time.time()
+            leader_id = pkt.get_player()
+            delay_from_leader = self.sync.add_delay(float(rcv_time)) - float(pkt.createdAt())
+            
+            sync_ack_pkt = SyncAck(delay_from_leader, self.my_player)
+            self.send(packet=sync_ack_pkt, player_id=leader_id)
+
+        elif packet_type == "sync_ack":
+            rcv_time = time.time()
+            self.sync.update_delay_dict(pkt)
+
+            peer_id = pkt.get_player()
+            delay_from_peer = self.sync.add_delay(float(rcv_time)) - float(pkt.createdAt())
+
+            peer_sync_ack_pkt = PeerSyncAck(delay_from_peer, self.my_player)
+            self.send(packet=peer_sync_ack_pkt, player_id=peer_id)
+
+            if len(self._delay_dict) == len(self.leader_list):
+                # send update leader
+                update_leader_pkt = UpdateLeader(None, self.my_player)
+                self.sendall(update_leader_pkt)
+                if self.sync.leader_idx + 1 == len(self.sync.leader_list) - 1:
+                    self.sync.leader_idx = 0
+                    # set sync state to true, indicating syncing complete
+                    self.sync_state = True
+                    
+
+        elif packet_type == "peer_sync_ack":
+            self.sync.update_delay_dict(pkt)
+
+        elif packet_type == "update_leader":
+            if self.sync.leader_idx + 1 != len(self.sync.leader_list) - 1:
+                self.sync.leader_idx += 1
+            else:
+                self.sync.leader_idx = 0
+        else:
+            self.queue.put(data)
+
 
     def shutdown(self):
         self.thread_mgr.shutdown()

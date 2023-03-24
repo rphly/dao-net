@@ -12,32 +12,19 @@ class Sync:
     """
     Synchronizes game actions.
     """
-    def __init__(self, myself: Player, tracker: Tracker, ):
+    def __init__(self, myself: str, tracker: Tracker, ):
         print("Sync Initiated")
-        self._myself = myself
-        self._player_id = self._myself.get_name()
-
+        self.myself = myself
         self._delay_dict = {}
 
         self.leader_idx = 0
         self.leader_list = tracker.get_leader_list()
         self.leader = self.leader_list[self.leader_idx] 
 
-
-    def receive_update_leader(self):
-        """
-        @Receiver_function
-        Updates leader index by one
-        """
-        pkt: Packet = self._transport_layer.receive()
-
-        if pkt:
-            if pkt.get_packet_type() == "update_leader":
-                self.leader_idx += 1
-                return True
-        else:
-            return False
-
+    def sync_state_checker(self):
+        # If you are the leader
+        if self.myself == self.leader_list[self.leader_idx]:
+            return "leader"
 
     def update_delay_dict(self, pkt: Packet):
         peer_player_id = pkt.get_player()

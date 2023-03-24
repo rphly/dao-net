@@ -69,7 +69,6 @@ class Client():
         print(f"Leader List Before Sync Initialisation:{self.tracker.get_leader_list()}")
 
         self.is_sync_complete = False
-        self._sync = sync.Sync(self.tracker, self._transportLayer, self._myself)
 
     def _state(self):
         return self._state

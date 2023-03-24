@@ -24,7 +24,6 @@ class Sync:
         self.leader_idx = 0
         self.leader_list = tracker.get_leader_list()
         self.leader = self.leader_list[self.leader_idx] # What is this for?
-        print(self.leader_listprint(self._sync.leader_list))
 
     # Control Flow from Client to Sync_State_Checker
     def sync_state_checker(self):
