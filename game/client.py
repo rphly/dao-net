@@ -110,7 +110,6 @@ class Client():
 
     def peering(self):
         print('In Peering')
-        print(self._transportLayer.get_connection_pool())
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
             print("Notify peers that peering is completed")
@@ -119,8 +118,10 @@ class Client():
             self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
-        while self._sync.leader_idx != len(self._sync.leader_list)-1:
-            self._sync.sync_state_checker() # Control Flow Moves to Check_Leader Function
+        while self._sync.leader_idx != len(self._sync.leader_list):
+            print("leader list: " + str(self._sync.leader_list))
+            self._sync.sync_state_checker()
+            print("leader_idx: "+str(self._sync.leader_idx)) # Control Flow Moves to Check_Leader Function
         print("delays: " + str(self._sync._delay_dict))
 
 

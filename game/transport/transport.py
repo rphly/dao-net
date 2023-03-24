@@ -128,6 +128,7 @@ class Transport:
             data: bytes = self.queue.get_nowait()
             self.queue.task_done()
             if data:
+                print(Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0"))).json())
                 return Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0")))
         except Empty:
             return

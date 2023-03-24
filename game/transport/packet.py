@@ -91,7 +91,7 @@ class SyncReq(Packet):
 class SyncAck(Packet):
     """Send a Sync packet."""
 
-    def __init__(self, player: Player):
+    def __init__(self, data, player: Player):
         super().__init__(None, player, "sync_ack")
 
 class PeerSyncAck(Packet):
