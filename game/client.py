@@ -141,7 +141,7 @@ class Client():
             # print("Let's begin!")
             # print("Good luck and have fun!")
             print(f"\n---- Available seats: {self._round_inputs} ----")
-            print(f"Current players: {self._players}")
+            print(f"Current players: {self._players.keys()}")
             print("Grab a seat now!")
 
         if self._round_started:
