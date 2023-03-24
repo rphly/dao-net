@@ -3,7 +3,7 @@ import socket
 from game.models.player import Player
 from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet, SyncReq, SyncAck, PeerSyncAck, UpdateLeader
 from game.lobby.tracker import Tracker
-from game.clock.sync import Sync
+from game.clock.new_sync import Sync
 
 from config import NUM_PLAYERS
 
