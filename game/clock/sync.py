@@ -101,8 +101,8 @@ class Sync:
         @Leader_function
         The host sends sync request to all the peers that it has a connection with.
         """
-        sync_req_pkt = SyncReq(None, player_id)
-        self._transport_layer.sendall(sync_req_pkt, player_id)
+        sync_req_pkt = SyncReq(player_id)
+        self._transport_layer.sendall(sync_req_pkt)
 
 
     def ack_sync_req(self):
