@@ -42,6 +42,9 @@ class Transport:
         t2 = threading.Thread(target=self.make_connections, daemon=True)
         t1.start()
         t2.start()
+    
+    def get_connection_pool(self):
+        return self._connection_pool
 
     def all_connected(self):
         return len(self._connection_pool) == self.NUM_PLAYERS - 1
