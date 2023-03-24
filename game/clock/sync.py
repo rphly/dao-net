@@ -14,6 +14,7 @@ class Sync:
     Synchronizes game actions.
     """
     def __init__(self, tracker: Tracker, transportLayer: Transport, myself: Player):
+        print("Sync Initiated")
         self._transport_layer = transportLayer # Add the Transport Layer to handle recieve packets
         self._myself = myself
         self._player_id = self._myself.get_name()
@@ -23,6 +24,7 @@ class Sync:
         self.leader_idx = 0
         self.leader_list = tracker.get_leader_list()
         self.leader = self.leader_list[self.leader_idx] # What is this for?
+        print("All initiated")
 
     # Control Flow from Client to Sync_State_Checker
     def sync_state_checker(self):
