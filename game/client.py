@@ -121,7 +121,7 @@ class Client():
     def sync_clock(self):
         while self._sync.leader_idx != len(self._sync.leader_list)-1:
             self._sync.sync_state_checker() # Control Flow Moves to Check_Leader Function
-        print("self._sync.leader_idx != len(self._sync.leader_list)-1")
+        print("delays: " + str(self._sync._delay_dict))
 
 
         #If the condition is met
