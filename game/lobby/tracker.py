@@ -1,16 +1,21 @@
 class Tracker():
     def __init__(self, tracker_list={}):
         self.tracker_list = tracker_list
-        self.leader_list = [None] * len(tracker_list) 
+        self.leader_list = []
+        if tracker_list != {}:
+            for player_id, value in tracker_list.items():
+                self.leader_list.append(player_id)
+
 
     def get_tracker_list(self):
         return self.tracker_list
-    
+
     def get_leader_list(self):
         return self.leader_list
 
     def add(self, player_id, ip_address, port):
         # save port number
+        print(f"I am adding here:{player_id}")
         self.tracker_list[player_id] = (ip_address, port)
         self.leader_list.append(player_id)
 

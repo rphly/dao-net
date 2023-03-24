@@ -124,8 +124,9 @@ class Sync:
         pkt: Packet = self._transport_layer.receive()
 
         if pkt:
-            print("ack sync packet received")
+            print("packet received")
             if pkt.get_packet_type() == "sync_req":
+                print("sync req packet received")
                 rcv_time = time.time()
                 if pkt:
                     data_dict = json.loads(pkt.json())
