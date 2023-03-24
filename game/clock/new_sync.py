@@ -6,8 +6,7 @@ from random import randrange
 
 from game.models.player import Player
 from game.lobby.tracker import Tracker
-from game.transport.transport import Transport
-from game.transport.packet import SyncReq, SyncAck, PeerSyncAck, UpdateLeader, Packet
+from game.transport.packet import UpdateLeader, Packet
 ## TODO Modify Sync Function Based on New FSM
 class Sync:
     """
@@ -23,17 +22,6 @@ class Sync:
         self.leader_idx = 0
         self.leader_list = tracker.get_leader_list()
         self.leader = self.leader_list[self.leader_idx] 
-
-
-    def send_update_leader(self, player_id: str):
-        """
-        @Leader_function
-        Once it's done measuring the delays, it sends an update_leader packet to
-        everyone in the network.
-        """
-        self.leader_idx += 1
-        update_leader_pkt = UpdateLeader(None, player_id)
-        self._transport_layer.sendall(update_leader_pkt, player_id)
 
 
     def receive_update_leader(self):
