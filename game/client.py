@@ -379,7 +379,7 @@ class Client():
         # reset round inputs, num chairs - 1
         print("Reducing number of chairs...")
         d = self._round_inputs
-        d = {value: None for value in d}
+        d = {key: None for key in d}
         d.popitem()
         self._round_inputs = d
 
