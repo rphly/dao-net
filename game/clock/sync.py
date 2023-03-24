@@ -16,7 +16,7 @@ class Sync:
     def __init__(self, tracker: Tracker, transportLayer: Transport, myself: Player):
         self._transport_layer = transportLayer # Add the Transport Layer to handle recieve packets
         self._myself = myself
-        self._player_id = self._myself.id()
+        self._player_id = self._myself.get_name()
 
         self._delay_dict = {}
 

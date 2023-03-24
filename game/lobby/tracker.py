@@ -1,7 +1,7 @@
 class Tracker():
     def __init__(self, tracker_list={}):
         self.tracker_list = tracker_list
-        self.leader_list = []
+        self.leader_list = [None] * (len(tracker_list) - 1) 
 
     def get_tracker_list(self):
         return self.tracker_list

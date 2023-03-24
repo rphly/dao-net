@@ -7,7 +7,7 @@ from game.transport.transport import Transport
 from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart
 import config
 import keyboard
-import clock.sync as sync 
+import game.clock.sync as sync 
 from time import time, sleep
 
 
@@ -95,7 +95,7 @@ class Client():
             print("Notify peers that peering is completed")
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
-            self._state = "INIT"
+            self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
         while self._sync.leader_idx != len(self._sync.leader_list)-1:
