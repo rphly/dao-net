@@ -81,7 +81,7 @@ class Sync:
         self._transport_layer.sendall(update_leader_pkt, player_id)
 
 
-    def recieve_update_leader(self, player_id: str):
+    def recieve_update_leader(self):
         """
         @Receiver_function
         Updates leader index by one

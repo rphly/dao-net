@@ -7,6 +7,7 @@ from game.transport.transport import Transport
 from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart
 import config
 import keyboard
+import clock.sync as sync 
 from time import time, sleep
 
 
@@ -23,6 +24,7 @@ class Client():
         self.game_over = False
         self.tracker = tracker
         self.host_socket = host_socket  # for testing only
+        
 
         self.lock = threading.Lock()
 
@@ -51,6 +53,7 @@ class Client():
                                          tracker=self.tracker,
                                          host_socket=host_socket)
         self.is_peering_completed = False
+        self._sync = sync.Sync(self.tracker, self._transportLayer, self._myself)
 
     def _state(self):
         return self._state
