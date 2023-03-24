@@ -209,7 +209,8 @@ class Client():
                         self._transportLayer.sendall(packet)
                         # my own vote
                         # TODO: might need to change; player might be assigning vote after it has received votes
-                        self._votekick[player_to_kick] = 1
+                        numvotes = self._votekick.get(player_to_kick, 0)
+                        self._votekick[player_to_kick] = numvotes + 1
                         break # break after the first player to kick
                 self._done_voting = True
 
@@ -245,7 +246,7 @@ class Client():
 
     def end_round(self):
         # clear all variables
-        print(f"---- Round has ended. Players left: {self._players.keys()} ----")
+        print(f"\n---- Round has ended. Players left: {self._players.keys()} ----")
         sleep(5)
         self._reset_round()
 
