@@ -106,6 +106,7 @@ class UpdateLeader(Packet):
     def __init__(self, data: int, player: Player):
         super().__init__(data, player, "update_leader")
 # End of Timer Packets
+
 class ReadyToStart(Packet):
     """Ready to start game"""
 

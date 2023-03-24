@@ -15,7 +15,7 @@ class Sync:
     """
     def __init__(self, tracker: Tracker, transportLayer: Transport, myself: Player):
         print("Sync Initiated")
-        self._transport_layer = transportLayer # Add the Transport Layer to handle recieve packets
+        self._transport_layer = transportLayer # Add the Transport Layer to handle receive packets
         self._myself = myself
         self._player_id = self._myself.get_name()
 
@@ -24,7 +24,7 @@ class Sync:
         self.leader_idx = 0
         self.leader_list = tracker.get_leader_list()
         self.leader = self.leader_list[self.leader_idx] # What is this for?
-        print(self.leader_list)
+        print(self.leader_listprint(self._sync.leader_list))
 
     # Control Flow from Client to Sync_State_Checker
     def sync_state_checker(self):
@@ -158,6 +158,7 @@ class Sync:
         peer_player_id = data_dict["player"]["id"]
         self._delay_dict[peer_player_id] = data_dict["data"]
         return peer_player_id
+
 
     def add_delay(self, rcv_time: float):
         """

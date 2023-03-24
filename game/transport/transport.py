@@ -1,8 +1,9 @@
 import json
 import socket
 from game.models.player import Player
-from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet
+from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet, SyncReq, SyncAck, PeerSyncAck, UpdateLeader
 from game.lobby.tracker import Tracker
+from game.clock.sync import Sync
 
 from config import NUM_PLAYERS
 
@@ -28,6 +29,9 @@ class Transport:
         self.tracker = tracker
         self._connection_pool: dict[str, socket.socket] = {}
 
+        self.sync = Sync(myself=self.myself, tracker=self.tracker)
+        self.sync_state = False
+
         # start my socket
         if not host_socket:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -48,7 +52,7 @@ class Transport:
 
     def all_connected(self):
         return len(self._connection_pool) == self.NUM_PLAYERS - 1
-
+    
     def accept_connections(self):
         """
         Accept all incoming connections
@@ -128,7 +132,6 @@ class Transport:
             data: bytes = self.queue.get_nowait()
             self.queue.task_done()
             if data:
-                print(Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0"))).json())
                 return Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0")))
         except Empty:
             return
@@ -143,6 +146,55 @@ class Transport:
             self.handle_connection_estab(d, connection)
         else:
             self.queue.put(data)
+
+    def handle_sync(self, data):
+        pkt: Packet = data.decode('utf-8').rstrip("\0")
+        packet_type = pkt.get_packet_type()
+        if packet_type == "sync_req":
+            rcv_time = time.time()
+            leader_id = pkt.get_player()
+            delay_from_leader = self.sync.add_delay(float(rcv_time)) - float(pkt.createdAt())
+            
+            sync_ack_pkt = SyncAck(delay_from_leader, self.myself)
+            self.send(packet=sync_ack_pkt, player_id=leader_id)
+
+        elif packet_type == "sync_ack":
+            rcv_time = time.time()
+            self.sync.update_delay_dict(pkt)
+
+            peer_id = pkt.get_player()
+            delay_from_peer = self.sync.add_delay(float(rcv_time)) - float(pkt.createdAt())
+
+            peer_sync_ack_pkt = PeerSyncAck(delay_from_peer, self.myself)
+            self.send(packet=peer_sync_ack_pkt, player_id=peer_id)
+
+            if len(self._delay_dict) == len(self.leader_list):
+                # send update leader
+                if self.sync.leader_idx + 1 == len(self.sync.leader_list) - 1:
+                    self.sync.leader_idx = 0
+                    # set sync state to true, indicating syncing complete
+                    self.sync_state = True
+                    
+
+        elif packet_type == "peer_sync_ack":
+            self.sync.update_delay_dict(pkt)
+
+        elif packet_type == "update_leader":
+            if self.sync.leader_idx + 1 != len(self.sync.leader_list) - 1:
+                self.sync.leader_idx += 1
+            else:
+                self.sync.leader_idx = 0
+        else:
+            self.queue.put(data)
+
+    def syncing(self):
+        player_type = self.sync.sync_state_checker()
+        if player_type == "leader":
+            sync_req_pkt = SyncReq(self._myself)
+            self.sendall(sync_req_pkt)
+        if self.sync_state:
+            return True
+        return False
 
     def handle_connection_request(self, data, connection):
         player: Player = Player(data["player"]["name"])
@@ -180,6 +232,8 @@ class Transport:
                     if not self.all_connected():
                         self.check_if_peering_and_handle(data, connection)
                         continue
+                    if not self.sync_state:
+                        self.handle_sync(data)
                     self.queue.put(data)
             except:
                 break

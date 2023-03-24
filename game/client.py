@@ -67,6 +67,8 @@ class Client():
         self.is_peering_completed = False
         print(f"Tracker_List Before Sync:{self.tracker.get_tracker_list()}")
         print(f"Leader List Before Sync Initialisation:{self.tracker.get_leader_list()}")
+
+        self.is_sync_complete = False
         self._sync = sync.Sync(self.tracker, self._transportLayer, self._myself)
 
     def _state(self):
@@ -121,13 +123,11 @@ class Client():
             self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
-        while self._sync.leader_idx != len(self._sync.leader_list)-1:
-            self._sync.sync_state_checker() # Control Flow Moves to Check_Leader Function
+
+        while not self.is_sync_complete:
+            self.is_sync_complete = self._transportLayer.syncing() # Control Flow Moves to Check_Leader Function
         print("self._sync.leader_idx != len(self._sync.leader_list)-1")
 
-
-        #If the condition is met
-        self._sync.leader_idx = 0
         # If self.leader_idx == len(self.leader_list)-1 you move into Game Play
         self._state = "INIT"
 
@@ -340,6 +340,9 @@ class Client():
                     self._votekick[player_to_kick] = 1
 
                 print(f"Updated votekick table: {self._votekick}")
+
+            elif pkt.get_packet_type() == "sync_req":
+                pass
 
     def _all_voted_to_start(self):
         return len(self._round_ackstart.keys()) >= len(self._round_inputs)-1
