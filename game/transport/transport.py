@@ -56,7 +56,7 @@ class Transport:
                         connection,), daemon=True)
                     t.start()
                     self.thread_mgr.add_thread(t)
-            except socket.timeout:
+            except:
                 pass
 
     def make_connections(self):
@@ -179,7 +179,7 @@ class Transport:
                 break
 
     def shutdown(self):
+        self.thread_mgr.shutdown()
         self.my_socket.close()
         for connection in self._connection_pool.values():
             connection.close()
-        self.thread_mgr.shutdown()
