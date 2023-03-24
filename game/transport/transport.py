@@ -85,7 +85,7 @@ class Transport:
                     sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
                         'utf-8').ljust(self.chunksize, b"\0"))
                     print(
-                        f"{time.time()} [Make Conn] Sent conn req to {player_id}")
+                        f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
                     time.sleep(1)
                 except (ConnectionRefusedError, TimeoutError):
                     pass

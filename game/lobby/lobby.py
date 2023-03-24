@@ -7,11 +7,12 @@ import threading
 
 from config import NUM_PLAYERS
 
-"""
-Lobby state helps initialize connections and shift to game state once max number 
-of players have been reached.
-"""
+
 class Lobby():
+    """
+    Lobby state helps initialize connections and shift to game state once max number 
+    of players have been reached.
+    """
     def __init__(self):
         self.game_started = False
         self.lobby_host_exited = False
@@ -79,7 +80,7 @@ class Lobby():
         self.player_ip = player_ip
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(('0.0.0.0', host_port))
+        sock.connect(('localhost', host_port)) # 0000 does not connect
 
         self.send(self.lobby_register_pkt(), sock)
 

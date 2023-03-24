@@ -10,7 +10,9 @@ from game.transport.transport import Transport
 from game.transport.packet import SyncReq, SyncAck, PeerSyncAck, UpdateLeader, Packet
 ## TODO Modify Sync Function Based on New FSM
 class Sync:
-    """Synchronizes game actions."""
+    """
+    Synchronizes game actions.
+    """
     def __init__(self, tracker: Tracker, transportLayer: Transport, myself: Player):
         self._transport_layer = transportLayer # Add the Transport Layer to handle recieve packets
         self._myself = myself
@@ -33,12 +35,18 @@ class Sync:
         else:
             #You keep on looping until you get update_leader
             while not self.recieve_update_leader():
-                self.ack_sync_req() #Checks if we get the packet, and if it is true
-                self.peer_sync_ack() #Check if we get the peer sync ack packet
+                self.ack_sync_req() #Checks if non host gets the packet, and if it is true
+                self.peer_sync_ack() #Check if non host gets the peer sync ack packet
             return
 
-    #TODO @Fauzaan
     def measure_delays(self):
+        """
+        @Leader_function
+        Leader sends a packet to everyone in the network and waits for a response 
+        that indicates the delay between itself and the peer.
+        The leader then sends a packet to the peer with the delay between peer
+        and itself. (Other way around)
+        """
         self.send_sync_req(self._player_id)
         while len(self._delay_dict) < len(self.leader_list):
             try:
@@ -47,26 +55,37 @@ class Sync:
 
                 # update delay list
                 data_dict = json.loads(data)
-                peer_player_id = data_dict["player"]["id"]
-                delay_to_peer = data_dict["data"]
-                self._delay_dict[peer_player_id] = delay_to_peer
+                peer_player_id = self.update_delay_dict(data_dict)
 
                 # measure delay for peer
-                delay = int(rcv_time) - data_dict["created_at"]
+                delay = (float(rcv_time) + self.add_delay(rcv_time)) - data_dict["created_at"]
                 peer_sync_ack_pkt = PeerSyncAck(delay, self._myself)
                 self._transport_layer.send(peer_sync_ack_pkt, peer_player_id)
+
+                # checking for last leader
+                if len(self._delay_dict) == len(self.leader_list) ** 2: # If there are (n-1)**2 delays already measured, then you are the last leader
+                    self.leader_idx = 0
 
             except KeyboardInterrupt:
                 pass
 
 
     def send_update_leader(self, player_id: str):
+        """
+        @Leader_function
+        Once it's done measuring the delays, it sends an update_leader packet to
+        everyone in the network.
+        """
         self.leader_idx += 1
         update_leader_pkt = UpdateLeader(None, player_id)
         self._transport_layer.sendall(update_leader_pkt, player_id)
 
 
     def recieve_update_leader(self, player_id: str):
+        """
+        @Receiver_function
+        Updates leader index by one
+        """
         pkt: Packet = self._transportLayer.receive()
 
         if pkt:
@@ -78,11 +97,20 @@ class Sync:
 
 
     def send_sync_req(self, player_id: str):
+        """
+        @Leader_function
+        The host sends sync request to all the peers that it has a connection with.
+        """
         sync_req_pkt = SyncReq(None, player_id)
         self._transport_layer.sendall(sync_req_pkt, player_id)
 
 
     def ack_sync_req(self):
+        """
+        @Receiver_function
+        Receiver receives this from the host, and then calculates the delay and sends 
+        back the difference, along with its own timestamp
+        """
         pkt: Packet = self._transportLayer.receive()
         if pkt:
             if pkt.get_packet_type() == "sync_req":
@@ -97,20 +125,29 @@ class Sync:
 
 
     def peer_sync_ack(self):
+        """
+        @Receiver_function
+        The receiver receives an ACK packet from host that tells it the delay between 
+        the host and itself
+        """
         pkt: Packet = self._transportLayer.receive()
         if pkt:
             if pkt.get_packet_type() == "peer_sync_ack":
-                if pkt:
-                    data_dict = json.loads(pkt)
-                    if data_dict["player"]["id"] == self.leader:
-                        delay_to_leader = data_dict["data"]
-                        self._delay_dict[self.leader] = delay_to_leader
+                data_dict = json.loads(pkt)
+                if data_dict["player"]["id"] == self.leader:
+                    delay_to_leader = data_dict["data"]
+                    self._delay_dict[self.leader] = delay_to_leader
         return
 
-    #TODO @Fauzaan
-    def update_delay_dict(self, delay):
-        return
+    def update_delay_dict(self, data_dict: dict):
+        peer_player_id = data_dict["player"]["id"]
+        self._delay_dict[peer_player_id] = data_dict["data"]
+        return peer_player_id
 
-    #TODO @Fauzaan
     def add_delay(rcv_time: float):
+        """
+        Adds a random delay at first and second hops of the measure delay. 
+        This value returned by this function + measured difference will serve
+        as the sample RTT on the game client.
+        """
         return rcv_time + 0.1 * randrange(1, 9)
