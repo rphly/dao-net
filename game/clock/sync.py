@@ -58,7 +58,7 @@ class Sync:
                 peer_player_id = self.update_delay_dict(data_dict)
 
                 # measure delay for peer
-                delay = (float(rcv_time) + self.add_delay(rcv_time)) - data_dict["created_at"]
+                delay = (self.add_delay(float(rcv_time))) - data_dict["created_at"]
                 peer_sync_ack_pkt = PeerSyncAck(delay, self._myself)
                 self._transport_layer.send(peer_sync_ack_pkt, peer_player_id)
 
@@ -118,7 +118,7 @@ class Sync:
                 if pkt:
                     data_dict = json.loads(pkt)
                     if data_dict["player"]["id"] == self.leader:
-                        delay = (float(rcv_time) + self.add_delay(rcv_time)) - data_dict["created_at"]
+                        delay = (self.add_delay(float(rcv_time))) - data_dict["created_at"]
                         sync_ack_pkt = SyncAck(delay, self._myself)
                         self._transport_layer.send(sync_ack_pkt, self.leader)
         return
