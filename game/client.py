@@ -9,7 +9,7 @@ from game.transport.transport import Transport
 from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart, SatDown
 import config
 import keyboard
-import game.clock.sync as sync 
+import game.clock.sync as sync
 from time import time, sleep
 
 
@@ -26,7 +26,7 @@ class Client():
         self.game_over = False
         self.tracker = tracker
         self.host_socket = host_socket  # for testing only
-        
+
 
         self.lock = threading.Lock()
 
@@ -109,6 +109,7 @@ class Client():
             self.end_game()
 
     def peering(self):
+        print('In Peering')
         print(self._transportLayer.get_connection_pool())
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")

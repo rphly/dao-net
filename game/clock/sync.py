@@ -44,7 +44,7 @@ class Sync:
     def measure_delays(self):
         """
         @Leader_function
-        Leader sends a packet to everyone in the network and waits for a response 
+        Leader sends a packet to everyone in the network and waits for a response
         that indicates the delay between itself and the peer.
         The leader then sends a packet to the peer with the delay between peer
         and itself. (Other way around)
@@ -53,20 +53,22 @@ class Sync:
         while len(self._delay_dict) < len(self.leader_list):
             try:
                 data = self._transport_layer.receive()
-                rcv_time = time.time()
+                if data:
+                    rcv_time = time.time()
 
-                # update delay list
-                data_dict = json.loads(data)
-                peer_player_id = self.update_delay_dict(data_dict)
+                    # update delay list
 
-                # measure delay for peer
-                delay = (self.add_delay(float(rcv_time))) - data_dict["created_at"]
-                peer_sync_ack_pkt = PeerSyncAck(delay, self._myself)
-                self._transport_layer.send(peer_sync_ack_pkt, peer_player_id)
+                    data_dict = json.loads(data.json())
+                    peer_player_id = self.update_delay_dict(data_dict)
 
-                # checking for last leader
-                if len(self._delay_dict) == len(self.leader_list) ** 2: # If there are (n-1)**2 delays already measured, then you are the last leader
-                    self.leader_idx = 0
+                    # measure delay for peer
+                    delay = (self.add_delay(float(rcv_time))) - data_dict["created_at"]
+                    peer_sync_ack_pkt = PeerSyncAck(delay, self._myself)
+                    self._transport_layer.send(peer_sync_ack_pkt, peer_player_id)
+
+                    # checking for last leader
+                    if len(self._delay_dict) == len(self.leader_list) ** 2: # If there are (n-1)**2 delays already measured, then you are the last leader
+                        self.leader_idx = 0
 
             except KeyboardInterrupt:
                 pass
@@ -103,14 +105,14 @@ class Sync:
         @Leader_function
         The host sends sync request to all the peers that it has a connection with.
         """
-        sync_req_pkt = SyncReq(player_id)
+        sync_req_pkt = SyncReq(self._myself)
         self._transport_layer.sendall(sync_req_pkt)
 
 
     def ack_sync_req(self):
         """
         @Receiver_function
-        Receiver receives this from the host, and then calculates the delay and sends 
+        Receiver receives this from the host, and then calculates the delay and sends
         back the difference, along with its own timestamp
         """
         pkt: Packet = self._transportLayer.receive()
@@ -129,7 +131,7 @@ class Sync:
     def peer_sync_ack(self):
         """
         @Receiver_function
-        The receiver receives an ACK packet from host that tells it the delay between 
+        The receiver receives an ACK packet from host that tells it the delay between
         the host and itself
         """
         pkt: Packet = self._transportLayer.receive()
@@ -146,9 +148,9 @@ class Sync:
         self._delay_dict[peer_player_id] = data_dict["data"]
         return peer_player_id
 
-    def add_delay(rcv_time: float):
+    def add_delay(self, rcv_time: float):
         """
-        Adds a random delay at first and second hops of the measure delay. 
+        Adds a random delay at first and second hops of the measure delay.
         This value returned by this function + measured difference will serve
         as the sample RTT on the game client.
         """
