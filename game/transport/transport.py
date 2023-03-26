@@ -190,6 +190,7 @@ class Transport:
                         continue
                     if not self.sync_state:
                         self.handle_sync(data)
+                        continue
                     self.queue.put(data)
             except:
                 break
@@ -208,6 +209,8 @@ class Transport:
         pkt: Packet = data.decode('utf-8').rstrip("\0")
         packet_type = pkt.get_packet_type()
         if packet_type == "sync_req":
+            print("received sync req")
+
             rcv_time = time.time()
             leader_id = pkt.get_player()
             delay_from_leader = self.sync.add_delay(float(rcv_time)) - float(pkt.createdAt())
