@@ -150,7 +150,6 @@ class Transport:
 
     
 
-    
 
     def handle_connection_request(self, data, connection):
         player: Player = Player(data["player"]["name"])
@@ -182,18 +181,18 @@ class Transport:
         note: queue.put is blocking,
         """
         while True:
-            try:
-                data = connection.recv(self.chunksize)
-                if data:
-                    if not self.all_connected():
-                        self.check_if_peering_and_handle(data, connection)
-                        continue
-                    if not self.sync_state:
-                        self.handle_sync(data)
-                        continue
-                    self.queue.put(data)
-            except:
-                break
+            # try:
+            data = connection.recv(self.chunksize)
+            if data:
+                if not self.all_connected():
+                    self.check_if_peering_and_handle(data, connection)
+                    continue
+                if not self.sync_state:
+                    self.handle_sync(data)
+                    continue
+                self.queue.put(data)
+            # except:
+            #     break
 
     # Sync class functions
     def syncing(self):
@@ -206,24 +205,28 @@ class Transport:
         return False
     
     def handle_sync(self, data):
-        pkt: Packet = data.decode('utf-8').rstrip("\0")
+        decoded = data.decode('utf-8').rstrip("\0")
+        d = json.loads(decoded)
+        pkt = Packet.from_json(d)
         packet_type = pkt.get_packet_type()
         if packet_type == "sync_req":
             print("received sync req")
 
             rcv_time = time.time()
-            leader_id = pkt.get_player()
-            delay_from_leader = self.sync.add_delay(float(rcv_time)) - float(pkt.createdAt())
+            leader_id = pkt.get_player().get_name()
+            delay_from_leader = self.sync.add_delay(float(rcv_time)) - float(pkt.get_created_at())
             
             sync_ack_pkt = SyncAck(delay_from_leader, self.my_player)
             self.send(packet=sync_ack_pkt, player_id=leader_id)
 
         elif packet_type == "sync_ack":
+            print("received sync ack")
+
             rcv_time = time.time()
             self.sync.update_delay_dict(pkt)
 
-            peer_id = pkt.get_player()
-            delay_from_peer = self.sync.add_delay(float(rcv_time)) - float(pkt.createdAt())
+            peer_id = pkt.get_player().get_name()
+            delay_from_peer = self.sync.add_delay(float(rcv_time)) - float(pkt.get_created_at())
 
             peer_sync_ack_pkt = PeerSyncAck(delay_from_peer, self.my_player)
             self.send(packet=peer_sync_ack_pkt, player_id=peer_id)
