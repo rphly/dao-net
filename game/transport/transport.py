@@ -16,6 +16,8 @@ import time
 Transport is responsible for sending and receiving data from other players.
 It is also responsible for maintaining a connection pool of all players.
 """
+
+
 class Transport:
 
     def __init__(self, myself: str, port, thread_manager, tracker: Tracker, host_socket: socket.socket = None):
@@ -47,13 +49,13 @@ class Transport:
         t2 = threading.Thread(target=self.make_connections, daemon=True)
         t1.start()
         t2.start()
-    
+
     def get_connection_pool(self):
         return self._connection_pool
 
     def all_connected(self):
         return len(self._connection_pool) == self.NUM_PLAYERS - 1
-    
+
     def accept_connections(self):
         """
         Accept all incoming connections
@@ -121,7 +123,7 @@ class Transport:
 
     def sendall(self, packet: Packet):
         for player_id in self._connection_pool:
-            print("Sending packet", packet, "to", player_id)
+            print("Sending packet", packet.get_packet_type(), "to", player_id)
             self.send(packet, player_id)
 
     def receive(self) -> str:
@@ -147,9 +149,6 @@ class Transport:
             self.handle_connection_estab(d, connection)
         else:
             self.queue.put(data)
-
-    
-
 
     def handle_connection_request(self, data, connection):
         player: Player = Player(data["player"]["name"])
@@ -196,12 +195,11 @@ class Transport:
 
     # Sync class functions
     def syncing(self):
-        player_type = self.sync.sync_state_checker()
-        if player_type == "leader":
+        if self.sync.is_leader_myself():
             sync_req_pkt = SyncReq(self.my_player)
             self.sendall(sync_req_pkt)
         return self.sync_state
-    
+
     def handle_sync(self, data):
         decoded = data.decode('utf-8').rstrip("\0")
         d = json.loads(decoded)
@@ -214,7 +212,8 @@ class Transport:
             rcv_time = time.time()
             # print("rcv time: {}".format(rcv_time))
             leader_id = pkt.get_player().get_name()
-            delay_from_leader = self.sync.add_delay(int(rcv_time)) - pkt.get_created_at()
+            delay_from_leader = self.sync.add_delay(
+                int(rcv_time)) - pkt.get_created_at()
             # print("delay from leader {}".format(delay_from_leader))
 
             sync_ack_pkt = SyncAck(delay_from_leader, self.my_player)
@@ -229,39 +228,36 @@ class Transport:
             print(self.sync._delay_dict)
 
             peer_id = pkt.get_player().get_name()
-            delay_from_peer = self.sync.add_delay(float(rcv_time)) - float(pkt.get_created_at())
+            delay_from_peer = self.sync.add_delay(
+                float(rcv_time)) - float(pkt.get_created_at())
 
             peer_sync_ack_pkt = PeerSyncAck(delay_from_peer, self.my_player)
             self.send(packet=peer_sync_ack_pkt, player_id=peer_id)
 
-            if len(self.sync._delay_dict) == len(self.sync.leader_list) - 1:
+            if self.sync.done():
                 # send update leader
                 print("sending update leader")
                 update_leader_pkt = UpdateLeader(None, self.my_player)
                 self.sendall(update_leader_pkt)
-                if self.sync.leader_idx + 1 == len(self.sync.leader_list) - 1:
-                    self.sync.leader_idx = 0
-                    # set sync state to true, indicating syncing complete
+                self.sync.next_leader()
+                if self.sync.no_more_leader():
+                    print(self.sync._delay_dict)
                     self.sync_state = True
-                    
 
         elif packet_type == "peer_sync_ack":
             self.sync.update_delay_dict(pkt)
 
         elif packet_type == "update_leader":
             print("received update leader")
-            if self.sync.leader_idx + 1 != len(self.sync.leader_list):
-                self.sync.leader_idx += 1
-            else:
-                self.sync.leader_idx = 0
+            self.sync.next_leader()
+            if self.sync.no_more_leader():
+                print(self.sync._delay_dict)
+                self.sync_state = True
         else:
             self.queue.put(data)
-
 
     def shutdown(self):
         self.thread_mgr.shutdown()
         self.my_socket.close()
         for connection in self._connection_pool.values():
             connection.close()
-
-# try push

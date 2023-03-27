@@ -7,11 +7,14 @@ from random import randrange
 from game.models.player import Player
 from game.lobby.tracker import Tracker
 from game.transport.packet import UpdateLeader, Packet
-## TODO Modify Sync Function Based on New FSM
+# TODO Modify Sync Function Based on New FSM
+
+
 class Sync:
     """
     Synchronizes game actions.
     """
+
     def __init__(self, myself: str, tracker: Tracker, ):
         print("Sync Initiated")
         self.myself = myself
@@ -19,17 +22,25 @@ class Sync:
 
         self.leader_idx = 0
         self.leader_list = tracker.get_leader_list()
-        self.leader = self.leader_list[self.leader_idx] 
 
-    def sync_state_checker(self):
+    def next_leader(self):
+        if self.leader_idx < len(self.leader_list) - 1:
+            self.leader_idx += 1
+            self.leader = self.leader_list[self.leader_idx]
+
+    def no_more_leader(self):
+        return self.leader_idx == len(self.leader_list) - 1
+
+    def is_leader_myself(self):
         # If you are the leader
-        if self.myself == self.leader_list[self.leader_idx]:
-            return "leader"
+        return self.myself == self.leader_list[self.leader_idx]
 
     def update_delay_dict(self, pkt: Packet):
         peer_player_id = pkt.get_player().get_name()
         self._delay_dict[peer_player_id] = pkt.get_data()
 
+    def done(self):
+        return len(self._delay_dict) == len(self.leader_list) - 1
 
     def add_delay(self, rcv_time: float):
         """
