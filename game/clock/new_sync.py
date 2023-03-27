@@ -27,7 +27,7 @@ class Sync:
             return "leader"
 
     def update_delay_dict(self, pkt: Packet):
-        peer_player_id = pkt.get_player()
+        peer_player_id = pkt.get_player().get_name()
         self._delay_dict[peer_player_id] = pkt.get_data()
 
 

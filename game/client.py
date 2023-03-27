@@ -36,7 +36,7 @@ class Client():
         self._round_inputs: dict[int, str] = {
             # Q W E R T Y = 12, 13, 14, 15, 17, 16
             12: None,
-            # 13: None,
+            13: None,
             # 14: None,
             # 15: None,
             # 17: None,
