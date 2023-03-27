@@ -263,3 +263,5 @@ class Transport:
         self.my_socket.close()
         for connection in self._connection_pool.values():
             connection.close()
+
+# try push
