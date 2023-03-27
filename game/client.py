@@ -126,7 +126,6 @@ class Client():
         while not self.is_sync_complete:
             self.is_sync_complete = self._transportLayer.syncing() # Control Flow Moves to Check_Leader Function
             sleep(1)
-        print("self._sync.leader_idx != len(self._sync.leader_list)-1")
 
         # If self.leader_idx == len(self.leader_list)-1 you move into Game Play
         self._state = "INIT"

@@ -92,7 +92,7 @@ class SyncAck(Packet):
     """Send a Sync packet."""
 
     def __init__(self, data, player: Player):
-        super().__init__(None, player, "sync_ack")
+        super().__init__(data, player, "sync_ack")
 
 class PeerSyncAck(Packet):
     """Send peer their delay measurement."""

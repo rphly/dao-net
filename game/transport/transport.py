@@ -212,10 +212,11 @@ class Transport:
             print("received sync req")
 
             rcv_time = time.time()
+            # print("rcv time: {}".format(rcv_time))
             leader_id = pkt.get_player().get_name()
-            delay_from_leader = self.sync.add_delay(float(rcv_time))- float(pkt.get_created_at())
-            
-            print("delay: ".format(str(delay_from_leader)))
+            delay_from_leader = self.sync.add_delay(int(rcv_time)) - pkt.get_created_at()
+            # print("delay from leader {}".format(delay_from_leader))
+
             sync_ack_pkt = SyncAck(delay_from_leader, self.my_player)
             self.send(packet=sync_ack_pkt, player_id=leader_id)
 
@@ -248,7 +249,8 @@ class Transport:
             self.sync.update_delay_dict(pkt)
 
         elif packet_type == "update_leader":
-            if self.sync.leader_idx + 1 != len(self.sync.leader_list) - 1:
+            print("received update leader")
+            if self.sync.leader_idx + 1 != len(self.sync.leader_list):
                 self.sync.leader_idx += 1
             else:
                 self.sync.leader_idx = 0
