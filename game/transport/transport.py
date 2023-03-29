@@ -3,7 +3,7 @@ import socket
 from game.models.player import Player
 from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet, SyncReq, SyncAck, PeerSyncAck, UpdateLeader
 from game.lobby.tracker import Tracker
-from game.clock.new_sync import Sync
+from game.clock.sync import Sync
 
 from config import NUM_PLAYERS
 
@@ -102,6 +102,7 @@ class Transport:
             self.lock.release()
 
     def send(self, packet: Packet, player_id):
+        self.sync.add_delay(player_id)
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         try:
             conn = self._connection_pool[player_id]
@@ -122,6 +123,8 @@ class Transport:
         # conn.sendall(padded)
 
     def sendall(self, packet: Packet):
+        wait_list = self.sync.get_wait_times()
+        
         for player_id in self._connection_pool:
             print("Sending packet", packet.get_packet_type(), "to", player_id)
             self.send(packet, player_id)
@@ -212,8 +215,7 @@ class Transport:
             rcv_time = time.time()
             # print("rcv time: {}".format(rcv_time))
             leader_id = pkt.get_player().get_name()
-            delay_from_leader = self.sync.add_delay(
-                int(rcv_time)) - pkt.get_created_at()
+            delay_from_leader = float(rcv_time) - float(pkt.get_created_at())
             # print("delay from leader {}".format(delay_from_leader))
 
             sync_ack_pkt = SyncAck(delay_from_leader, self.my_player)
@@ -228,8 +230,7 @@ class Transport:
             print(self.sync._delay_dict)
 
             peer_id = pkt.get_player().get_name()
-            delay_from_peer = self.sync.add_delay(
-                float(rcv_time)) - float(pkt.get_created_at())
+            delay_from_peer = float(rcv_time) - float(pkt.get_created_at())
 
             peer_sync_ack_pkt = PeerSyncAck(delay_from_peer, self.my_player)
             self.send(packet=peer_sync_ack_pkt, player_id=peer_id)
