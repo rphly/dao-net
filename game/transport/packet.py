@@ -145,6 +145,6 @@ class ConnectionEstab(Packet):
 class EndGame(Packet):
     """Inform everyone to end the game."""
 
-    def __init__(self, player: Player):
+    def __init__(self,player: Player):
         super().__init__(None, player, "end_game")
 
