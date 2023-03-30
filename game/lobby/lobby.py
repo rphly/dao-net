@@ -13,6 +13,7 @@ class Lobby():
     Lobby state helps initialize connections and shift to game state once max number 
     of players have been reached.
     """
+
     def __init__(self):
         self.game_started = False
         self.lobby_host_exited = False
@@ -36,7 +37,7 @@ class Lobby():
 
         # initialize host socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind(('127.0.0.1', host_port))
+        sock.bind((ip, host_port))
         sock.listen(self.NUM_PLAYERS)
         sock.settimeout(0.5)
         self.mysocket = sock
@@ -80,7 +81,7 @@ class Lobby():
         self.player_ip = player_ip
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(('localhost', host_port)) # 0000 does not connect
+        sock.connect((host_ip, host_port))  # 0000 does not connect
 
         self.send(self.lobby_register_pkt(), sock)
 
@@ -266,4 +267,3 @@ class Lobby():
             ),
             packet_type="lobby_ack",
         )).encode('utf-8')
-        
