@@ -160,8 +160,8 @@ class Client():
                         ## FOR TESTING ONLY ##
                         # player takes hotkey sequentially accordingly to port number
                         # port 9999 takes 12, 10000 takes 13...
-                        if not (k + 9987 == self.my_port_number):
-                            continue
+                        # if not (k + 9987 == self.my_port_number):
+                        #     continue
                         keyboard.add_hotkey(
                             k, self._insert_input, args=(k,))
                         self.hotkeys_added = True
