@@ -76,30 +76,30 @@ class Transport:
         """
         Attempt to make outgoing connections to all players
         """
-
-        for player_id in self.tracker.get_players():
-            if player_id == self.myself:
-                continue
-            self.lock.acquire()
-            if player_id not in self._connection_pool:
-                ip, port = self.tracker.get_ip_port(
-                    player_id)
-                if ip is None or port is None:
+        while not self.all_connected():
+            for player_id in self.tracker.get_players():
+                if player_id == self.myself:
                     continue
-                # waiting for player to start server
-                try:
-                    sock = socket.socket(
-                        socket.AF_INET, socket.SOCK_STREAM)
-                    sock.connect((ip, port))
-                    # send a player my conn request
-                    sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
-                        'utf-8').ljust(self.chunksize, b"\0"))
-                    print(
-                        f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
-                    time.sleep(1)
-                except (ConnectionRefusedError, TimeoutError):
-                    pass
-            self.lock.release()
+                self.lock.acquire()
+                if player_id not in self._connection_pool:
+                    ip, port = self.tracker.get_ip_port(
+                        player_id)
+                    if ip is None or port is None:
+                        continue
+                    # waiting for player to start server
+                    try:
+                        sock = socket.socket(
+                            socket.AF_INET, socket.SOCK_STREAM)
+                        sock.connect((ip, port))
+                        # send a player my conn request
+                        sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
+                            'utf-8').ljust(self.chunksize, b"\0"))
+                        print(
+                            f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
+                        time.sleep(1)
+                    except (ConnectionRefusedError, TimeoutError):
+                        pass
+                self.lock.release()
 
     def send(self, packet: Packet, player_id):
         self.sync.add_delay(player_id)
@@ -124,7 +124,7 @@ class Transport:
 
     def sendall(self, packet: Packet):
         wait_list = self.sync.get_wait_times()
-        
+
         for player_id in self._connection_pool:
             print("Sending packet", packet.get_packet_type(), "to", player_id)
             self.send(packet, player_id)

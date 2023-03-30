@@ -26,7 +26,8 @@ class Client():
         self.game_over = False
         self.tracker = tracker
         self.host_socket = host_socket  # for testing only
-        self.my_ip, self.my_port_number = self.tracker.get_ip_port(self._myself.get_name())  # for testing only
+        self.my_ip, self.my_port_number = self.tracker.get_ip_port(
+            self._myself.get_name())  # for testing only
 
         self.lock = threading.Lock()
 
@@ -34,7 +35,8 @@ class Client():
             self._myself.get_name(): self._myself}
         self._votekick: dict[str, int] = {}
         # Initialise round inputs to num of players - 1
-        self._round_inputs = { k:None for k in range(12, 12 + (config.NUM_CHAIRS) ) }
+        self._round_inputs = {k: None for k in range(
+            12, 12 + (config.NUM_CHAIRS))}
 
         self.hotkeys_added = False
         self._round_started = False
@@ -58,7 +60,8 @@ class Client():
                                          host_socket=host_socket)
         self.is_peering_completed = False
         print(f"Tracker_List Before Sync:{self.tracker.get_tracker_list()}")
-        print(f"Leader List Before Sync Initialisation:{self.tracker.get_leader_list()}")
+        print(
+            f"Leader List Before Sync Initialisation:{self.tracker.get_leader_list()}")
 
         self.is_sync_complete = False
 
@@ -69,7 +72,7 @@ class Client():
         print("Game has started!")
         try:
             while not self.game_over:
-                sleep(0.5)  # slow down game loop
+                sleep(1)  # slow down game loop
                 self.trigger_handler(self._state)
         except KeyboardInterrupt:
             print("Exiting game")
@@ -108,7 +111,7 @@ class Client():
 
     def peering(self):
         print('In Peering')
-        #print(self._transportLayer.get_connection_pool())
+        # print(self._transportLayer.get_connection_pool())
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
             print("Notify peers that peering is completed")
@@ -119,7 +122,8 @@ class Client():
     def sync_clock(self):
 
         while not self.is_sync_complete:
-            self.is_sync_complete = self._transportLayer.syncing() # Control Flow Moves to Check_Leader Function
+            # Control Flow Moves to Check_Leader Function
+            self.is_sync_complete = self._transportLayer.syncing()
             sleep(1)
 
         # If self.leader_idx == len(self.leader_list)-1 you move into Game Play
@@ -139,7 +143,7 @@ class Client():
             self._checkTransportLayerForIncomingData()
             self._state = "AWAIT_KEYPRESS"
             return
-        
+
     def await_keypress(self):
         self._checkTransportLayerForIncomingData()
         if not self._all_voted_to_start():
@@ -235,7 +239,8 @@ class Client():
 
                     # 1) if only one voted, remove from player_list
                     if len(to_be_kicked) == 1:
-                        print(f"[KICKING LOSER] Kicking player: {to_be_kicked[0]}")
+                        print(
+                            f"[KICKING LOSER] Kicking player: {to_be_kicked[0]}")
                         self._players.pop(to_be_kicked[0])
 
                     else:
@@ -260,7 +265,7 @@ class Client():
         elif len(self._round_inputs.keys()) < 1:
             winner = list(self._players.keys())[0]
             print(f"No more seats left, {winner} has won the game!")
-            ##TODO: last remaining player sends packet to initiate shutdown for players who have already lost
+            # TODO: last remaining player sends packet to initiate shutdown for players who have already lost
             self._transportLayer.sendall(EndGame(self._myself))
             self._state = "END_GAME"
 
