@@ -23,7 +23,7 @@ class Lobby():
         self.lock = threading.Lock()
         self.game_start_lock = threading.Lock()
 
-    def start(self, ip="127.0.0.1", host_port=9999, player_name="Host"):
+    def start(self, host_ip="127.0.0.1", host_port=9999, player_name="Host"):
         """
         Hosting a lobby
         """
@@ -32,18 +32,18 @@ class Lobby():
         self.tracker = Tracker()
         self.thread_mgr = ThreadManager()
 
-        self.player_ip = ip
+        self.player_ip = host_ip
         self.host_port = host_port
 
         # initialize host socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind((ip, host_port))
+        sock.bind(("0.0.0.0", host_port))
         sock.listen(self.NUM_PLAYERS)
         sock.settimeout(0.5)
         self.mysocket = sock
 
         # register myself
-        self.tracker.add(player_name, ip, self.host_port)
+        self.tracker.add(player_name, host_ip, self.host_port)
 
         self.connections = {}
 
@@ -81,7 +81,7 @@ class Lobby():
         self.player_ip = player_ip
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((host_ip, host_port))  # 0000 does not connect
+        sock.connect((host_ip, host_port))
 
         self.send(self.lobby_register_pkt(), sock)
 
