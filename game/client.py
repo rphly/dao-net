@@ -385,7 +385,7 @@ class Client():
                             sleep(0.3)
                         elif frame > self.frame_count:
                             print("Requesting to be master since I'm behind")
-                            self._frameSync.acquire_master(self._myself)
+                            self._frameSync.acquire_master()
 
             elif pkt.get_packet_type() == "end_game":
                 winner = pkt.get_player()
