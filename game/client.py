@@ -7,7 +7,7 @@ from game.lobby.tracker import Tracker
 from game.models.vote import Vote
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
-from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync
+from game.transport.packet import AckStart, EndGame, Nak, Ack, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync
 import config
 import keyboard
 import game.clock.sync as sync
@@ -27,21 +27,17 @@ class Client():
         self.game_over = False
         self.tracker = tracker
         self.host_socket = host_socket  # for testing only
+        self.my_ip, self.my_port_number = self.tracker.get_ip_port(
+            self._myself.get_name())  # for testing only
 
         self.lock = threading.Lock()
 
         self._players: dict[str, Player] = {
             self._myself.get_name(): self._myself}
         self._votekick: dict[str, int] = {}
-        self._round_inputs: dict[int, str] = {
-            # Q W E R T Y = 12, 13, 14, 15, 17, 16
-            12: None,
-            13: None,
-            # 14: None,
-            # 15: None,
-            # 17: None,
-            # 16: None,
-        }
+        # Initialise round inputs to num of players - 1
+        self._round_inputs = {k: None for k in range(
+            12, 12 + (config.NUM_CHAIRS))}
 
         self.frame_count = 0
 
@@ -51,7 +47,6 @@ class Client():
         self._round_ackstart = {}
         self._sat_down_count = 0
 
-        self._current_chairs: int = config.NUM_CHAIRS
         self._my_keypress = None
 
         # selecting seats algo
@@ -119,6 +114,9 @@ class Client():
         elif state == "END_GAME":
             self.end_game()
 
+        elif state == "SPECTATOR":
+            self.spectator()
+
     def peering(self):
         print('In Peering')
         # print(self._transportLayer.get_connection_pool())
@@ -145,13 +143,16 @@ class Client():
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
         self._transportLayer.sendall(ReadyToStart(self._myself))
+        sleep(5)
         self._checkTransportLayerForIncomingData()
-        if len(self._round_ready.keys()) == len(self._round_inputs) - 1:
+        if len(self._round_ready.keys()) == len(self._round_inputs):
             print("All players are ready to start.")
             print("Voting to start now...")
             self._transportLayer.sendall(AckStart(self._myself))
-            # self._round_inputs = { k:None for k in range(12, 12 + len(self._players) -1) }
+            sleep(5)
+            self._checkTransportLayerForIncomingData()
             self._state = "AWAIT_KEYPRESS"
+            return
 
     def await_keypress(self):
         self._checkTransportLayerForIncomingData()
@@ -161,9 +162,6 @@ class Client():
 
         if not self._round_started:
             self._round_started = True
-            # print("All have voted to start...")
-            # print("Let's begin!")
-            # print("Good luck and have fun!")
             print(f"\n---- Available seats: {self._round_inputs} ----")
             print(f"Current players: {self._players.keys()}")
             print("Grab a seat now!")
@@ -174,10 +172,9 @@ class Client():
                 if not self.hotkeys_added:
                     for k in self._round_inputs.keys():
                         ## FOR TESTING ONLY ##
-                        # host takes Q and client takes W
-                        if not self.host_socket and k == 12:
-                            continue
-                        if self.host_socket and k == 13:
+                        # player takes hotkey sequentially accordingly to port number
+                        # port 9999 takes 12, 10000 takes 13...
+                        if not (k + 9987 == self.my_port_number):
                             continue
                         keyboard.add_hotkey(
                             k, self._insert_input, args=(k,))
@@ -205,6 +202,8 @@ class Client():
                         self.lock.release()
                         self._transportLayer.sendall(SatDown(self._myself))
                         self._sat_down_count += 1
+                        print("[ACTION] I have sat down successfully!")
+                        print(f"{self._round_inputs}")
                         self._state = "AWAIT_ROUND_END"
                         return
 
@@ -212,25 +211,18 @@ class Client():
             elif self._sat_down_count >= len(self._round_inputs.keys()):
                 self._state = "AWAIT_ROUND_END"
 
-        # 4) Check for others' keypress, let transport layer handler handle it
-        # self._checkTransportLayerForIncomingData()
-
     def await_round_end(self):
-        print("Waiting for all votes to come in...")
         self._checkTransportLayerForIncomingData()
         if self._sat_down_count >= len(self._round_inputs.keys()):
             # everyone is ready to vote
             if not self._done_voting:
-                print(
-                    f"preparing to vote, current inputs: {self._round_inputs}")
-                print(f"preparing to vote, current players: {self._players}")
                 # choosing who to kick
                 player_to_kick = None
                 for playerid in self._players.keys():
                     if playerid not in self._round_inputs.values():
                         player_to_kick = playerid
                         print(
-                            f"Sending vote to kick player: {self._players[playerid].get_name()}")
+                            f"[VOTE] Voting to kick: {self._players[playerid].get_name()}")
                         packet = Vote(player_to_kick, self._myself)
                         self._transportLayer.sendall(packet)
                         # my own vote
@@ -247,19 +239,18 @@ class Client():
 
             # tallying votes
             else:
-                print(f"i have voted. Waiting for votes: {self._votekick}")
+                print(f"Waiting for votes... Current votes: {self._votekick}")
                 if sum(self._votekick.values()) == len(self._players):
-                    print("all votes in")
+                    print("[ALL VOTES IN]")
                     max_vote = max(self._votekick.values())
-                    print(f"votekick dict: {self._votekick}")
                     # in case there is a tie
                     to_be_kicked = [key for key,
                                     value in self._votekick.items() if value == max_vote]
 
-                    print(f"tobekicked = {to_be_kicked}")
                     # 1) if only one voted, remove from player_list
                     if len(to_be_kicked) == 1:
-                        print(f"Kicking player: {to_be_kicked[0]}")
+                        print(
+                            f"[KICKING LOSER] Kicking player: {to_be_kicked[0]}")
                         self._players.pop(to_be_kicked[0])
 
                     else:
@@ -271,15 +262,23 @@ class Client():
     def end_round(self):
         # clear all variables
         print(
-            f"\n---- Round has ended. Players left: {self._players.keys()} ----")
+            f"\n---- Round has ended. Players left: {list(self._players.keys())} ----")
         sleep(5)
         self._reset_round()
 
+        # player has lost the game
+        if not self._players.get(self._myself.get_name(), None):
+            print("You lost! Enjoy spectating the game!")
+            self._state = "SPECTATOR"
+
         # if no chairs left, end the game, else reset
-        if len(self._round_inputs.keys()) < 1:
-            print("No more seats left, ending game!")
-            self._transportLayer.shutdown()
+        elif len(self._round_inputs.keys()) < 1:
+            winner = list(self._players.keys())[0]
+            print(f"No more seats left, {winner} has won the game!")
+            # TODO: last remaining player sends packet to initiate shutdown for players who have already lost
+            self._transportLayer.sendall(EndGame(self._myself))
             self._state = "END_GAME"
+
         else:
             # must wait for everyone to signal end round before moving on to next round
             self._state = "AWAIT_KEYPRESS"
@@ -289,6 +288,10 @@ class Client():
         self._transportLayer.shutdown()
         self.game_over = True
 
+    def spectator(self):
+        # for player who last lost game
+        # TODO: find out how to get updates from other players
+        self._checkTransportLayerForIncomingData()
 
 ######### helper functions #########
 
@@ -313,43 +316,44 @@ class Client():
 
             elif pkt.get_packet_type() == "peering_completed":
                 print(
-                    f"Received peering completed from {pkt.get_player().get_name()}")
+                    f"[Peering Completed] {pkt.get_player().get_name()}")
 
             elif pkt.get_packet_type() == "ready_to_start":
                 player_name = pkt.get_player().get_name()
                 self._round_ready[player_name] = True
                 self._players[player_name] = Player(player_name)
-                print(f"Received ready to start from {player_name}")
+                print(f"[Ready to Start]{player_name}")
 
             elif pkt.get_packet_type() == "ack_start":
                 player_name = pkt.get_player().get_name()
                 self._round_ackstart[player_name] = True
-                print(f"Received vote to start from {player_name}")
+                print(f"[Vote to Start] {player_name}")
 
             elif pkt.get_packet_type() == "ack":
                 player_name = pkt.get_player().get_name()
                 self._ack_count += 1
-                print(f"Received ack to sit from {player_name}")
+                print(f"[ACK from] {player_name}")
 
             elif pkt.get_packet_type() == "nak":
                 player_name = pkt.get_player().get_name()
                 self._nak_count += 1
-                print(f"Received nak to sit from {player_name}")
+                print(f"[NAK from] {player_name}")
 
             elif pkt.get_packet_type() == "sat_down":
                 player_name = pkt.get_player().get_name()
                 self._sat_down_count += 1
-                print(f"Received {player_name} has sat down")
+                print(f"[ACTION] {player_name} has sat down!")
+                print(f"[SEATS] {self._round_inputs}")
 
             elif pkt.get_packet_type() == "vote":
                 player_to_kick = pkt.get_data()
-                print(f"receiving data: {player_to_kick}")
+                print(f"[VOTEKICK] {player_to_kick}")
                 if player_to_kick in self._votekick:
                     self._votekick[player_to_kick] += 1
                 else:
                     self._votekick[player_to_kick] = 1
 
-                print(f"Updated votekick table: {self._votekick}")
+                print(f"{self._votekick}")
 
             elif pkt.get_packet_type() == "sync_req":
                 pass
@@ -382,6 +386,12 @@ class Client():
                         elif frame > self.frame_count:
                             print("Requesting to be master since I'm behind")
                             self._frameSync.acquire_master(self._myself)
+
+            elif pkt.get_packet_type() == "end_game":
+                winner = pkt.get_player()
+                if self._state == "SPECTATOR":
+                    print(f"[END GAME] {winner} has won the game!")
+                    self._state = "END_GAME"
 
     def _all_voted_to_start(self):
         return len(self._round_ackstart.keys()) >= len(self._round_inputs)-1

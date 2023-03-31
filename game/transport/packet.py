@@ -21,6 +21,7 @@ class Packet:
     - ss_ack
     - vote
     - sat_down
+    - end_game
     """
 
     def __init__(self, data, player: Player, packet_type: str):
@@ -164,3 +165,10 @@ class ConnectionEstab(Packet):
 
     def __init__(self, player: Player):
         super().__init__(None, player, "connection_estab")
+
+class EndGame(Packet):
+    """Inform everyone to end the game."""
+
+    def __init__(self,player: Player):
+        super().__init__(None, player, "end_game")
+
