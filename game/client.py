@@ -112,6 +112,7 @@ class Client():
     def peering(self):
         print('In Peering')
         # print(self._transportLayer.get_connection_pool())
+        self._transportLayer.reset_sync()
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
             print("Notify peers that peering is completed")

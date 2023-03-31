@@ -4,6 +4,7 @@ from game.models.player import Player
 from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet, SyncReq, SyncAck, PeerSyncAck, UpdateLeader
 from game.lobby.tracker import Tracker
 from game.clock.sync import Sync
+from game.clock.delay import Delay
 
 from config import NUM_PLAYERS
 
@@ -34,6 +35,8 @@ class Transport:
 
         self.sync = Sync(myself=self.myself, tracker=self.tracker)
         self.sync_state = False
+
+        # self.delayer = Delay
 
         # start my socket
         if not host_socket:
@@ -102,7 +105,8 @@ class Transport:
                 self.lock.release()
 
     def send(self, packet: Packet, player_id):
-        self.sync.add_delay(player_id)
+        # self.delayer.delay(player_id)
+        
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         try:
             conn = self._connection_pool[player_id]
@@ -122,12 +126,25 @@ class Transport:
         # conn.connect((ip, port))
         # conn.sendall(padded)
 
-    def sendall(self, packet: Packet):
-        wait_list = self.sync.get_wait_times()
+    def send_within(self, packet: Packet, player_id, delay: float):
+        time.sleep(delay)
+        self.send(packet, player_id)
 
-        for player_id in self._connection_pool:
-            print("Sending packet", packet.get_packet_type(), "to", player_id)
-            self.send(packet, player_id)
+    def sendall(self, packet: Packet):
+        wait_dict = self.sync.get_wait_times()
+        if wait_dict:
+            print(wait_dict)
+            for player_id in self._connection_pool:
+                wait = wait_dict[player_id]
+                threading.Thread(target=self.send_within(packet, player_id, delay=wait), daemon=True)
+        
+        else:
+            for player_id in self._connection_pool:
+                threading.Thread(target=self.send_within(packet, player_id, delay=0), daemon=True)
+
+        # for player_id in self._connection_pool:
+        #     print("Sending packet", packet.get_packet_type(), "to", player_id)
+        #     self.send(packet, player_id)
 
     def receive(self) -> str:
         # TODO handle receiving of sync req
@@ -256,6 +273,9 @@ class Transport:
                 self.sync_state = True
         else:
             self.queue.put(data)
+
+    def reset_sync(self):
+        self.sync.reset_sync()
 
     def shutdown(self):
         self.thread_mgr.shutdown()
