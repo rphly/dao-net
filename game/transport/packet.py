@@ -82,11 +82,14 @@ class PeeringCompleted(Packet):
     def __init__(self, player: Player):
         super().__init__(None, player, "peering_completed")
 # Timer Packets
+
+
 class SyncReq(Packet):
     """Send a Sync packet"""
 
     def __init__(self, player: Player):
         super().__init__(None, player, "sync_req")
+
 
 class SyncAck(Packet):
     """Send a Sync packet."""
@@ -94,11 +97,13 @@ class SyncAck(Packet):
     def __init__(self, data, player: Player):
         super().__init__(data, player, "sync_ack")
 
+
 class PeerSyncAck(Packet):
     """Send peer their delay measurement."""
 
     def __init__(self, data, player: Player):
         super().__init__(data, player, "peer_sync_ack")
+
 
 class UpdateLeader(Packet):
     """Update the leader of syncing."""
@@ -106,6 +111,7 @@ class UpdateLeader(Packet):
     def __init__(self, data: int, player: Player):
         super().__init__(data, player, "update_leader")
 # End of Timer Packets
+
 
 class ReadyToStart(Packet):
     """Ready to start game"""
@@ -126,6 +132,24 @@ class SatDown(Packet):
 
     def __init__(self, player: Player):
         super().__init__(None, player, "sat_down")
+
+
+class FrameSync(Packet):
+    """FrameSync"""
+
+    def __init__(self, frame, player: Player):
+        super().__init__(frame, player, "frame_sync")
+
+
+class AcquireMaster(Packet):
+    def __init__(self, player: Player):
+        super().__init__(None, player, "acquire_master")
+
+
+class UpdateMaster(Packet):
+    def __init__(self, new_master_id: str, player: Player):
+        super().__init__(new_master_id, player, "update_master")
+
 
 # initial transport layer initiation
 class ConnectionRequest(Packet):

@@ -1,12 +1,13 @@
 import json
 import threading
+from game.clock.clock import Clock
 from game.models.player import Player
 from game.models.action import Action
 from game.lobby.tracker import Tracker
 from game.models.vote import Vote
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
-from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart, SatDown
+from game.transport.packet import AckStart, Nak, Ack, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync
 import config
 import keyboard
 import game.clock.sync as sync
@@ -27,7 +28,6 @@ class Client():
         self.tracker = tracker
         self.host_socket = host_socket  # for testing only
 
-
         self.lock = threading.Lock()
 
         self._players: dict[str, Player] = {
@@ -42,6 +42,8 @@ class Client():
             # 17: None,
             # 16: None,
         }
+
+        self.frame_count = 0
 
         self.hotkeys_added = False
         self._round_started = False
@@ -64,10 +66,11 @@ class Client():
                                          ThreadManager(),
                                          tracker=self.tracker,
                                          host_socket=host_socket)
-        self.is_peering_completed = False
-        print(f"Tracker_List Before Sync:{self.tracker.get_tracker_list()}")
-        print(f"Leader List Before Sync Initialisation:{self.tracker.get_leader_list()}")
 
+        self._frameSync = Clock(
+            self._myself, self._transportLayer, self._myself if host_socket else None)
+
+        self.is_peering_completed = False
         self.is_sync_complete = False
 
     def _state(self):
@@ -77,8 +80,13 @@ class Client():
         print("Game has started!")
         try:
             while not self.game_over:
-                sleep(0.5)  # slow down game loop
+                sleep(1)  # slow down game loop
+                self.frame_count += 1
+                if self.frame_count % 3 == 0:
+                    self._transportLayer.sendall(
+                        FrameSync(self.frame_count, self._myself))
                 self.trigger_handler(self._state)
+
         except KeyboardInterrupt:
             print("Exiting game")
             self._transportLayer.shutdown()
@@ -113,7 +121,7 @@ class Client():
 
     def peering(self):
         print('In Peering')
-        #print(self._transportLayer.get_connection_pool())
+        # print(self._transportLayer.get_connection_pool())
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
             print("Notify peers that peering is completed")
@@ -122,9 +130,12 @@ class Client():
             self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
+        # send out master for framesync (only if host)
+        self._frameSync.if_master_emit_new_master(self._myself)
 
         while not self.is_sync_complete:
-            self.is_sync_complete = self._transportLayer.syncing() # Control Flow Moves to Check_Leader Function
+            # Control Flow Moves to Check_Leader Function
+            self.is_sync_complete = self._transportLayer.syncing()
             sleep(1)
 
         # If self.leader_idx == len(self.leader_list)-1 you move into Game Play
@@ -342,6 +353,35 @@ class Client():
 
             elif pkt.get_packet_type() == "sync_req":
                 pass
+
+            elif pkt.get_packet_type() == "update_master":
+                player = pkt.get_player()
+                new_master_name = pkt.get_data()
+                if self._frameSync.get_master() is None or player.get_name() == self._frameSync.get_master().name():
+                    print(
+                        f"Updating master to {new_master_name}")
+                    self._frameSync.update_master(
+                        Player(new_master_name), None)
+
+            elif pkt.get_packet_type() == "acquire_master":
+                playerRequestingForMaster = pkt.get_player()
+                self._frameSync.if_master_emit_new_master(
+                    playerRequestingForMaster)
+                self._frameSync.update_master(
+                    playerRequestingForMaster, self._myself)
+
+            elif pkt.get_packet_type() == "frame_sync":
+                frame = pkt.get_data()
+                player = pkt.get_player()
+                self._frameSync.update_frame(player.get_name(), frame)
+                if self._frameSync.get_master():
+                    if self._frameSync.get_master().get_name() == player.get_name():
+                        if frame < self.frame_count:
+                            print("Slow down since master is behind")
+                            sleep(0.3)
+                        elif frame > self.frame_count:
+                            print("Requesting to be master since I'm behind")
+                            self._frameSync.acquire_master(self._myself)
 
     def _all_voted_to_start(self):
         return len(self._round_ackstart.keys()) >= len(self._round_inputs)-1
