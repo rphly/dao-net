@@ -365,7 +365,7 @@ class Client():
                 seat = pkt.get_data()
                 self._sat_down_count += 1
                 self.lock.acquire()
-                self._round_inputs[seat] = player.get_name()
+                self._round_inputs[seat] = player_name
                 self.lock.release()
                 print(f"[ACTION] {player_name} has sat down!")
                 print(f"[SEATS] {self._round_inputs}")
