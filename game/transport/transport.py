@@ -165,10 +165,12 @@ class Transport:
         packet_type = d["packet_type"]
         if packet_type == "connection_req":
             self.handle_connection_request(d, connection)
+            return True
         elif packet_type == "connection_estab":
             self.handle_connection_estab(d, connection)
+            return True
         else:
-            self.queue.put(data)
+            return False
 
     def handle_connection_request(self, data, connection):
         player: Player = Player(data["player"]["name"])
@@ -203,13 +205,12 @@ class Transport:
             try:
                 data = connection.recv(self.chunksize)
                 if data:
-                    if not self.all_connected():
-                        self.check_if_peering_and_handle(data, connection)
-                        continue
-                    if not self.sync_state:
-                        self.handle_sync(data)
-                        continue
-                    self.queue.put(data)
+                    is_peering = self.check_if_peering_and_handle(data, connection)
+                    if not is_peering:
+                        if not self.sync_state:
+                            self.handle_sync(data)
+                            continue
+                        self.queue.put(data)
             except:
                 break
 

@@ -72,7 +72,7 @@ class Client():
         print("Game has started!")
         try:
             while not self.game_over:
-                sleep(1)  # slow down game loop
+                sleep(0.2)  # slow down game loop
                 self.trigger_handler(self._state)
         except KeyboardInterrupt:
             print("Exiting game")
@@ -112,21 +112,21 @@ class Client():
     def peering(self):
         print('In Peering')
         # print(self._transportLayer.get_connection_pool())
-        self._transportLayer.reset_sync()
+        
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
             print("Notify peers that peering is completed")
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
+            self._transportLayer.reset_sync()
             self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
-
-        while not self.is_sync_complete:
+        print("syncing")
+        if not self.is_sync_complete:
             # Control Flow Moves to Check_Leader Function
             self.is_sync_complete = self._transportLayer.syncing()
-            sleep(1)
-
+            return
         # If self.leader_idx == len(self.leader_list)-1 you move into Game Play
         self._state = "INIT"
 

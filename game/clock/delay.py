@@ -17,7 +17,7 @@ class Delay:
 
     def generate_delays(self):
         for player_id in self.leader_list:
-            self._delay_to_peers[player_id] = 0.1 * randrange(1, 9)
+            self._delay_to_peers[player_id] = 0.01 * randrange(1, 9)
 
     def delay(self, player_id):
         sleep_time = self._delay_to_peers[player_id]
