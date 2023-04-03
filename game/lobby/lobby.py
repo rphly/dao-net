@@ -153,6 +153,7 @@ class Lobby():
             self.lobby_start_game()
         else:
             print("Not enough players to start game.")
+            self.logger.info(f"Attempt to start with {self.tracker.get_player_count()} players. Failed.\nNeed {self.NUM_PLAYERS} players to start.")
             print("Current players: " + str(self.tracker.get_players()))
 
     def lobby_register(self, data, connection):
@@ -207,6 +208,7 @@ class Lobby():
         for connection in self.connections.values():
             self.send(self.start_pkt(), connection)
         print("All clients notified of game start.")
+        self.logger.info("All clients notified of game start.")
         keyboard.remove_hotkey('space')
 
         self.game_started = True
