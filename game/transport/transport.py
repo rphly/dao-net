@@ -106,12 +106,12 @@ class Transport:
 
     def send(self, packet: Packet, player_id):
         # self.delayer.delay(player_id)
-        
+
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         try:
             conn = self._connection_pool[player_id]
             conn.sendall(padded)
-        except (BrokenPipeError, OSError):
+        except (ConnectionRefusedError, BrokenPipeError, OSError):
             ip, port = self.tracker.get_ip_port(
                 player_id)
             conn = socket.socket(
@@ -136,11 +136,13 @@ class Transport:
             print(wait_dict)
             for player_id in self._connection_pool:
                 wait = wait_dict[player_id]
-                threading.Thread(target=self.send_within(packet, player_id, delay=wait), daemon=True)
-        
+                threading.Thread(target=self.send_within(
+                    packet, player_id, delay=wait), daemon=True)
+
         else:
             for player_id in self._connection_pool:
-                threading.Thread(target=self.send_within(packet, player_id, delay=0), daemon=True)
+                threading.Thread(target=self.send_within(
+                    packet, player_id, delay=0), daemon=True)
 
         # for player_id in self._connection_pool:
         #     print("Sending packet", packet.get_packet_type(), "to", player_id)
@@ -205,7 +207,8 @@ class Transport:
             try:
                 data = connection.recv(self.chunksize)
                 if data:
-                    is_peering = self.check_if_peering_and_handle(data, connection)
+                    is_peering = self.check_if_peering_and_handle(
+                        data, connection)
                     if not is_peering:
                         if not self.is_sync_completed:
                             self.handle_sync(data)
