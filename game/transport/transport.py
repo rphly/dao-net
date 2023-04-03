@@ -134,10 +134,11 @@ class Transport:
         # conn.sendall(padded)
 
     def send_within(self, packet: Packet, player_id, delay: float):
+        now = time.time()
         time.sleep(delay)
         self.send(packet, player_id)
         self.logger.info(f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
-        self.logger.info(f"DELAY_INFO\n{self.myself} to {player_id} | send_time:{time.time()} | delay_time: {time.time()+delay} | packet_type: {packet.get_packet_type()}")
+        self.logger.info(f"DELAY_INFO\n{self.myself} to {player_id} | send_time:{now} | delay_time: {now+delay} | packet_type: {packet.get_packet_type()}")
 
     def sendall(self, packet: Packet):
         wait_dict = self.sync.get_wait_times()
