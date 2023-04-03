@@ -209,12 +209,12 @@ class Client():
                         return
 
             # if everyone else has sat down, move onto next state
-            elif self._sat_down_count >= len(self._round_inputs.keys()):
+            elif all(self._round_inputs.values()):
                 self._state = "AWAIT_ROUND_END"
 
     def await_round_end(self):
         self._checkTransportLayerForIncomingData()
-        if self._sat_down_count >= len(self._round_inputs.keys()):
+        if all(self._round_inputs.values()):
             # everyone is ready to vote
             if not self._done_voting:
                 # choosing who to kick
