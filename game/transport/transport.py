@@ -4,6 +4,7 @@ from game.models.player import Player
 from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet, SyncReq, SyncAck, PeerSyncAck, UpdateLeader
 from game.lobby.tracker import Tracker
 from game.clock.sync import Sync
+from game.clock.delay import Delay
 
 from config import NUM_PLAYERS
 
@@ -34,6 +35,8 @@ class Transport:
 
         self.sync = Sync(myself=self.myself, tracker=self.tracker)
         self.sync_state = False
+
+        # self.delayer = Delay
 
         # start my socket
         if not host_socket:
@@ -76,33 +79,34 @@ class Transport:
         """
         Attempt to make outgoing connections to all players
         """
-
-        for player_id in self.tracker.get_players():
-            if player_id == self.myself:
-                continue
-            self.lock.acquire()
-            if player_id not in self._connection_pool:
-                ip, port = self.tracker.get_ip_port(
-                    player_id)
-                if ip is None or port is None:
+        while not self.all_connected():
+            for player_id in self.tracker.get_players():
+                if player_id == self.myself:
                     continue
-                # waiting for player to start server
-                try:
-                    sock = socket.socket(
-                        socket.AF_INET, socket.SOCK_STREAM)
-                    sock.connect((ip, port))
-                    # send a player my conn request
-                    sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
-                        'utf-8').ljust(self.chunksize, b"\0"))
-                    print(
-                        f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
-                    time.sleep(1)
-                except (ConnectionRefusedError, TimeoutError):
-                    pass
-            self.lock.release()
+                self.lock.acquire()
+                if player_id not in self._connection_pool:
+                    ip, port = self.tracker.get_ip_port(
+                        player_id)
+                    if ip is None or port is None:
+                        continue
+                    # waiting for player to start server
+                    try:
+                        sock = socket.socket(
+                            socket.AF_INET, socket.SOCK_STREAM)
+                        sock.connect((ip, port))
+                        # send a player my conn request
+                        sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
+                            'utf-8').ljust(self.chunksize, b"\0"))
+                        print(
+                            f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
+                        time.sleep(1)
+                    except (ConnectionRefusedError, TimeoutError):
+                        pass
+                self.lock.release()
 
     def send(self, packet: Packet, player_id):
-        self.sync.add_delay(player_id)
+        # self.delayer.delay(player_id)
+        
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         try:
             conn = self._connection_pool[player_id]
@@ -122,12 +126,25 @@ class Transport:
         # conn.connect((ip, port))
         # conn.sendall(padded)
 
+    def send_within(self, packet: Packet, player_id, delay: float):
+        time.sleep(delay)
+        self.send(packet, player_id)
+
     def sendall(self, packet: Packet):
-        wait_list = self.sync.get_wait_times()
+        wait_dict = self.sync.get_wait_times()
+        if wait_dict:
+            print(wait_dict)
+            for player_id in self._connection_pool:
+                wait = wait_dict[player_id]
+                threading.Thread(target=self.send_within(packet, player_id, delay=wait), daemon=True)
         
-        for player_id in self._connection_pool:
-            print("Sending packet", packet.get_packet_type(), "to", player_id)
-            self.send(packet, player_id)
+        else:
+            for player_id in self._connection_pool:
+                threading.Thread(target=self.send_within(packet, player_id, delay=0), daemon=True)
+
+        # for player_id in self._connection_pool:
+        #     print("Sending packet", packet.get_packet_type(), "to", player_id)
+        #     self.send(packet, player_id)
 
     def receive(self) -> str:
         # TODO handle receiving of sync req
@@ -148,10 +165,12 @@ class Transport:
         packet_type = d["packet_type"]
         if packet_type == "connection_req":
             self.handle_connection_request(d, connection)
+            return True
         elif packet_type == "connection_estab":
             self.handle_connection_estab(d, connection)
+            return True
         else:
-            self.queue.put(data)
+            return False
 
     def handle_connection_request(self, data, connection):
         player: Player = Player(data["player"]["name"])
@@ -186,13 +205,12 @@ class Transport:
             try:
                 data = connection.recv(self.chunksize)
                 if data:
-                    if not self.all_connected():
-                        self.check_if_peering_and_handle(data, connection)
-                        continue
-                    if not self.sync_state:
-                        self.handle_sync(data)
-                        continue
-                    self.queue.put(data)
+                    is_peering = self.check_if_peering_and_handle(data, connection)
+                    if not is_peering:
+                        if not self.sync_state:
+                            self.handle_sync(data)
+                            continue
+                        self.queue.put(data)
             except:
                 break
 
@@ -256,6 +274,9 @@ class Transport:
                 self.sync_state = True
         else:
             self.queue.put(data)
+
+    def reset_sync(self):
+        self.sync.reset_sync()
 
     def shutdown(self):
         self.thread_mgr.shutdown()

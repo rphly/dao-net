@@ -61,6 +61,10 @@ class Client():
                                          ThreadManager(),
                                          tracker=self.tracker,
                                          host_socket=host_socket)
+        self.is_peering_completed = False
+        print(f"Tracker_List Before Sync:{self.tracker.get_tracker_list()}")
+        print(
+            f"Leader List Before Sync Initialisation:{self.tracker.get_leader_list()}")
 
         self._frameSync = Clock(
             self._myself, self._transportLayer, self._myself if host_socket else None)
@@ -120,22 +124,21 @@ class Client():
     def peering(self):
         print('In Peering')
         # print(self._transportLayer.get_connection_pool())
+        
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
             print("Notify peers that peering is completed")
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
+            self._transportLayer.reset_sync()
             self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
-        # send out master for framesync (only if host)
-        self._frameSync.if_master_emit_new_master(self._myself)
-
-        while not self.is_sync_complete:
+        print("syncing")
+        if not self.is_sync_complete:
             # Control Flow Moves to Check_Leader Function
             self.is_sync_complete = self._transportLayer.syncing()
-            sleep(1)
-
+            return
         # If self.leader_idx == len(self.leader_list)-1 you move into Game Play
         self._state = "INIT"
 
@@ -174,8 +177,8 @@ class Client():
                         ## FOR TESTING ONLY ##
                         # player takes hotkey sequentially accordingly to port number
                         # port 9999 takes 12, 10000 takes 13...
-                        if not (k + 9987 == self.my_port_number):
-                            continue
+                        # if not (k + 9987 == self.my_port_number):
+                        #     continue
                         keyboard.add_hotkey(
                             k, self._insert_input, args=(k,))
                         self.hotkeys_added = True
