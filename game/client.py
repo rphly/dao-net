@@ -36,8 +36,9 @@ class Client():
             self._myself.get_name(): self._myself}
         self._votekick: dict[str, int] = {}
         # Initialise round inputs to num of players - 1
-        self._round_inputs = {k: None for k in [config.KEYBOARD_MAPPING[i] for i in range(config.NUM_CHAIRS)]}
-        
+        self._round_inputs = {k: None for k in [
+            config.KEYBOARD_MAPPING[i] for i in range(config.NUM_CHAIRS)]}
+
         self.frame_count = 0
 
         self.hotkeys_added = False
@@ -78,9 +79,9 @@ class Client():
         print("Game has started!")
         try:
             while not self.game_over:
-                sleep(1)  # slow down game loop
+                sleep(0.2)  # slow down game loop
                 self.frame_count += 1
-                if self.frame_count % 3 == 0:
+                if self.frame_count % 10 == 0:
                     self._transportLayer.sendall(
                         FrameSync(self.frame_count, self._myself))
                 self.trigger_handler(self._state)
@@ -146,7 +147,7 @@ class Client():
         # everybody sends ok start to everyone else
         self._transportLayer.sendall(ReadyToStart(self._myself))
         self._checkTransportLayerForIncomingData()
-        if len(self._round_ready.keys()) == config.NUM_PLAYERS:
+        if len(self._round_ready.keys()) == config.NUM_PLAYERS-1:
             print("All players are ready to start.")
             print("Voting to start now...")
             self._transportLayer.sendall(AckStart(self._myself))

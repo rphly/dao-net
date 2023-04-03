@@ -133,7 +133,6 @@ class Transport:
     def sendall(self, packet: Packet):
         wait_dict = self.sync.get_wait_times()
         if wait_dict:
-            print(wait_dict)
             for player_id in self._connection_pool:
                 wait = wait_dict[player_id]
                 threading.Thread(target=self.send_within(
