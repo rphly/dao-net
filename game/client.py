@@ -241,7 +241,7 @@ class Client():
             # tallying votes
             else:
                 print(f"Waiting for votes... Current votes: {self._votekick}")
-                if sum(self._votekick.values()) == len(self._players):
+                if sum(self._votekick.values()) >= len(self._players):
                     print("[ALL VOTES IN]")
                     max_vote = max(self._votekick.values())
                     # in case there is a tie
