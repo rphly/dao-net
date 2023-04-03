@@ -36,7 +36,7 @@ if __name__ == "__main__":
             try:
                 player_port = int(sys.argv[i+1])
                 current_time = datetime.now().strftime("%H-%M-%S")
-                logger = setup_logger("PLAYER_LOGGER", f"./logs/PLAYER{current_time}DAO-NET.log")
+                logger= setup_logger("PLAYER_LOGGER", f"./logs/PLAYER{current_time}DAO-NET.log")
                 logger.info("Starting player mode.")
                 logger.info(f"Player name is {player_name}.")
             except (ValueError, TypeError):
@@ -50,7 +50,7 @@ if __name__ == "__main__":
                 logger = setup_logger("HOST_LOGGER", f"./logs/HOST{current_time}DAO-NET.log")
                 logger.info("Starting host mode.")
                 logger.info(f"Player name is {player_name}.")
-                
+
         if sys.argv[i] == "-n":
             player_name = sys.argv[i+1]
 
@@ -72,7 +72,13 @@ if __name__ == "__main__":
         exit(1)
 
     print("Entering game...")
-    GameClient(player_name,
+    if not is_player_mode:
+         GameClient(player_name,
                tracker,
-               socket if not is_player_mode else None).start()
+               logger, socket).start()
+    else:
+        GameClient(player_name,
+               tracker,
+               logger, None).start()
+
     print("Hope you had fun!")

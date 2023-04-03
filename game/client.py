@@ -12,6 +12,7 @@ import config
 import keyboard
 import game.clock.sync as sync
 from time import time, sleep
+import logging
 
 
 class Client():
@@ -19,7 +20,7 @@ class Client():
     Game FSM
     """
 
-    def __init__(self, my_name: str, tracker: Tracker, host_socket=None):
+    def __init__(self, my_name: str, tracker: Tracker, logger, host_socket=None, ):
         super().__init__()
 
         self._state: str = "PEERING"
@@ -31,6 +32,7 @@ class Client():
             self._myself.get_name())  # for testing only
 
         self.lock = threading.Lock()
+        self.logger = logger
 
         self._players: dict[str, Player] = {
             self._myself.get_name(): self._myself}
@@ -59,6 +61,7 @@ class Client():
         self._transportLayer = Transport(my_name,
                                          self.tracker.get_ip_port(my_name)[1],
                                          ThreadManager(),
+                                         logger,
                                          tracker=self.tracker,
                                          host_socket=host_socket)
         self.is_peering_completed = False
@@ -124,7 +127,7 @@ class Client():
     def peering(self):
         print('In Peering')
         # print(self._transportLayer.get_connection_pool())
-        
+
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
             print("Notify peers that peering is completed")

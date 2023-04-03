@@ -23,7 +23,7 @@ It is also responsible for maintaining a connection pool of all players.
 
 class Transport:
 
-    def __init__(self, myself: str, port, thread_manager, tracker: Tracker, host_socket: socket.socket = None):
+    def __init__(self, myself: str, port, thread_manager, logger, tracker: Tracker, host_socket: socket.socket = None):
         self.myself = myself
         self.my_player = Player(name=self.myself)
         self.thread_mgr = thread_manager
@@ -31,6 +31,7 @@ class Transport:
         self.chunksize = 1024
         self.NUM_PLAYERS = NUM_PLAYERS
         self.lock = threading.Lock()
+        self.logger = logger
 
         self.tracker = tracker
         self._connection_pool: dict[str, socket.socket] = {}
