@@ -3,6 +3,8 @@ from game.client import Client as GameClient
 import sys
 import petname
 import logging
+from datetime import datetime
+from logs import setup_logger
 
 if __name__ == "__main__":
     host_ip = None
@@ -12,7 +14,9 @@ if __name__ == "__main__":
     is_player_mode = True
     player_name = petname.Generate(2)
     tracker = None
-    logging.basicConfig(filename='DAO-NET.log', level=logging.INFO)
+    logger = None
+
+
 
     for i in range(0, len(sys.argv)):
         if sys.argv[i] == "-ip":
@@ -31,6 +35,10 @@ if __name__ == "__main__":
         if sys.argv[i] == "-pp":
             try:
                 player_port = int(sys.argv[i+1])
+                current_time = datetime.now().strftime("%H-%M-%S")
+                logger = setup_logger("PLAYER_LOGGER", f"./logs/PLAYER{current_time}DAO-NET.log")
+                logger.info("Starting player mode.")
+                logger.info(f"Player name is {player_name}.")
             except (ValueError, TypeError):
                 print("Invalid player_port number.")
                 exit(1)
@@ -38,7 +46,11 @@ if __name__ == "__main__":
         if sys.argv[i] == "-m":
             if sys.argv[i+1] == "host":
                 is_player_mode = False
-
+                current_time = datetime.now().strftime("%H-%M-%S")
+                logger = setup_logger("HOST_LOGGER", f"./logs/HOST{current_time}DAO-NET.log")
+                logger.info("Starting host mode.")
+                logger.info(f"Player name is {player_name}.")
+                
         if sys.argv[i] == "-n":
             player_name = sys.argv[i+1]
 
@@ -49,11 +61,11 @@ if __name__ == "__main__":
     if not is_player_mode:
         host_port = host_port or 9999
         print(f"Starting host mode on port {host_port}.")
-        socket, tracker = Lobby().start(host_ip,
+        socket, tracker = Lobby(logger).start(host_ip,
                                         host_port=host_port or 9999, player_name=player_name)
     else:
         print("Starting in player mode.")
-        _, tracker = Lobby().join(host_ip, player_ip, host_port, player_port, player_name)
+        _, tracker = Lobby(logger).join(host_ip, player_ip, host_port, player_port, player_name)
 
     if tracker is None:
         print("Failed to start game.")

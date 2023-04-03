@@ -4,6 +4,7 @@ import json
 import keyboard
 from game.thread_manager import ThreadManager
 import threading
+import logging
 
 from config import NUM_PLAYERS
 
@@ -14,11 +15,12 @@ class Lobby():
     of players have been reached.
     """
 
-    def __init__(self):
+    def __init__(self, logger):
         self.game_started = False
         self.lobby_host_exited = False
         self.chunksize = 1024
         self.NUM_PLAYERS = NUM_PLAYERS
+        self.logger = logger
 
         self.lock = threading.Lock()
         self.game_start_lock = threading.Lock()
