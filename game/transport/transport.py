@@ -34,7 +34,7 @@ class Transport:
         self._connection_pool: dict[str, socket.socket] = {}
 
         self.sync = Sync(myself=self.myself, tracker=self.tracker)
-        self.sync_state = False
+        self.is_sync_completed = False
 
         # self.delayer = Delay
 
@@ -207,7 +207,7 @@ class Transport:
                 if data:
                     is_peering = self.check_if_peering_and_handle(data, connection)
                     if not is_peering:
-                        if not self.sync_state:
+                        if not self.is_sync_completed:
                             self.handle_sync(data)
                             continue
                         self.queue.put(data)
@@ -219,7 +219,7 @@ class Transport:
         if self.sync.is_leader_myself():
             sync_req_pkt = SyncReq(self.my_player)
             self.sendall(sync_req_pkt)
-        return self.sync_state
+        return self.is_sync_completed
 
     def handle_sync(self, data):
         decoded = data.decode('utf-8').rstrip("\0")
@@ -261,7 +261,7 @@ class Transport:
                 self.sync.next_leader()
                 if self.sync.no_more_leader():
                     print(self.sync._delay_dict)
-                    self.sync_state = True
+                    self.is_sync_completed = True
 
         elif packet_type == "peer_sync_ack":
             self.sync.update_delay_dict(pkt)
@@ -271,7 +271,7 @@ class Transport:
             self.sync.next_leader()
             if self.sync.no_more_leader():
                 print(self.sync._delay_dict)
-                self.sync_state = True
+                self.is_sync_completed = True
         else:
             self.queue.put(data)
 
