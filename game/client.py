@@ -295,7 +295,7 @@ class Client():
         self._checkTransportLayerForIncomingData()
 
         # vote for remaining players
-        if not self._done_voting:
+        if len(self._round_inputs) == 1 and not self._done_voting:
             # choosing who to kick
             player_to_kick = None
             for playerid in self._players.keys():
