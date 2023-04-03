@@ -5,6 +5,7 @@ import petname
 import logging
 from datetime import datetime
 from logs import setup_logger
+import os
 
 if __name__ == "__main__":
     host_ip = None
@@ -15,6 +16,8 @@ if __name__ == "__main__":
     player_name = petname.Generate(2)
     tracker = None
     logger = None
+    current_time = datetime.now().strftime("%H-%M-%S")
+    # os.mkdir("./logs/{current_time}")
 
 
 
@@ -72,13 +75,9 @@ if __name__ == "__main__":
         exit(1)
 
     print("Entering game...")
-    if not is_player_mode:
-         GameClient(player_name,
+    GameClient(player_name,
                tracker,
-               logger, socket).start()
-    else:
-        GameClient(player_name,
-               tracker,
-               logger, None).start()
+               logger, 
+               socket if not is_player_mode else None).start()
 
     print("Hope you had fun!")
