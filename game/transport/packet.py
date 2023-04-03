@@ -131,8 +131,8 @@ class AckStart(Packet):
 class SatDown(Packet):
     """Player has sat down."""
 
-    def __init__(self, player: Player):
-        super().__init__(None, player, "sat_down")
+    def __init__(self, seat, player: Player):
+        super().__init__(seat, player, "sat_down")
 
 
 class FrameSync(Packet):
@@ -166,9 +166,9 @@ class ConnectionEstab(Packet):
     def __init__(self, player: Player):
         super().__init__(None, player, "connection_estab")
 
+
 class EndGame(Packet):
     """Inform everyone to end the game."""
 
-    def __init__(self,player: Player):
+    def __init__(self, player: Player):
         super().__init__(None, player, "end_game")
-

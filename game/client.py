@@ -152,14 +152,13 @@ class Client():
             print("Voting to start now...")
             self._transportLayer.sendall(AckStart(self._myself))
             self._checkTransportLayerForIncomingData()
-            self._state = "AWAIT_KEYPRESS"
-            return
+            if self._all_voted_to_start():
+                # waiting for everyone to ackstart
+                self._state = "AWAIT_KEYPRESS"
+                return
 
     def await_keypress(self):
         self._checkTransportLayerForIncomingData()
-        if not self._all_voted_to_start():
-            # waiting for everyone to ackstart
-            return
 
         if not self._round_started:
             self._round_started = True
@@ -201,7 +200,8 @@ class Client():
                         self._round_inputs[self._my_keypress] = self._myself.get_name(
                         )
                         self.lock.release()
-                        self._transportLayer.sendall(SatDown(self._myself))
+                        self._transportLayer.sendall(
+                            SatDown(self._my_keypress, self._myself))
                         self._sat_down_count += 1
                         print("[ACTION] I have sat down successfully!")
                         print(f"{self._round_inputs}")
@@ -294,7 +294,27 @@ class Client():
         # TODO: find out how to get updates from other players
         self._checkTransportLayerForIncomingData()
 
+        # vote for remaining players
+        if not self._done_voting:
+            # choosing who to kick
+            player_to_kick = None
+            for playerid in self._players.keys():
+                if playerid not in self._round_inputs.values():
+                    player_to_kick = playerid
+                    print(
+                        f"[VOTE] Voting to kick: {self._players[playerid].get_name()}")
+                    packet = Vote(player_to_kick, self._myself)
+                    self._transportLayer.sendall(packet)
+                    # my own vote
+                    # TODO: might need to change; player might be assigning vote after it has received votes
+                    numvotes = self._votekick.get(player_to_kick, 0)
+                    self._votekick[player_to_kick] = numvotes + 1
+                    break  # break after the first player to kick
+            self._done_voting = True
+
+
 ######### helper functions #########
+
 
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
@@ -342,7 +362,11 @@ class Client():
 
             elif pkt.get_packet_type() == "sat_down":
                 player_name = pkt.get_player().get_name()
+                seat = pkt.get_data()
                 self._sat_down_count += 1
+                self.lock.acquire()
+                self._round_inputs[seat] = player.get_name()
+                self.lock.release()
                 print(f"[ACTION] {player_name} has sat down!")
                 print(f"[SEATS] {self._round_inputs}")
 
