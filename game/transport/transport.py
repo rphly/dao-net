@@ -6,10 +6,12 @@ from game.lobby.tracker import Tracker
 from game.clock.sync import Sync
 from game.clock.delay import Delay
 
+
 from config import NUM_PLAYERS
 
 from queue import Queue, Empty
 import threading
+import logging
 
 import time
 
@@ -80,6 +82,7 @@ class Transport:
         Attempt to make outgoing connections to all players
         """
         while not self.all_connected():
+
             for player_id in self.tracker.get_players():
                 if player_id == self.myself:
                     continue
@@ -106,7 +109,7 @@ class Transport:
 
     def send(self, packet: Packet, player_id):
         # self.delayer.delay(player_id)
-        
+
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         try:
             conn = self._connection_pool[player_id]
@@ -127,17 +130,20 @@ class Transport:
         # conn.sendall(padded)
 
     def send_within(self, packet: Packet, player_id, delay: float):
+        logging.info(time.time()+"- Player ID:", player_id, "- Actual Send Time:", time.time())
         time.sleep(delay)
+        logging.info(time.time()+"- Player ID:", player_id, "- Added Delay:", delay)
         self.send(packet, player_id)
 
     def sendall(self, packet: Packet):
         wait_dict = self.sync.get_wait_times()
         if wait_dict:
             print(wait_dict)
+            logging.info(time.time()+"- Player ID:", player_id, "- Delay Dictionary:", wait_dict)
             for player_id in self._connection_pool:
                 wait = wait_dict[player_id]
                 threading.Thread(target=self.send_within(packet, player_id, delay=wait), daemon=True)
-        
+
         else:
             for player_id in self._connection_pool:
                 threading.Thread(target=self.send_within(packet, player_id, delay=0), daemon=True)

@@ -2,6 +2,7 @@ from game.lobby.lobby import Lobby
 from game.client import Client as GameClient
 import sys
 import petname
+import logging
 
 if __name__ == "__main__":
     host_ip = None
@@ -11,6 +12,7 @@ if __name__ == "__main__":
     is_player_mode = True
     player_name = petname.Generate(2)
     tracker = None
+    logging.basicConfig(filename='DAO-NET.log', level=logging.INFO)
 
     for i in range(0, len(sys.argv)):
         if sys.argv[i] == "-ip":
