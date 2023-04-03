@@ -36,9 +36,8 @@ class Client():
             self._myself.get_name(): self._myself}
         self._votekick: dict[str, int] = {}
         # Initialise round inputs to num of players - 1
-        self._round_inputs = {k: None for k in range(
-            12, 12 + (config.NUM_CHAIRS))}
-
+        self._round_inputs = {k: None for k in [config.KEYBOARD_MAPPING[i] for i in range(config.NUM_PLAYERS)]}
+        
         self.frame_count = 0
 
         self.hotkeys_added = False
