@@ -124,7 +124,7 @@ class Client():
     def peering(self):
         print('In Peering')
         # print(self._transportLayer.get_connection_pool())
-        
+
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
             print("Notify peers that peering is completed")
@@ -315,17 +315,17 @@ class Client():
                 if self._is_selecting_seat:
                     self._ack_count += 1
 
-            elif pkt.get_packet_type() == "peering_completed":
+            elif pkt.get_packet_type() == "peering_completed" and not self._round_started:
                 print(
                     f"[Peering Completed] {pkt.get_player().get_name()}")
 
-            elif pkt.get_packet_type() == "ready_to_start":
+            elif pkt.get_packet_type() == "ready_to_start" and not self._round_started:
                 player_name = pkt.get_player().get_name()
                 self._round_ready[player_name] = True
                 self._players[player_name] = Player(player_name)
                 print(f"[Ready to Start]{player_name}")
 
-            elif pkt.get_packet_type() == "ack_start":
+            elif pkt.get_packet_type() == "ack_start" and not self._round_started:
                 player_name = pkt.get_player().get_name()
                 self._round_ackstart[player_name] = True
                 print(f"[Vote to Start] {player_name}")
