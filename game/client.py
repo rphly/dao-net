@@ -146,13 +146,11 @@ class Client():
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
         self._transportLayer.sendall(ReadyToStart(self._myself))
-        sleep(5)
         self._checkTransportLayerForIncomingData()
         if len(self._round_ready.keys()) == len(self._round_inputs):
             print("All players are ready to start.")
             print("Voting to start now...")
             self._transportLayer.sendall(AckStart(self._myself))
-            sleep(5)
             self._checkTransportLayerForIncomingData()
             self._state = "AWAIT_KEYPRESS"
             return
