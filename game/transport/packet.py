@@ -1,6 +1,7 @@
 from game.models.player import Player
 import json
 import time
+import sys
 
 
 class Packet:
@@ -61,7 +62,10 @@ class Packet:
 
     def __str__(self):
         return f"Packet: {str(self.data)}"
-
+    
+    def __len__(self):
+        """Used for the calculation of the throughput"""
+        return sys.getsizeof(self)
 
 class Ack(Packet):
     """Acknowledge a packet."""

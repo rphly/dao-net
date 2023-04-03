@@ -23,7 +23,7 @@ It is also responsible for maintaining a connection pool of all players.
 
 class Transport:
 
-    def __init__(self, myself: str, port, thread_manager, logger, tracker: Tracker, host_socket: socket.socket = None):
+    def __init__(self, myself: str, port, thread_manager, logger: logging.Logger, tracker: Tracker, host_socket: socket.socket = None):
         self.myself = myself
         self.my_player = Player(name=self.myself)
         self.thread_mgr = thread_manager
@@ -36,7 +36,7 @@ class Transport:
         self.tracker = tracker
         self._connection_pool: dict[str, socket.socket] = {}
 
-        self.sync = Sync(myself=self.myself, tracker=self.tracker)
+        self.sync = Sync(myself=self.myself, tracker=self.tracker, logger=self.logger)
         self.is_sync_completed = False
 
         # self.delayer = Delay
@@ -55,7 +55,9 @@ class Transport:
         t2 = threading.Thread(target=self.make_connections, daemon=True)
         t1.start()
         t2.start()
+        self.logger.debug("Completely initialized transport...")
 
+    # FOR TESTING PURPOSES ONLY
     def get_connection_pool(self):
         return self._connection_pool
 
@@ -103,6 +105,7 @@ class Transport:
                             'utf-8').ljust(self.chunksize, b"\0"))
                         print(
                             f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
+                        self.logger.info(f"{self.myself} sending connection request to {player_id} at {time.time()}")
                         time.sleep(1)
                     except (ConnectionRefusedError, TimeoutError):
                         pass
@@ -131,16 +134,15 @@ class Transport:
         # conn.sendall(padded)
 
     def send_within(self, packet: Packet, player_id, delay: float):
-        logging.info(time.time()+"- Player ID:", player_id, "- Actual Send Time:", time.time())
         time.sleep(delay)
-        logging.info(time.time()+"- Player ID:", player_id, "- Added Delay:", delay)
         self.send(packet, player_id)
+        self.logger.info(f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
+        self.logger.info(f"DELAY_INFO\n{self.myself} to {player_id} | send_time:{time.time()} | delay_time: {time.time()+delay} | packet_type: {packet.get_packet_type()}")
 
     def sendall(self, packet: Packet):
         wait_dict = self.sync.get_wait_times()
         if wait_dict:
             print(wait_dict)
-            logging.info(time.time()+"- Player ID:", player_id, "- Delay Dictionary:", wait_dict)
             for player_id in self._connection_pool:
                 wait = wait_dict[player_id]
                 threading.Thread(target=self.send_within(packet, player_id, delay=wait), daemon=True)
@@ -162,7 +164,12 @@ class Transport:
             data: bytes = self.queue.get_nowait()
             self.queue.task_done()
             if data:
-                return Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0")))
+                packet = Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0")))
+                length = len(packet)
+                rtt = time.time() - packet.get_created_at()
+                throughput = length / rtt
+                self.logger.info(f"PACKET_INFO\nLength: {length} | Packet Type: {packet.get_packet_type()} | RTT: {rtt} | Throughput: {throughput}")
+                return packet
         except Empty:
             return
 
