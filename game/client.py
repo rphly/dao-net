@@ -361,7 +361,7 @@ class Client():
             elif pkt.get_packet_type() == "update_master":
                 player = pkt.get_player()
                 new_master_name = pkt.get_data()
-                if self._frameSync.get_master() is None or player.get_name() == self._frameSync.get_master().name():
+                if self._frameSync.get_master() is None or player.get_name() == self._frameSync.get_master().get_name():
                     print(
                         f"Updating master to {new_master_name}")
                     self._frameSync.update_master(
