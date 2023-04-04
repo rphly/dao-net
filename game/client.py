@@ -8,7 +8,6 @@ from game.models.vote import Vote
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
 from game.transport.packet import AckStart, EndGame, Nak, Ack, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync
-import config
 import keyboard
 import game.clock.sync as sync
 from time import time, sleep
@@ -40,8 +39,9 @@ class Client():
         self._votekick: dict[str, int] = {}
 
         # Initialise round inputs to num of players - 1
+        KEYBOARD_MAPPING = [12, 13, 14, 15, 17, 16]
         self._round_inputs = {k: None for k in [
-            config.KEYBOARD_MAPPING[i] for i in range(self._total_players - 1)]}
+            KEYBOARD_MAPPING[i] for i in range(self._total_players - 1)]}
 
         self.frame_count = 0
 

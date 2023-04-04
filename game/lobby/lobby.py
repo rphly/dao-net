@@ -5,8 +5,6 @@ import keyboard
 from game.thread_manager import ThreadManager
 import threading
 
-from config import NUM_PLAYERS
-
 
 class Lobby():
     """
@@ -18,7 +16,6 @@ class Lobby():
         self.game_started = False
         self.lobby_host_exited = False
         self.chunksize = 1024
-        self.NUM_PLAYERS = NUM_PLAYERS
 
         self.lock = threading.Lock()
         self.game_start_lock = threading.Lock()
@@ -38,7 +35,7 @@ class Lobby():
         # initialize host socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(("0.0.0.0", host_port))
-        sock.listen(self.NUM_PLAYERS)
+        sock.listen(7)
         sock.settimeout(0.5)
         self.mysocket = sock
 
