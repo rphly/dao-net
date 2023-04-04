@@ -17,7 +17,9 @@ if __name__ == "__main__":
     tracker = None
     logger = None
     current_time = datetime.now().strftime("%H-%M-%S")
-    # os.mkdir("./logs/{current_time}") # Implement later
+    if not os.path.exists("./logs/"):
+        os.mkdir("./logs/")
+
 
 
 
