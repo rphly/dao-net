@@ -208,11 +208,11 @@ class Client():
                         # if not (k + 9987 == self.my_port_number):
                         #     continue
                         if self.os_name != "Windows":
-                            k: str = self.letter_to_key[k]
+                            translated_key: str = self.letter_to_key[k]
                         else:
-                            k = k.lower()
+                            translated_key = k.lower()
                         keyboard.add_hotkey(
-                            k, self._insert_input, args=(k,))
+                            translated_key, self._insert_input, args=(k,))
                         self.hotkeys_added = True
 
             elif not self._is_selecting_seat:
