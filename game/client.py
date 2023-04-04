@@ -153,6 +153,7 @@ class Client():
 
     def sync_clock(self):
         print("syncing")
+        self._checkTransportLayerForIncomingData()
         if not self.is_sync_complete:
             self.is_sync_complete = self._transportLayer.syncing()
             return
