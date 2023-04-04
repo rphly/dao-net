@@ -155,6 +155,7 @@ class Client():
         print("syncing")
         if not self.is_sync_complete:
             self.is_sync_complete = self._transportLayer.syncing()
+            return
         self._state = "INIT"
 
     def init(self):
@@ -391,9 +392,6 @@ class Client():
                     self._votekick[player_to_kick] = 1
 
                 print(f"{self._votekick}")
-
-            elif pkt.get_packet_type() == "sync_req":
-                pass
 
             elif pkt.get_packet_type() == "update_master":
                 player = pkt.get_player()
