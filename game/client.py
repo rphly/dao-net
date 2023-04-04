@@ -1,5 +1,6 @@
 import json
 import threading
+from platform import system
 from game.clock.clock import Clock
 from game.models.player import Player
 from game.models.action import Action
@@ -40,10 +41,18 @@ class Client():
             self._myself.get_name(): self._myself}
         self._votekick: dict[str, int] = {}
 
+        self.os_name = system()
+
         # Initialise round inputs to num of players - 1
-        KEYBOARD_MAPPING = [12, 13, 14, 15, 17, 16]
-        self._round_inputs = {k: None for k in [
-            KEYBOARD_MAPPING[i] for i in range(self._total_players - 1)]}
+        KEYBOARD_MAPPING_MAC = [12, 13, 14, 15, 17, 16]
+        KEYBOARD_MAPPING_WDW = [81, 87, 69, 82, 84, 89]
+        if self.os_name == "Windows":
+            self._round_inputs = {k: None for k in [
+                KEYBOARD_MAPPING_WDW[i] for i in range(self._total_players - 1)]}
+
+        else:
+            self._round_inputs = {k: None for k in [
+                KEYBOARD_MAPPING_MAC[i] for i in range(self._total_players - 1)]}
 
         self.frame_count = 0
 
@@ -82,6 +91,8 @@ class Client():
 
         self.is_peering_completed = False
         self.is_sync_complete = False
+
+        
 
     def _state(self):
         return self._state
