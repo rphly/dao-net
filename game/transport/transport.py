@@ -153,6 +153,7 @@ class Transport:
         Drain the queue when we are ready to handle data.
         """
         try:
+            print(self.queue.qsize())
             data: bytes = self.queue.get_nowait()
             self.queue.task_done()
             if data:
