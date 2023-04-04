@@ -110,9 +110,9 @@ class Client():
             while not self.game_over:
                 sleep(1)  # slow down game loop
                 self.frame_count += 1
-                # if self.frame_count % 10 == 0:
-                #     self._transportLayer.sendall(
-                #         FrameSync(self.frame_count, self._myself))
+                if self.frame_count % 10 == 0:
+                    self._transportLayer.sendall(
+                        FrameSync(self.frame_count, self._myself))
                 self.trigger_handler(self._state)
 
         except KeyboardInterrupt:
@@ -207,7 +207,10 @@ class Client():
                         # port 9999 takes 12, 10000 takes 13...
                         # if not (k + 9987 == self.my_port_number):
                         #     continue
-                        k = self.letter_to_key[k]
+                        if self.os_name != "Windows":
+                            k: str = self.letter_to_key[k]
+                        else:
+                            k = k.lower()
                         keyboard.add_hotkey(
                             k, self._insert_input, args=(k,))
                         self.hotkeys_added = True
