@@ -29,15 +29,20 @@ class Client():
         self.host_socket = host_socket  # for testing only
         self.my_ip, self.my_port_number = self.tracker.get_ip_port(
             self._myself.get_name())  # for testing only
+        
+        self._tracker_list = self.tracker.get_tracker_list()
+        self._total_players = self.tracker.get_player_count()
 
         self.lock = threading.Lock()
 
         self._players: dict[str, Player] = {
             self._myself.get_name(): self._myself}
         self._votekick: dict[str, int] = {}
+
         # Initialise round inputs to num of players - 1
+        KEYBOARD_MAPPING = [12, 13, 14, 15, 17, 16]
         self._round_inputs = {k: None for k in [
-            config.KEYBOARD_MAPPING[i] for i in range(config.NUM_CHAIRS)]}
+            config.KEYBOARD_MAPPING[i] for i in range(self._total_players - 1)]}
 
         self.frame_count = 0
 
@@ -148,7 +153,7 @@ class Client():
         # everybody sends ok start to everyone else
         self._checkTransportLayerForIncomingData()
 
-        if len(self._round_ready.keys()) < config.NUM_PLAYERS-1:
+        if len(self._round_ready.keys()) < self._total_players - 1:
             if self._last_sent_ready_to_start is None or time() - self._last_sent_ready_to_start > 3:
                 self._last_sent_ready_to_start = time()
                 self._frameSync.if_master_emit_new_master(self._myself)
@@ -156,9 +161,7 @@ class Client():
         else:
             print("All players are ready to start.")
             print("Voting to start now...")
-            if self._last_sent_ready_to_start is None or time() - self._last_sent_ready_to_start > 3:
-                self._last_sent_ready_to_start = time()
-                self._transportLayer.sendall(AckStart(self._myself))
+            self._transportLayer.sendall(AckStart(self._myself))
 
             if self._all_voted_to_start():
                 # waiting for everyone to ackstart

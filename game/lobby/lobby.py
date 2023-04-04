@@ -147,7 +147,7 @@ class Lobby():
     # state handlers
 
     def attempt_start(self):
-        if self.tracker.get_player_count() == self.NUM_PLAYERS:
+        if self.tracker.get_player_count() >= 2:
             self.lobby_start_game()
         else:
             print("Not enough players to start game.")

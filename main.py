@@ -9,7 +9,7 @@ if __name__ == "__main__":
     host_port = None
     player_ip = None
     is_player_mode = True
-    player_name = "raphael"  # petname.Generate(2)
+    player_name = petname.Generate(2)
     tracker = None
 
     for i in range(0, len(sys.argv)):
