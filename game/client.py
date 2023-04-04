@@ -146,13 +146,14 @@ class Client():
     def init(self):
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
-
-        if self._last_sent_ready_to_start is None or time() - self._last_sent_ready_to_start > 3:
-            self._last_sent_ready_to_start = time()
-            self._frameSync.if_master_emit_new_master(self._myself)
-            self._transportLayer.sendall(ReadyToStart(self._myself))
         self._checkTransportLayerForIncomingData()
-        if len(self._round_ready.keys()) == config.NUM_PLAYERS-1:
+
+        if len(self._round_ready.keys()) < config.NUM_PLAYERS-1:
+            if self._last_sent_ready_to_start is None or time() - self._last_sent_ready_to_start > 3:
+                self._last_sent_ready_to_start = time()
+                self._frameSync.if_master_emit_new_master(self._myself)
+                self._transportLayer.sendall(ReadyToStart(self._myself))
+        else:
             print("All players are ready to start.")
             print("Voting to start now...")
             self._transportLayer.sendall(AckStart(self._myself))
