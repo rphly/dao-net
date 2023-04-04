@@ -509,7 +509,7 @@ class Client():
         return self._state
 
     def _insert_input(self, keypress):
-        self._my_keypress = self.key_to_letter[keypress]
+        self._my_keypress = keypress
         keyboard.remove_all_hotkeys()
 
     def _receiving_seats(self, action: Packet):
