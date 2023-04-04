@@ -315,6 +315,7 @@ class Client():
 
 ######### helper functions #########
 
+
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         pkt: Packet = self._transportLayer.receive()
@@ -508,9 +509,9 @@ class Client():
                 # final round break deadlock
                 if self._my_keypress_time is not None:
                     if created_at >= self._my_keypress_time:
-                        print(created_at, self._my_keypress_time)
                         # if their kp timing >= mine,
                         self._send_nak(player)
+                        self._my_keypress_time = None  # reset
                         self.lock.release()
                         return
             self._send_ack(player)
