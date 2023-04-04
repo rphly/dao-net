@@ -2,6 +2,7 @@ from random import randrange
 import time
 from game.lobby.tracker import Tracker
 
+
 class Delay:
     """
     Synchronizes game actions.
@@ -20,9 +21,6 @@ class Delay:
             self._delay_to_peers[player_id] = 0.01 * randrange(1, 9)
 
     def delay(self, player_id):
-        sleep_time = self._delay_to_peers[player_id]
+        sleep_time = self._delay_to_peers[player_id] + 0.01 * randrange(1, 9)
         print("delaying: " + str(sleep_time))
         time.sleep(sleep_time)
-    
-
-    

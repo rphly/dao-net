@@ -13,7 +13,7 @@ if __name__ == "__main__":
     host_port = None
     player_ip = None
     is_player_mode = True
-    player_name = petname.Generate(2)
+    player_name = "raphael"  # petname.Generate(2)
     tracker = None
     logger = None
     current_time = datetime.now().strftime("%H-%M-%S")
