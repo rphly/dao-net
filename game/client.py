@@ -7,7 +7,7 @@ from game.lobby.tracker import Tracker
 from game.models.vote import Vote
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
-from game.transport.packet import AckStart, EndGame, Nak, Ack, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync
+from game.transport.packet import AckStart, EndGame, Nak, Ack, PeerSyncAck, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync, SyncAck, UpdateLeader
 import keyboard
 import game.clock.sync as sync
 from time import time, sleep
@@ -421,6 +421,56 @@ class Client():
                 if self._state == "SPECTATOR":
                     print(f"[END GAME] {winner} has won the game!")
                     self._state = "END_GAME"
+
+            elif pkt.get_packet_type() == "sync_req":
+                print("received sync req")
+
+                rcv_time = time()
+                # print("rcv time: {}".format(rcv_time))
+                leader_id = pkt.get_player().get_name()
+                delay_from_leader = float(
+                    rcv_time) - float(pkt.get_created_at())
+                # print("delay from leader {}".format(delay_from_leader))
+
+                sync_ack_pkt = SyncAck(delay_from_leader, self._myself)
+                self._transportLayer.send(
+                    packet=sync_ack_pkt, player_id=leader_id)
+
+            elif pkt.get_packet_type() == "sync_ack":
+                print("received sync ack")
+
+                rcv_time = time()
+                self._transportLayer.sync.update_delay_dict(pkt)
+
+                print(self._transportLayer.sync._delay_dict)
+
+                peer_id = pkt.get_player().get_name()
+                delay_from_peer = float(rcv_time) - float(pkt.get_created_at())
+
+                peer_sync_ack_pkt = PeerSyncAck(
+                    delay_from_peer, self._myself)
+                self._transportLayer.send(
+                    packet=peer_sync_ack_pkt, player_id=peer_id)
+
+                if self._transportLayer.sync.done():
+                    # send update leader
+                    print("sending update leader")
+                    update_leader_pkt = UpdateLeader(None, self._myself)
+                    self._transportLayer.sendall(update_leader_pkt)
+                    self._transportLayer.sync.next_leader()
+                    if self._transportLayer.sync.no_more_leader():
+                        print(self._transportLayer.sync._delay_dict)
+                        self._transportLayer.is_sync_completed = True
+
+            elif pkt.get_packet_type() == "peer_sync_ack":
+                self._transportLayer.sync.update_delay_dict(pkt)
+
+            elif pkt.get_packet_type() == "update_leader":
+                print("received update leader")
+                self._transportLayer.sync.next_leader()
+                if self._transportLayer.sync.no_more_leader():
+                    print(self._transportLayer.sync._delay_dict)
+                    self._transportLayer.is_sync_completed = True
 
     def _all_voted_to_start(self):
         return len(self._round_ackstart.keys()) >= len(self._round_inputs)-1

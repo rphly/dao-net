@@ -33,7 +33,8 @@ class Transport:
         self.tracker = tracker
         self._connection_pool: dict[str, socket.socket] = {}
 
-        self.sync = Sync(myself=self.myself, tracker=self.tracker, logger=self.logger)
+        self.sync = Sync(myself=self.myself,
+                         tracker=self.tracker, logger=self.logger)
         self.is_sync_completed = False
 
         # self.delayer = Delay
@@ -102,7 +103,8 @@ class Transport:
                             'utf-8').ljust(self.chunksize, b"\0"))
                         print(
                             f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
-                        self.logger.info(f"{self.myself} sending connection request to {player_id} at {time.time()}")
+                        self.logger.info(
+                            f"{self.myself} sending connection request to {player_id} at {time.time()}")
                         time.sleep(1)
                     except (ConnectionRefusedError, TimeoutError):
                         pass
@@ -134,8 +136,10 @@ class Transport:
         now = time.time()
         time.sleep(delay)
         self.send(packet, player_id)
-        self.logger.info(f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
-        self.logger.info(f"DELAY_INFO\n{self.myself} to {player_id} | send_time:{now} | delay_time: {now+delay} | packet_type: {packet.get_packet_type()}")
+        self.logger.info(
+            f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
+        self.logger.info(
+            f"DELAY_INFO\n{self.myself} to {player_id} | send_time:{now} | delay_time: {now+delay} | packet_type: {packet.get_packet_type()}")
 
     def sendall(self, packet: Packet):
         wait_dict = self.sync.get_wait_times()
@@ -164,11 +168,13 @@ class Transport:
             data: bytes = self.queue.get_nowait()
             self.queue.task_done()
             if data:
-                packet = Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0")))
+                packet = Packet.from_json(json.loads(
+                    data.decode('utf-8').rstrip("\0")))
                 length = len(packet)
                 rtt = time.time() - packet.get_created_at()
                 throughput = length / rtt
-                self.logger.info(f"PACKET_INFO\nLength: {length} | Packet Type: {packet.get_packet_type()} | RTT: {rtt} | Throughput: {throughput}")
+                self.logger.info(
+                    f"PACKET_INFO\nLength: {length} | Packet Type: {packet.get_packet_type()} | RTT: {rtt} | Throughput: {throughput}")
                 return packet
         except Empty:
             return
@@ -222,9 +228,6 @@ class Transport:
                     is_peering = self.check_if_peering_and_handle(
                         data, connection)
                     if not is_peering:
-                        if not self.is_sync_completed:
-                            self.handle_sync(data)
-                            continue
                         self.queue.put(data)
             except:
                 break
@@ -235,60 +238,6 @@ class Transport:
             sync_req_pkt = SyncReq(self.my_player)
             self.sendall(sync_req_pkt)
         return self.is_sync_completed
-
-    def handle_sync(self, data):
-        decoded = data.decode('utf-8').rstrip("\0")
-        d = json.loads(decoded)
-        pkt = Packet.from_json(d)
-        packet_type = pkt.get_packet_type()
-
-        if packet_type == "sync_req":
-            print("received sync req")
-
-            rcv_time = time.time()
-            # print("rcv time: {}".format(rcv_time))
-            leader_id = pkt.get_player().get_name()
-            delay_from_leader = float(rcv_time) - float(pkt.get_created_at())
-            # print("delay from leader {}".format(delay_from_leader))
-
-            sync_ack_pkt = SyncAck(delay_from_leader, self.my_player)
-            self.send(packet=sync_ack_pkt, player_id=leader_id)
-
-        elif packet_type == "sync_ack":
-            print("received sync ack")
-
-            rcv_time = time.time()
-            self.sync.update_delay_dict(pkt)
-
-            print(self.sync._delay_dict)
-
-            peer_id = pkt.get_player().get_name()
-            delay_from_peer = float(rcv_time) - float(pkt.get_created_at())
-
-            peer_sync_ack_pkt = PeerSyncAck(delay_from_peer, self.my_player)
-            self.send(packet=peer_sync_ack_pkt, player_id=peer_id)
-
-            if self.sync.done():
-                # send update leader
-                print("sending update leader")
-                update_leader_pkt = UpdateLeader(None, self.my_player)
-                self.sendall(update_leader_pkt)
-                self.sync.next_leader()
-                if self.sync.no_more_leader():
-                    print(self.sync._delay_dict)
-                    self.is_sync_completed = True
-
-        elif packet_type == "peer_sync_ack":
-            self.sync.update_delay_dict(pkt)
-
-        elif packet_type == "update_leader":
-            print("received update leader")
-            self.sync.next_leader()
-            if self.sync.no_more_leader():
-                print(self.sync._delay_dict)
-                self.is_sync_completed = True
-        else:
-            self.queue.put(data)
 
     def reset_sync(self):
         self.sync.reset_sync()
