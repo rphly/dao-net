@@ -469,7 +469,7 @@ class Client():
                     self._transportLayer.is_sync_completed = True
 
     def _all_voted_to_start(self):
-        return len(self._round_ackstart.keys()) >= len(self._round_inputs)-1
+        return len(self._round_ackstart.keys()) >= len(self._round_inputs)
 
     def _selecting_seats(self):
         self._is_selecting_seat = True
