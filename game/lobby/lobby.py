@@ -6,8 +6,6 @@ from game.thread_manager import ThreadManager
 import threading
 import logging
 
-from config import NUM_PLAYERS
-
 
 class Lobby():
     """
@@ -19,7 +17,6 @@ class Lobby():
         self.game_started = False
         self.lobby_host_exited = False
         self.chunksize = 1024
-        self.NUM_PLAYERS = NUM_PLAYERS
         self.logger = logger
 
         self.lock = threading.Lock()
@@ -40,7 +37,7 @@ class Lobby():
         # initialize host socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(("0.0.0.0", host_port))
-        sock.listen(self.NUM_PLAYERS)
+        sock.listen(7)
         sock.settimeout(0.5)
         self.mysocket = sock
 
@@ -149,7 +146,7 @@ class Lobby():
     # state handlers
 
     def attempt_start(self):
-        if self.tracker.get_player_count() == self.NUM_PLAYERS:
+        if self.tracker.get_player_count() >= 2:
             self.lobby_start_game()
         else:
             print("Not enough players to start game.")
