@@ -51,6 +51,7 @@ class Client():
 
         self._my_keypress = None
         self._my_keypress_time = None
+        self._last_sent_ready_to_start = None
 
         # selecting seats algo
         self._nak_count = 0
@@ -82,11 +83,11 @@ class Client():
         print("Game has started!")
         try:
             while not self.game_over:
-                sleep(0.5)  # slow down game loop
+                sleep(1)  # slow down game loop
                 self.frame_count += 1
-                if self.frame_count % 10 == 0:
-                    self._transportLayer.sendall(
-                        FrameSync(self.frame_count, self._myself))
+                # if self.frame_count % 10 == 0:
+                #     self._transportLayer.sendall(
+                #         FrameSync(self.frame_count, self._myself))
                 self.trigger_handler(self._state)
 
         except KeyboardInterrupt:
@@ -145,8 +146,11 @@ class Client():
     def init(self):
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
-        self._frameSync.if_master_emit_new_master(self._myself)
-        self._transportLayer.sendall(ReadyToStart(self._myself))
+
+        if self._last_sent_ready_to_start is None or time() - self._last_sent_ready_to_start > 3:
+            self._last_sent_ready_to_start = time()
+            self._frameSync.if_master_emit_new_master(self._myself)
+            self._transportLayer.sendall(ReadyToStart(self._myself))
         self._checkTransportLayerForIncomingData()
         if len(self._round_ready.keys()) == config.NUM_PLAYERS-1:
             print("All players are ready to start.")
