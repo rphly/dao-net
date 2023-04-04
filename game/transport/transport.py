@@ -6,8 +6,6 @@ from game.lobby.tracker import Tracker
 from game.clock.sync import Sync
 from game.clock.delay import Delay
 
-from config import NUM_PLAYERS
-
 from queue import Queue, Empty
 import threading
 
@@ -27,7 +25,7 @@ class Transport:
         self.thread_mgr = thread_manager
         self.queue = Queue()
         self.chunksize = 1024
-        self.NUM_PLAYERS = NUM_PLAYERS
+        self.NUM_PLAYERS = tracker.get_player_count()
         self.lock = threading.Lock()
 
         self.tracker = tracker

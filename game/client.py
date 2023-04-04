@@ -40,7 +40,6 @@ class Client():
         self._votekick: dict[str, int] = {}
 
         # Initialise round inputs to num of players - 1
-        KEYBOARD_MAPPING = [12, 13, 14, 15, 17, 16]
         self._round_inputs = {k: None for k in [
             config.KEYBOARD_MAPPING[i] for i in range(self._total_players - 1)]}
 
