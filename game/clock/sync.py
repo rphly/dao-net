@@ -2,6 +2,7 @@ import functools
 import time
 import socket
 import json
+import logging
 from random import randrange
 
 from game.models.player import Player
@@ -15,10 +16,11 @@ class Sync:
     Synchronizes game actions.
     """
 
-    def __init__(self, myself: str, tracker: Tracker, ):
+    def __init__(self, myself: str, tracker: Tracker, logger: logging.Logger):
         print("Sync Initiated")
         self.myself = myself
         self._delay_dict = {}
+        self.logger = logger
 
         self.leader_idx = 0
         self.leader_list = tracker.get_leader_list()
@@ -59,7 +61,9 @@ class Sync:
         return sorted(self._delay_dict.items(), key=lambda x:x[1], reverse=True)
     
     def get_wait_times(self):
+        self.logger.info(f"DELAYLIST\n{self.myself} | Actual delays: {self._delay_dict.items()}")
         ordered_delays = self.get_ordered_delays()
+        self.logger.info(f"DELAYLIST_ORDERED\n{self.myself} | Ordered delays: {self._delay_dict.items()}")
         wait_times = {}
         if len(ordered_delays) == len(self.leader_list) - 1:
             for i in range(len(ordered_delays)-1):

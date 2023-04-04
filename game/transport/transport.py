@@ -6,10 +6,12 @@ from game.lobby.tracker import Tracker
 from game.clock.sync import Sync
 from game.clock.delay import Delay
 
+
 from config import NUM_PLAYERS
 
 from queue import Queue, Empty
 import threading
+import logging
 
 import time
 
@@ -21,7 +23,7 @@ It is also responsible for maintaining a connection pool of all players.
 
 class Transport:
 
-    def __init__(self, myself: str, port, thread_manager, tracker: Tracker, host_socket: socket.socket = None):
+    def __init__(self, myself: str, port, thread_manager, logger: logging.Logger, tracker: Tracker, host_socket: socket.socket = None):
         self.myself = myself
         self.my_player = Player(name=self.myself)
         self.thread_mgr = thread_manager
@@ -29,11 +31,12 @@ class Transport:
         self.chunksize = 1024
         self.NUM_PLAYERS = NUM_PLAYERS
         self.lock = threading.Lock()
+        self.logger = logger
 
         self.tracker = tracker
         self._connection_pool: dict[str, socket.socket] = {}
 
-        self.sync = Sync(myself=self.myself, tracker=self.tracker)
+        self.sync = Sync(myself=self.myself, tracker=self.tracker, logger=self.logger)
         self.is_sync_completed = False
 
         # self.delayer = Delay
@@ -52,7 +55,9 @@ class Transport:
         t2 = threading.Thread(target=self.make_connections, daemon=True)
         t1.start()
         t2.start()
+        self.logger.debug("Completely initialized transport...")
 
+    # FOR TESTING PURPOSES ONLY
     def get_connection_pool(self):
         return self._connection_pool
 
@@ -80,6 +85,7 @@ class Transport:
         Attempt to make outgoing connections to all players
         """
         while not self.all_connected():
+
             for player_id in self.tracker.get_players():
                 if player_id == self.myself:
                     continue
@@ -99,6 +105,7 @@ class Transport:
                             'utf-8').ljust(self.chunksize, b"\0"))
                         print(
                             f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
+                        self.logger.info(f"{self.myself} sending connection request to {player_id} at {time.time()}")
                         time.sleep(1)
                     except (ConnectionRefusedError, TimeoutError):
                         pass
@@ -127,8 +134,11 @@ class Transport:
         # conn.sendall(padded)
 
     def send_within(self, packet: Packet, player_id, delay: float):
+        now = time.time()
         time.sleep(delay)
         self.send(packet, player_id)
+        self.logger.info(f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
+        self.logger.info(f"DELAY_INFO\n{self.myself} to {player_id} | send_time:{now} | delay_time: {now+delay} | packet_type: {packet.get_packet_type()}")
 
     def sendall(self, packet: Packet):
         wait_dict = self.sync.get_wait_times()
@@ -156,7 +166,12 @@ class Transport:
             data: bytes = self.queue.get_nowait()
             self.queue.task_done()
             if data:
-                return Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0")))
+                packet = Packet.from_json(json.loads(data.decode('utf-8').rstrip("\0")))
+                length = len(packet)
+                rtt = time.time() - packet.get_created_at()
+                throughput = length / rtt
+                self.logger.info(f"PACKET_INFO\nLength: {length} | Packet Type: {packet.get_packet_type()} | RTT: {rtt} | Throughput: {throughput}")
+                return packet
         except Empty:
             return
 

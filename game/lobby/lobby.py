@@ -4,6 +4,7 @@ import json
 import keyboard
 from game.thread_manager import ThreadManager
 import threading
+import logging
 
 from config import NUM_PLAYERS
 
@@ -14,11 +15,12 @@ class Lobby():
     of players have been reached.
     """
 
-    def __init__(self):
+    def __init__(self, logger):
         self.game_started = False
         self.lobby_host_exited = False
         self.chunksize = 1024
         self.NUM_PLAYERS = NUM_PLAYERS
+        self.logger = logger
 
         self.lock = threading.Lock()
         self.game_start_lock = threading.Lock()
@@ -151,6 +153,7 @@ class Lobby():
             self.lobby_start_game()
         else:
             print("Not enough players to start game.")
+            self.logger.info(f"Attempt to start with {self.tracker.get_player_count()} players. Failed.\nNeed {self.NUM_PLAYERS} players to start.")
             print("Current players: " + str(self.tracker.get_players()))
 
     def lobby_register(self, data, connection):
@@ -205,6 +208,7 @@ class Lobby():
         for connection in self.connections.values():
             self.send(self.start_pkt(), connection)
         print("All clients notified of game start.")
+        self.logger.info("All clients notified of game start.")
         keyboard.remove_hotkey('space')
 
         self.game_started = True
