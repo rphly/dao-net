@@ -156,7 +156,9 @@ class Client():
         else:
             print("All players are ready to start.")
             print("Voting to start now...")
-            self._transportLayer.sendall(AckStart(self._myself))
+            if self._last_sent_ready_to_start is None or time() - self._last_sent_ready_to_start > 3:
+                self._last_sent_ready_to_start = time()
+                self._transportLayer.sendall(AckStart(self._myself))
 
             if self._all_voted_to_start():
                 # waiting for everyone to ackstart
