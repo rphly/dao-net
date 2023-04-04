@@ -227,10 +227,6 @@ class Client():
             # if everyone else has sat down, move onto next state
             elif all(self._round_inputs.values()):
                 self._state = "AWAIT_ROUND_END"
-                # if len(self._round_inputs) > 1:
-                #     self._state = "AWAIT_ROUND_END"
-                # else:
-                #     self._state = "FINAL_ROUND"
 
     def await_round_end(self):
         self._checkTransportLayerForIncomingData()
@@ -458,6 +454,7 @@ class Client():
             print(f"Received seat: {seat} from {player}")
             self.lock.acquire()
             if self._round_inputs[seat] is not None:
+                print("HELLO")
                 self._send_nak(player)
                 self.lock.release()
                 return
@@ -465,6 +462,7 @@ class Client():
                 # final round break deadlock
                 if self._my_keypress_time is not None:
                     if created_at >= self._my_keypress_time:
+                        print(created_at, self._my_keypress_time)
                         # if their kp timing >= mine,
                         self._send_nak(player)
                         self.lock.release()
