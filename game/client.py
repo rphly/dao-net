@@ -330,7 +330,8 @@ class Client():
         if pkt:
             if pkt.get_packet_type() == "action":
                 # keypress
-                self._receiving_seats(pkt)
+                if not self._state == "SPECTATOR":
+                    self._receiving_seats(pkt)
 
             elif pkt.get_packet_type() == "ss_nak":
                 # drop the nak/ack if we've moved on
