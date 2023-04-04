@@ -150,7 +150,8 @@ class Lobby():
             self.lobby_start_game()
         else:
             print("Not enough players to start game.")
-            self.logger.info(f"Attempt to start with {self.tracker.get_player_count()} players. Failed.Need {self.NUM_PLAYERS} players to start.")
+            self.logger.info(
+                f"Attempt to start with {self.tracker.get_player_count()} players. Failed.Need {self.NUM_PLAYERS} players to start.")
             print("Current players: " + str(self.tracker.get_players()))
 
     def lobby_register(self, data, connection):
@@ -213,10 +214,13 @@ class Lobby():
     # handler threads
     def thread_handler(self, connection):
         while not self.game_started:
-            buf = connection.recv(1024)
-            if buf:
-                self.handle_host(buf.decode(
-                    'utf-8').rstrip("\0"), connection)
+            try:
+                buf = connection.recv(1024)
+                if buf:
+                    self.handle_host(buf.decode(
+                        'utf-8').rstrip("\0"), connection)
+            except:
+                pass
 
     # helper method to send packets
     def send(self, packet: bytes, connection):

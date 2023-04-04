@@ -131,7 +131,6 @@ class Client():
 
     def peering(self):
         print('In Peering')
-        # print(self._transportLayer.get_connection_pool())
 
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             print("Connected to all peers")
@@ -143,11 +142,8 @@ class Client():
 
     def sync_clock(self):
         print("syncing")
-        while not self.is_sync_complete:
-            # Control Flow Moves to Check_Leader Function
+        if not self.is_sync_complete:
             self.is_sync_complete = self._transportLayer.syncing()
-            sleep(1)
-        # If self.leader_idx == len(self.leader_list)-1 you move into Game Play
         self._state = "INIT"
 
     def init(self):
