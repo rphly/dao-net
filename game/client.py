@@ -67,6 +67,7 @@ class Client():
         self._my_keypress = None
         self._my_keypress_time = None
         self.init_send_time = None
+        self.init_ack_start = None
 
         # selecting seats algo
         self._nak_count = 0
@@ -91,8 +92,6 @@ class Client():
 
         self.is_peering_completed = False
         self.is_sync_complete = False
-
-        
 
     def _state(self):
         return self._state
@@ -172,8 +171,8 @@ class Client():
         else:
             print("All players are ready to start.")
             print("Voting to start now...")
-            if self.init_send_time is None or time() - self.init_send_time > 3:
-                self.init_send_time = time()
+            if self.init_ack_start is None or time() - self.init_ack_start > 3:
+                self.init_ack_start = time()
                 self._transportLayer.sendall(AckStart(self._myself))
 
             if self._all_voted_to_start():
