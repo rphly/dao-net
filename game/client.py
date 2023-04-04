@@ -43,16 +43,24 @@ class Client():
 
         self.os_name = system()
 
-        # Initialise round inputs to num of players - 1
-        KEYBOARD_MAPPING_MAC = [12, 13, 14, 15, 17, 16]
-        KEYBOARD_MAPPING_WDW = [81, 87, 69, 82, 84, 89]
-        if self.os_name == "Windows":
-            self._round_inputs = {k: None for k in [
-                KEYBOARD_MAPPING_WDW[i] for i in range(self._total_players - 1)]}
+        # INITIALIZE ROUND INPUTS #
+        LETTERS = ["Q", "W", "E", "R", "T", "Y"]
+        KEYBOARD_MAPPING_MAC = [12, 13, 14, 15, 17, 16]  # Q W E R T Y
+        KEYBOARD_MAPPING_WDW = [81, 87, 69, 82, 84, 89]  # Q W E R T Y
 
-        else:
-            self._round_inputs = {k: None for k in [
-                KEYBOARD_MAPPING_MAC[i] for i in range(self._total_players - 1)]}
+        self.key_to_letter = {}
+        self.letter_to_key = {}
+
+        mapping = KEYBOARD_MAPPING_MAC
+        if self.os_name == "Windows":
+            mapping = KEYBOARD_MAPPING_WDW
+
+        for i in range(len(LETTERS)):
+            self.key_to_letter[mapping[i]] = LETTERS[i]
+            self.letter_to_key[LETTERS[i]] = mapping[i]
+
+        self._round_inputs = {k: None for k in [
+            self.key_to_letter[mapping[i]] for i in range(self._total_players - 1)]}
 
         self.frame_count = 0
 
@@ -199,6 +207,7 @@ class Client():
                         # port 9999 takes 12, 10000 takes 13...
                         # if not (k + 9987 == self.my_port_number):
                         #     continue
+                        k = self.letter_to_key[k]
                         keyboard.add_hotkey(
                             k, self._insert_input, args=(k,))
                         self.hotkeys_added = True
@@ -289,7 +298,6 @@ class Client():
         # clear all variables
         print(
             f"\n---- Round has ended. Players left: {list(self._players.keys())} ----")
-        sleep(5)
         self._reset_round()
 
         # player has lost the game
@@ -498,8 +506,7 @@ class Client():
         return self._state
 
     def _insert_input(self, keypress):
-        print(keypress)
-        self._my_keypress = keypress
+        self._my_keypress = self.key_to_letter[keypress]
         keyboard.remove_all_hotkeys()
 
     def _receiving_seats(self, action: Packet):
@@ -510,7 +517,6 @@ class Client():
             print(f"Received seat: {seat} from {player}")
             self.lock.acquire()
             if self._round_inputs[seat] is not None:
-                print("HELLO")
                 self._send_nak(player)
                 self.lock.release()
                 return
