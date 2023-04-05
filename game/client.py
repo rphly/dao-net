@@ -148,9 +148,6 @@ class Client():
         elif state == "SPECTATOR":
             self.spectator()
 
-        elif state == "FINAL_ROUND":
-            self.final_round()
-
     def peering(self):
         print('In Peering')
 
@@ -165,6 +162,7 @@ class Client():
     def sync_clock(self):
         print("syncing")
         self._checkTransportLayerForIncomingData()
+        # move to n
         if not self._transportLayer.sync.done():
             self.is_sync_complete = self._transportLayer.syncing()
             return
@@ -343,10 +341,6 @@ class Client():
         self.game_over = True
 
     def spectator(self):
-        # for player who last lost game
-        self._checkTransportLayerForIncomingData()
-
-    def final_round(self):
         # for player who last lost game
         self._checkTransportLayerForIncomingData()
 
