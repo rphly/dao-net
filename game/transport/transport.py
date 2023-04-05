@@ -37,8 +37,10 @@ class Transport:
                          tracker=self.tracker, logger=self.logger)
         self.is_sync_completed = False
 
-        # self.delayer = Delay
+        self.delayer = Delay(myself, tracker)
         self.sent_sync = False
+
+        self.sync_req_timers = {}
 
         # start my socket
         if not host_socket:
@@ -112,7 +114,7 @@ class Transport:
             self.lock.release()
 
     def send(self, packet: Packet, player_id):
-        # self.delayer.delay(player_id)
+        self.delayer.delay(player_id)
 
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         try:
@@ -238,6 +240,11 @@ class Transport:
             sync_req_pkt = SyncReq(self.my_player)
             self.sendall(sync_req_pkt)
             self.sent_sync = True
+
+            for player_id in self.sync.leader_list:
+                if not player_id == self.myself:
+                    self.set_packet_timer(player_id, sync_req_pkt)
+
         return
 
     def reset_sync(self):
@@ -248,3 +255,16 @@ class Transport:
         self.my_socket.close()
         for connection in self._connection_pool.values():
             connection.close()
+
+
+    def set_packet_timer(self, player_id, packet: Packet):
+        self.sync_req_timers[player_id] = threading.Timer(
+            (1), lambda: self.handle_timeout(packet, player_id))
+        self.sync_req_timers[player_id].start()
+
+    def handle_timeout(self, packet, player_id):
+        print(f"Packet timeout! Resending sync_req to player:{player_id}")
+        self.send(packet, player_id)
+        # start timer in thread
+        self.set_packet_timer(player_id, packet)
+        return

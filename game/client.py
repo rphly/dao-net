@@ -109,7 +109,7 @@ class Client():
     def start(self):
         try:
             while not self.game_over:
-                sleep(0.3)  # slow down game loop
+                sleep(0.5)  # slow down game loop
                 self.frame_count += 1
                 if self.frame_count % 10 == 0:
                     self._transportLayer.sendall(
@@ -468,6 +468,8 @@ class Client():
                 print(self._transportLayer.sync._delay_dict)
 
                 peer_id = pkt.get_player().get_name()
+                self._transportLayer.sync_req_timers[peer_id].cancel()
+
                 delay_from_peer = float(rcv_time) - float(pkt.get_created_at())
                 print(f"sending sync ack ack akc to {peer_id}" )
 
