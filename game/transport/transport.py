@@ -38,6 +38,7 @@ class Transport:
         self.is_sync_completed = False
 
         # self.delayer = Delay
+        self.sent_sync = False
 
         # start my socket
         if not host_socket:
@@ -232,11 +233,12 @@ class Transport:
 
     # Sync class functions
     def syncing(self):
-        if self.sync.is_leader_myself():
-            print("i am leader")
+        if self.sync.is_leader_myself() and not self.sent_sync:
+            print("sending sync req")
             sync_req_pkt = SyncReq(self.my_player)
             self.sendall(sync_req_pkt)
-        return self.sync.done()
+            self.sent_sync = True
+        return
 
     def reset_sync(self):
         self.sync.reset_sync()

@@ -77,7 +77,7 @@ if __name__ == "__main__":
         print("Failed to start game.")
         exit(1)
 
-    print("Entering game...")
+    print(f"Entering game with name: {player_name}...")
     logger.info("Entering game...")
     GameClient(player_name,
                tracker,

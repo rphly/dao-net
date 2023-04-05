@@ -15,7 +15,7 @@ class Tracker():
 
     def add(self, player_id, ip_address, port):
         # save port number
-        print(f"I am adding here:{player_id}")
+        # print(f"I am adding here:{player_id}")
         self.tracker_list[player_id] = (ip_address, port)
         self.leader_list.append(player_id)
 
