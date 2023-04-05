@@ -108,7 +108,7 @@ class Client():
         print("Game has started!")
         try:
             while not self.game_over:
-                sleep(1)  # slow down game loop
+                sleep(0.2)  # slow down game loop
                 self.frame_count += 1
                 if self.frame_count % 10 == 0:
                     self._transportLayer.sendall(
@@ -509,7 +509,7 @@ class Client():
         return self._state
 
     def _insert_input(self, keypress):
-        self._my_keypress = self.key_to_letter[keypress]
+        self._my_keypress = keypress
         keyboard.remove_all_hotkeys()
 
     def _receiving_seats(self, action: Packet):
