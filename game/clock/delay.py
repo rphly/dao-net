@@ -24,5 +24,5 @@ class Delay:
 
     def delay(self, player_id):
         sleep_time = self._delay_to_peers[player_id]
-        print("delaying: " + str(sleep_time))
+        # print("delaying: " + str(sleep_time))
         time.sleep(sleep_time)

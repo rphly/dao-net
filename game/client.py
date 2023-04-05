@@ -193,8 +193,13 @@ class Client():
 
             if self._all_voted_to_start():
                 # waiting for everyone to ackstart
-                print(f"[SYSTEM] STARTING GAME IN 3 SECONDS")
-                sleep(3)
+                print(f"[SYSTEM] STARTING GAME IN 3 SECONDS...")
+                sleep(1)
+                print(f"[SYSTEM] STARTING GAME IN 2 SECONDS...")
+                sleep(1)
+                print(f"[SYSTEM] STARTING GAME IN 1 SECONDS...")
+                sleep(1)
+
                 self._state = "AWAIT_KEYPRESS"
                 return
 
@@ -329,6 +334,12 @@ class Client():
 
         else:
             # must wait for everyone to signal end round before moving on to next round
+            print(f"[SYSTEM] STARTING NEW ROUND IN 3 SECONDS...")
+            sleep(1)
+            print(f"[SYSTEM] STARTING NEW ROUND IN 2 SECONDS...")
+            sleep(1)
+            print(f"[SYSTEM] STARTING NEW ROUND IN 1 SECONDS...")
+            sleep(1)
             self._state = "AWAIT_KEYPRESS"
 
     def end_game(self):
@@ -445,7 +456,7 @@ class Client():
                     self._state = "END_GAME"
 
             elif pkt.get_packet_type() == "sync_req":
-                print("received sync req")
+                # print("received sync req")
 
                 rcv_time = time()
                 # print("rcv time: {}".format(rcv_time))
@@ -460,7 +471,7 @@ class Client():
                     packet=sync_ack_pkt, player_id=leader_id)
 
             elif pkt.get_packet_type() == "sync_ack":
-                print("received sync ack")
+                # print("received sync ack")
 
                 rcv_time = time()
                 self._transportLayer.sync.update_delay_dict(pkt)
@@ -471,7 +482,7 @@ class Client():
                 self._transportLayer.sync_req_timers[peer_id].cancel()
 
                 delay_from_peer = float(rcv_time) - float(pkt.get_created_at())
-                print(f"sending sync ack ack akc to {peer_id}" )
+                # print(f"sending sync ack ack akc to {peer_id}" )
 
                 peer_sync_ack_pkt = PeerSyncAck(
                     delay_from_peer, self._myself)

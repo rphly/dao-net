@@ -17,7 +17,7 @@ class Sync:
     """
 
     def __init__(self, myself: str, tracker: Tracker, logger: logging.Logger):
-        print("Sync Initiated")
+        print("[Sync Initiated]")
         self.myself = myself
         self._delay_dict = {}
         self.logger = logger
