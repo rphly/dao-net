@@ -37,7 +37,10 @@ class Transport:
                          tracker=self.tracker, logger=self.logger)
         self.is_sync_completed = False
 
-        # self.delayer = Delay
+        self.delayer = Delay(myself, tracker)
+        self.sent_sync = False
+
+        self.sync_req_timers = {}
 
         # start my socket
         if not host_socket:
@@ -82,36 +85,36 @@ class Transport:
         """
         Attempt to make outgoing connections to all players
         """
-        while not self.all_connected():
+        # while not self.all_connected():
 
-            for player_id in self.tracker.get_players():
-                if player_id == self.myself:
+        for player_id in self.tracker.get_players():
+            if player_id == self.myself:
+                continue
+            self.lock.acquire()
+            if player_id not in self._connection_pool:
+                ip, port = self.tracker.get_ip_port(
+                    player_id)
+                if ip is None or port is None:
                     continue
-                self.lock.acquire()
-                if player_id not in self._connection_pool:
-                    ip, port = self.tracker.get_ip_port(
-                        player_id)
-                    if ip is None or port is None:
-                        continue
-                    # waiting for player to start server
-                    try:
-                        sock = socket.socket(
-                            socket.AF_INET, socket.SOCK_STREAM)
-                        sock.connect((ip, port))
-                        # send a player my conn request
-                        sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
-                            'utf-8').ljust(self.chunksize, b"\0"))
-                        print(
-                            f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
-                        self.logger.info(
-                            f"{self.myself} sending connection request to {player_id} at {time.time()}")
-                        time.sleep(1)
-                    except (ConnectionRefusedError, TimeoutError):
-                        pass
-                self.lock.release()
+                # waiting for player to start server
+                try:
+                    sock = socket.socket(
+                        socket.AF_INET, socket.SOCK_STREAM)
+                    sock.connect((ip, port))
+                    # send a player my conn request
+                    sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
+                        'utf-8').ljust(self.chunksize, b"\0"))
+                    print(
+                        f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
+                    self.logger.info(
+                        f"{self.myself} sending connection request to {player_id} at {time.time()}")
+                    time.sleep(1)
+                except (ConnectionRefusedError, TimeoutError):
+                    pass
+            self.lock.release()
 
     def send(self, packet: Packet, player_id):
-        # self.delayer.delay(player_id)
+        self.delayer.delay(player_id)
 
         padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         try:
@@ -232,10 +235,17 @@ class Transport:
 
     # Sync class functions
     def syncing(self):
-        if self.sync.is_leader_myself():
+        if self.sync.is_leader_myself() and not self.sent_sync:
+            print("sending sync req")
             sync_req_pkt = SyncReq(self.my_player)
             self.sendall(sync_req_pkt)
-        return self.is_sync_completed
+            self.sent_sync = True
+
+            for player_id in self.sync.leader_list:
+                if not player_id == self.myself:
+                    self.set_packet_timer(player_id, sync_req_pkt)
+
+        return
 
     def reset_sync(self):
         self.sync.reset_sync()
@@ -245,3 +255,16 @@ class Transport:
         self.my_socket.close()
         for connection in self._connection_pool.values():
             connection.close()
+
+
+    def set_packet_timer(self, player_id, packet: Packet):
+        self.sync_req_timers[player_id] = threading.Timer(
+            (1), lambda: self.handle_timeout(packet, player_id))
+        self.sync_req_timers[player_id].start()
+
+    def handle_timeout(self, packet, player_id):
+        print(f"Packet timeout! Resending sync_req to player:{player_id}")
+        self.send(packet, player_id)
+        # start timer in thread
+        self.set_packet_timer(player_id, packet)
+        return

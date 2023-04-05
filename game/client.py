@@ -91,9 +91,9 @@ class Client():
                                          tracker=self.tracker,
                                          host_socket=host_socket)
         self.is_peering_completed = False
-        print(f"Tracker_List Before Sync:{self.tracker.get_tracker_list()}")
-        print(
-            f"Leader List Before Sync Initialisation:{self.tracker.get_leader_list()}")
+        # print(f"Tracker_List Before Sync:{self.tracker.get_tracker_list()}")
+        # print(
+        #     f"Leader List Before Sync Initialisation:{self.tracker.get_leader_list()}")
 
         self._frameSync = Clock(
             self._myself, self._transportLayer, self._myself if host_socket else None)
@@ -101,14 +101,15 @@ class Client():
         self.is_peering_completed = False
         self.is_sync_complete = False
 
+        self.round_number = 1
+
     def _state(self):
         return self._state
 
     def start(self):
-        print("Game has started!")
         try:
             while not self.game_over:
-                sleep(0.2)  # slow down game loop
+                sleep(0.5)  # slow down game loop
                 self.frame_count += 1
                 if self.frame_count % 10 == 0:
                     self._transportLayer.sendall(
@@ -125,6 +126,9 @@ class Client():
 
         if state == "SYNCHRONIZE_CLOCK":
             self.sync_clock()
+
+        if state == "AWAIT_SYNC_END":
+            self.await_sync_end()
 
         if state == "INIT":
             self.init()
@@ -144,47 +148,53 @@ class Client():
         elif state == "SPECTATOR":
             self.spectator()
 
-        elif state == "FINAL_ROUND":
-            self.final_round()
-
     def peering(self):
-        print('In Peering')
-
         if self._transportLayer.all_connected() and not self.is_peering_completed:
-            print("Connected to all peers")
-            print("Notify peers that peering is completed")
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
-            self._transportLayer.reset_sync()
+            # self._transportLayer.reset_sync()
             self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
-        print("syncing")
         self._checkTransportLayerForIncomingData()
-        if not self.is_sync_complete:
+        if not self._transportLayer.sync.done():
+            print("syncing...")
             self.is_sync_complete = self._transportLayer.syncing()
             return
-        self._state = "INIT"
+        else:
+            print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
+            update_leader_pkt = UpdateLeader(None, self._myself)
+            self._transportLayer.sendall(update_leader_pkt)
+            self._transportLayer.sync.next_leader()
+            self._state = "AWAIT_SYNC_END"
 
+    def await_sync_end(self):
+        self._checkTransportLayerForIncomingData()
+        if self._transportLayer.sync.no_more_leader():
+            print(f"[SYNC COMPLETE]")
+            self._state = "INIT"
+        
     def init(self):
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
         self._checkTransportLayerForIncomingData()
 
         if len(self._round_ready.keys()) < self._total_players - 1:
-            if self.init_send_time is None or time() - self.init_send_time > 3:
+            if self.init_send_time is None:
+                print(f"[SYSTEM] Sending Ready to Start...")
                 self.init_send_time = time()
                 self._frameSync.if_master_emit_new_master(self._myself)
                 self._transportLayer.sendall(ReadyToStart(self._myself))
         else:
-            print("All players are ready to start.")
-            print("Voting to start now...")
-            if self.init_ack_start is None or time() - self.init_ack_start > 3:
+            if self.init_ack_start is None:
                 self.init_ack_start = time()
+                print("[SYSTEM] Voting to start now...")
                 self._transportLayer.sendall(AckStart(self._myself))
 
             if self._all_voted_to_start():
                 # waiting for everyone to ackstart
+                print(f"[SYSTEM] STARTING GAME IN 3 SECONDS")
+                sleep(3)
                 self._state = "AWAIT_KEYPRESS"
                 return
 
@@ -193,9 +203,10 @@ class Client():
 
         if not self._round_started:
             self._round_started = True
-            print(f"\n---- Available seats: {self._round_inputs} ----")
-            print(f"Current players: {self._players.keys()}")
-            print("Grab a seat now!")
+            print(f"\n|-------- ROUND {self.round_number} --------|")
+            print(f"[CURRENT PLAYERS] {list(self._players.keys())}")
+            print(f"[AVAILABLE SEATS] {self._round_inputs}")
+            print("[SYSTEM] GRAB A SEAT NOW !!!")
 
         if self._round_started:
             # 1) Received local keypress
@@ -223,7 +234,7 @@ class Client():
                 thresh = len(self._players) // 2
                 if (self._nak_count + self._ack_count) >= len(self._players)-1:
                     if self._nak_count >= thresh:
-                        print("Failed to sit down, pick a new seat!")
+                        print("[ACTION] Failed to sit down, pick a new seat!")
                         # SelectingSeat failed
                         self._my_keypress = None
                         self._nak_count = 0
@@ -240,7 +251,7 @@ class Client():
                             SatDown(self._my_keypress, self._myself))
                         self._sat_down_count += 1
                         print("[ACTION] I have sat down successfully!")
-                        print(f"{self._round_inputs}")
+                        print(f"[SEATS] {self._round_inputs}")
                         self._state = "AWAIT_ROUND_END"
                         return
 
@@ -263,22 +274,21 @@ class Client():
                         packet = Vote(player_to_kick, self._myself)
                         self._transportLayer.sendall(packet)
                         # my own vote
-                        # TODO: might need to change; player might be assigning vote after it has received votes
                         numvotes = self._votekick.get(player_to_kick, 0)
                         self._votekick[player_to_kick] = numvotes + 1
                         break  # break after the first player to kick
                 self._done_voting = True
 
                 if player_to_kick == None:
-                    print("Cannot find player to kick, moving to next round")
+                    print("[SYSTEM] Cannot find player to kick, moving to next round")
                     self._state = "END_ROUND"
                     return
 
             # tallying votes
             else:
-                print(f"Waiting for votes... Current votes: {self._votekick}")
+                # print(f"Waiting for votes... Current votes: {self._votekick}")
                 if sum(self._votekick.values()) >= len(self._players):
-                    print("[ALL VOTES IN]")
+                    print("\n ---- ALL VOTES IN ----")
                     max_vote = max(self._votekick.values())
                     # in case there is a tie
                     to_be_kicked = [key for key,
@@ -293,7 +303,7 @@ class Client():
                     else:
                         self._vote_tied = True
                         print(
-                            "Vote tied; moving onto the next round with nobody kicked")
+                            "[SYSTEM] Vote tied; moving onto the next round with nobody kicked")
 
                     self._state = "END_ROUND"
 
@@ -305,16 +315,15 @@ class Client():
 
         # player has lost the game
         if not self._players.get(self._myself.get_name(), None):
-            print("You lost! Enjoy spectating the game!")
+            print("\n[SYSTEM] You lost! Enjoy spectating the game!")
             self._state = "SPECTATOR"
 
         # if no chairs left, end the game, else reset
         elif len(self._round_inputs.keys()) < 1:
             winner = list(self._players.keys())[0]
-            print('No more seats left, game over.')
+            print('[SYSTEM] No more seats left, game over.')
             print(
                 f"\n--- {'Congrats! You have' if winner == self._myself.get_name() else winner + ' has'} won the game! ---\n")
-            # TODO: last remaining player sends packet to initiate shutdown for players who have already lost
             self._transportLayer.sendall(EndGame(self._myself))
             self._state = "END_GAME"
 
@@ -328,10 +337,6 @@ class Client():
         self.game_over = True
 
     def spectator(self):
-        # for player who last lost game
-        self._checkTransportLayerForIncomingData()
-
-    def final_round(self):
         # for player who last lost game
         self._checkTransportLayerForIncomingData()
 
@@ -377,12 +382,12 @@ class Client():
             elif pkt.get_packet_type() == "ack":
                 player_name = pkt.get_player().get_name()
                 self._ack_count += 1
-                print(f"[ACK from] {player_name}")
+                # print(f"[ACK from] {player_name}")
 
             elif pkt.get_packet_type() == "nak":
                 player_name = pkt.get_player().get_name()
                 self._nak_count += 1
-                print(f"[NAK from] {player_name}")
+                # print(f"[NAK from] {player_name}")
 
             elif pkt.get_packet_type() == "sat_down":
                 player_name = pkt.get_player().get_name()
@@ -396,20 +401,20 @@ class Client():
 
             elif pkt.get_packet_type() == "vote":
                 player_to_kick = pkt.get_data()
-                print(f"[VOTEKICK] {player_to_kick}")
+                # print(f"[SYSTEM] Received vote to kick {player_to_kick}")
                 if player_to_kick in self._votekick:
                     self._votekick[player_to_kick] += 1
                 else:
                     self._votekick[player_to_kick] = 1
 
-                print(f"{self._votekick}")
+                # print(f"{self._votekick}")
 
             elif pkt.get_packet_type() == "update_master":
                 player = pkt.get_player()
                 new_master_name = pkt.get_data()
                 if self._frameSync.get_master() is None or player.get_name() == self._frameSync.get_master().get_name():
-                    print(
-                        f"Updating master to {new_master_name}")
+                    # print(
+                    #     f"Updating master to {new_master_name}")
                     self._frameSync.update_master(
                         Player(new_master_name), None)
 
@@ -427,16 +432,16 @@ class Client():
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
                         if frame < self.frame_count:
-                            print("Slow down since master is behind")
+                            # print("Slow down since master is behind")
                             sleep(0.3)
                         elif frame > self.frame_count:
-                            print("Requesting to be master since I'm behind")
+                            # print("Requesting to be master since I'm behind")
                             self._frameSync.acquire_master()
 
             elif pkt.get_packet_type() == "end_game":
                 winner = pkt.get_player()
                 if self._state == "SPECTATOR":
-                    print(f"[END GAME] {winner} has won the game!")
+                    print(f"\n ---- [GAME ENDED] {winner} has won the game! ----")
                     self._state = "END_GAME"
 
             elif pkt.get_packet_type() == "sync_req":
@@ -445,6 +450,7 @@ class Client():
                 rcv_time = time()
                 # print("rcv time: {}".format(rcv_time))
                 leader_id = pkt.get_player().get_name()
+                print(f"[SYNCING WITH LEADER] {leader_id}")
                 delay_from_leader = float(
                     rcv_time) - float(pkt.get_created_at())
                 # print("delay from leader {}".format(delay_from_leader))
@@ -462,22 +468,15 @@ class Client():
                 print(self._transportLayer.sync._delay_dict)
 
                 peer_id = pkt.get_player().get_name()
+                self._transportLayer.sync_req_timers[peer_id].cancel()
+
                 delay_from_peer = float(rcv_time) - float(pkt.get_created_at())
+                print(f"sending sync ack ack akc to {peer_id}" )
 
                 peer_sync_ack_pkt = PeerSyncAck(
                     delay_from_peer, self._myself)
                 self._transportLayer.send(
                     packet=peer_sync_ack_pkt, player_id=peer_id)
-
-                if self._transportLayer.sync.done():
-                    # send update leader
-                    print("sending update leader")
-                    update_leader_pkt = UpdateLeader(None, self._myself)
-                    self._transportLayer.sendall(update_leader_pkt)
-                    self._transportLayer.sync.next_leader()
-                    if self._transportLayer.sync.no_more_leader():
-                        print(self._transportLayer.sync._delay_dict)
-                        self._transportLayer.is_sync_completed = True
 
             elif pkt.get_packet_type() == "peer_sync_ack":
                 self._transportLayer.sync.update_delay_dict(pkt)
@@ -486,7 +485,7 @@ class Client():
                 print("received update leader")
                 self._transportLayer.sync.next_leader()
                 if self._transportLayer.sync.no_more_leader():
-                    print(self._transportLayer.sync._delay_dict)
+                    # print(self._transportLayer.sync._delay_dict)
                     self._transportLayer.is_sync_completed = True
 
     def _all_voted_to_start(self):
@@ -517,7 +516,7 @@ class Client():
         player = action.get_player()
         created_at = action.get_created_at()
         if seat:
-            print(f"Received seat: {seat} from {player}")
+            # print(f"[ACTION] Received seat: {seat} from {player}")
             self.lock.acquire()
             if self._round_inputs[seat] is not None:
                 self._send_nak(player)
@@ -539,15 +538,14 @@ class Client():
             return
 
     def _reset_round(self):
-        print("Clearing round data...")
-        # init
+        self.round_number += 1
         self._round_ready = {}
         self._round_ackstart = {}
         self._round_started = False
 
         if not self._vote_tied:
             # reset round inputs, num chairs - 1
-            print("Reducing number of chairs...")
+            print("[SYSTEM] Reducing number of chairs...")
             d = self._round_inputs
             d = {key: None for key in d}
             d.popitem()
