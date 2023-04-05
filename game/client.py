@@ -110,9 +110,9 @@ class Client():
             while not self.game_over:
                 sleep(1)  # slow down game loop
                 self.frame_count += 1
-                # if self.frame_count % 10 == 0:
-                #     self._transportLayer.sendall(
-                #         FrameSync(self.frame_count, self._myself))
+                if self.frame_count % 10 == 0:
+                    self._transportLayer.sendall(
+                        FrameSync(self.frame_count, self._myself))
                 self.trigger_handler(self._state)
 
         except KeyboardInterrupt:
