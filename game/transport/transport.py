@@ -233,9 +233,10 @@ class Transport:
     # Sync class functions
     def syncing(self):
         if self.sync.is_leader_myself():
+            print("i am leader")
             sync_req_pkt = SyncReq(self.my_player)
             self.sendall(sync_req_pkt)
-        return self.is_sync_completed
+        return self.sync.done()
 
     def reset_sync(self):
         self.sync.reset_sync()

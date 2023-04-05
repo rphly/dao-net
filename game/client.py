@@ -110,9 +110,9 @@ class Client():
             while not self.game_over:
                 sleep(1)  # slow down game loop
                 self.frame_count += 1
-                if self.frame_count % 10 == 0:
-                    self._transportLayer.sendall(
-                        FrameSync(self.frame_count, self._myself))
+                # if self.frame_count % 10 == 0:
+                #     self._transportLayer.sendall(
+                #         FrameSync(self.frame_count, self._myself))
                 self.trigger_handler(self._state)
 
         except KeyboardInterrupt:
@@ -125,6 +125,10 @@ class Client():
 
         if state == "SYNCHRONIZE_CLOCK":
             self.sync_clock()
+
+        if state == "AWAIT_SYNC_END":
+            # TODO
+            self.await_sync_end()
 
         if state == "INIT":
             self.init()
@@ -161,11 +165,22 @@ class Client():
     def sync_clock(self):
         print("syncing")
         self._checkTransportLayerForIncomingData()
-        if not self.is_sync_complete:
+        if not self._transportLayer.sync.done():
             self.is_sync_complete = self._transportLayer.syncing()
             return
-        self._state = "INIT"
+        else:
+            print(f"[UPDATING LEADER]: {self._transportLayer.sync._delay_dict}")
+            update_leader_pkt = UpdateLeader(None, self._myself)
+            self._transportLayer.sendall(update_leader_pkt)
+            self._transportLayer.sync.next_leader()
+            self._state = "AWAIT_SYNC_END"
 
+    def await_sync_end(self):
+        self._checkTransportLayerForIncomingData()
+        if self._transportLayer.sync.no_more_leader():
+            print(f"[SYNC COMPLETE]")
+            self._state = "INIT"
+        
     def init(self):
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
@@ -445,6 +460,7 @@ class Client():
                 rcv_time = time()
                 # print("rcv time: {}".format(rcv_time))
                 leader_id = pkt.get_player().get_name()
+                print(f"[LEADER_SYNC] {leader_id}")
                 delay_from_leader = float(
                     rcv_time) - float(pkt.get_created_at())
                 # print("delay from leader {}".format(delay_from_leader))
@@ -468,16 +484,6 @@ class Client():
                     delay_from_peer, self._myself)
                 self._transportLayer.send(
                     packet=peer_sync_ack_pkt, player_id=peer_id)
-
-                if self._transportLayer.sync.done():
-                    # send update leader
-                    print("sending update leader")
-                    update_leader_pkt = UpdateLeader(None, self._myself)
-                    self._transportLayer.sendall(update_leader_pkt)
-                    self._transportLayer.sync.next_leader()
-                    if self._transportLayer.sync.no_more_leader():
-                        print(self._transportLayer.sync._delay_dict)
-                        self._transportLayer.is_sync_completed = True
 
             elif pkt.get_packet_type() == "peer_sync_ack":
                 self._transportLayer.sync.update_delay_dict(pkt)
