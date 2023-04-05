@@ -152,7 +152,7 @@ class Client():
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
-            self._transportLayer.reset_sync()
+            # self._transportLayer.reset_sync()
             self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
@@ -365,7 +365,6 @@ class Client():
                     self._ack_count += 1
 
             elif pkt.get_packet_type() == "peering_completed" and not self._round_started:
-                self.is_peering_completed = True
                 print(
                     f"[Peering Completed] {pkt.get_player().get_name()}")
 

@@ -83,33 +83,33 @@ class Transport:
         """
         Attempt to make outgoing connections to all players
         """
-        while not self.all_connected():
+        # while not self.all_connected():
 
-            for player_id in self.tracker.get_players():
-                if player_id == self.myself:
+        for player_id in self.tracker.get_players():
+            if player_id == self.myself:
+                continue
+            self.lock.acquire()
+            if player_id not in self._connection_pool:
+                ip, port = self.tracker.get_ip_port(
+                    player_id)
+                if ip is None or port is None:
                     continue
-                self.lock.acquire()
-                if player_id not in self._connection_pool:
-                    ip, port = self.tracker.get_ip_port(
-                        player_id)
-                    if ip is None or port is None:
-                        continue
-                    # waiting for player to start server
-                    try:
-                        sock = socket.socket(
-                            socket.AF_INET, socket.SOCK_STREAM)
-                        sock.connect((ip, port))
-                        # send a player my conn request
-                        sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
-                            'utf-8').ljust(self.chunksize, b"\0"))
-                        print(
-                            f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
-                        self.logger.info(
-                            f"{self.myself} sending connection request to {player_id} at {time.time()}")
-                        time.sleep(1)
-                    except (ConnectionRefusedError, TimeoutError):
-                        pass
-                self.lock.release()
+                # waiting for player to start server
+                try:
+                    sock = socket.socket(
+                        socket.AF_INET, socket.SOCK_STREAM)
+                    sock.connect((ip, port))
+                    # send a player my conn request
+                    sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
+                        'utf-8').ljust(self.chunksize, b"\0"))
+                    print(
+                        f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
+                    self.logger.info(
+                        f"{self.myself} sending connection request to {player_id} at {time.time()}")
+                    time.sleep(1)
+                except (ConnectionRefusedError, TimeoutError):
+                    pass
+            self.lock.release()
 
     def send(self, packet: Packet, player_id):
         # self.delayer.delay(player_id)
