@@ -199,10 +199,6 @@ class Client():
             # waiting for everyone to ackstart
             print(f"[SYSTEM] STARTING GAME IN 3 SECONDS")
             sleep(3)
-
-            return
-
-        if not self._round_started:
             self._round_started = True
             print(f"\n|-------- ROUND {self.round_number} --------|")
             print(f"[CURRENT PLAYERS] {list(self._players.keys())}")
