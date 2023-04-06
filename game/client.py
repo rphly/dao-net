@@ -163,6 +163,9 @@ class Client():
             return
         else:
             print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
+            self.logger.info(f"DELAY LIST\n Delay List: {self._transportLayer.sync._delay_dict}")
+            self.logger.info(f"ORDERED DELAYLIST\n Ordered delays: {sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)}")
+            self.logger.info(f"WAIT LIST\n Wait List: {self._transportLayer.sync.get_wait_times()}")
             update_leader_pkt = UpdateLeader(None, self._myself)
             self._transportLayer.sendall(update_leader_pkt)
             self._transportLayer.sync.next_leader()

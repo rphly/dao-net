@@ -142,7 +142,7 @@ class Transport:
         self.logger.info(
             f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
         self.logger.info(
-            f"DELAY_INFO\n{self.myself} to {player_id} | send_time:{now} | delay_time: {now+delay} | packet_type: {packet.get_packet_type()}")
+            f"DELAY_INFO (Send) \n{self.myself} to {player_id} | send_time:{now} | delay_time: {now+delay} | packet_type: {packet.get_packet_type()}")
 
     def sendall(self, packet: Packet):
         wait_dict = self.sync.get_wait_times()
@@ -174,8 +174,12 @@ class Transport:
                 length = len(packet)
                 rtt = time.time() - packet.get_created_at()
                 throughput = length / rtt
-                self.logger.info(
-                    f"PACKET_INFO\nLength: {length} | Packet Type: {packet.get_packet_type()} | RTT: {rtt} | Throughput: {throughput}")
+                if packet.get_packet_type()=="action":
+                    self.logger.info(
+                    f"****ACTION_PACKET_INFO (Receive)\nLength: {length} | Packet Type: {packet.get_packet_type()} | Data: {packet.get_data()} | RTT: {rtt} | Throughput: {throughput}****")
+                else:
+                    self.logger.info(
+                        f"PACKET_INFO (Receive)\nLength: {length} | Packet Type: {packet.get_packet_type()} | RTT: {rtt} | Throughput: {throughput}")
                 return packet
         except Empty:
             return
