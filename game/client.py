@@ -173,7 +173,7 @@ class Client():
         if self._transportLayer.sync.no_more_leader():
             print(f"[SYNC COMPLETE]")
             self._state = "INIT"
-        
+
     def init(self):
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
@@ -190,16 +190,17 @@ class Client():
                 self.init_ack_start = time()
                 print("[SYSTEM] Voting to start now...")
                 self._transportLayer.sendall(AckStart(self._myself))
-
-            if self._all_voted_to_start():
-                # waiting for everyone to ackstart
-                print(f"[SYSTEM] STARTING GAME IN 3 SECONDS")
-                sleep(3)
                 self._state = "AWAIT_KEYPRESS"
-                return
 
     def await_keypress(self):
         self._checkTransportLayerForIncomingData()
+
+        if not self._round_started and self._all_voted_to_start():
+            # waiting for everyone to ackstart
+            print(f"[SYSTEM] STARTING GAME IN 3 SECONDS")
+            sleep(3)
+
+            return
 
         if not self._round_started:
             self._round_started = True
@@ -280,7 +281,8 @@ class Client():
                 self._done_voting = True
 
                 if player_to_kick == None:
-                    print("[SYSTEM] Cannot find player to kick, moving to next round")
+                    print(
+                        "[SYSTEM] Cannot find player to kick, moving to next round")
                     self._state = "END_ROUND"
                     return
 
@@ -342,7 +344,6 @@ class Client():
 
 
 ######### helper functions #########
-
 
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
@@ -441,7 +442,8 @@ class Client():
             elif pkt.get_packet_type() == "end_game":
                 winner = pkt.get_player()
                 if self._state == "SPECTATOR":
-                    print(f"\n ---- [GAME ENDED] {winner} has won the game! ----")
+                    print(
+                        f"\n ---- [GAME ENDED] {winner} has won the game! ----")
                     self._state = "END_GAME"
 
             elif pkt.get_packet_type() == "sync_req":
@@ -471,7 +473,7 @@ class Client():
                 self._transportLayer.sync_req_timers[peer_id].cancel()
 
                 delay_from_peer = float(rcv_time) - float(pkt.get_created_at())
-                print(f"sending sync ack ack akc to {peer_id}" )
+                print(f"sending sync ack ack akc to {peer_id}")
 
                 peer_sync_ack_pkt = PeerSyncAck(
                     delay_from_peer, self._myself)
