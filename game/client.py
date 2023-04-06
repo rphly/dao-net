@@ -195,15 +195,16 @@ class Client():
     def await_keypress(self):
         self._checkTransportLayerForIncomingData()
 
-        if not self._round_started and self._all_voted_to_start():
-            # waiting for everyone to ackstart
-            print(f"[SYSTEM] STARTING GAME IN 3 SECONDS")
-            sleep(3)
-            self._round_started = True
-            print(f"\n|-------- ROUND {self.round_number} --------|")
-            print(f"[CURRENT PLAYERS] {list(self._players.keys())}")
-            print(f"[AVAILABLE SEATS] {self._round_inputs}")
-            print("[SYSTEM] GRAB A SEAT NOW !!!")
+        if not self._round_started:
+            if self._all_voted_to_start():
+                # waiting for everyone to ackstart
+                print(f"[SYSTEM] STARTING GAME IN 3 SECONDS")
+                sleep(3)
+                self._round_started = True
+                print(f"\n|-------- ROUND {self.round_number} --------|")
+                print(f"[CURRENT PLAYERS] {list(self._players.keys())}")
+                print(f"[AVAILABLE SEATS] {self._round_inputs}")
+                print("[SYSTEM] GRAB A SEAT NOW !!!")
 
         if self._round_started:
             # 1) Received local keypress
@@ -538,7 +539,6 @@ class Client():
     def _reset_round(self):
         self.round_number += 1
         self._round_ready = {}
-        self._round_ackstart = {}
         self._round_started = False
 
         if not self._vote_tied:
