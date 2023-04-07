@@ -43,6 +43,9 @@ class Packet:
     def get_created_at(self):
         return self.createdAt
 
+    def __hash__(self):
+        return hash(self.packet_type + self.player.name + (str(hash(self.data)) if self.data else ""))
+
     def json(self) -> str:
         """Return a json representation of the packet."""
         return json.dumps(dict(
@@ -62,20 +65,29 @@ class Packet:
 
     def __str__(self):
         return f"Packet: {str(self.data)}"
-    
+
     def __len__(self):
         """Used for the calculation of the throughput"""
         return sys.getsizeof(self)
 
+
+class Action(Packet):
+    def __init__(self, data: str, player: Player):
+        super().__init__(data, player, "action")
+
+    def __str__(self):
+        return f"Action: {super().get_packet_type()}"
+
+
 class Ack(Packet):
-    """Acknowledge a packet."""
+    """Acknowledge a seat selection."""
 
     def __init__(self, player: Player):
         super().__init__(None, player, "ack")
 
 
 class Nak(Packet):
-    """Nack a packet."""
+    """Nack seat selection."""
 
     def __init__(self, player: Player):
         super().__init__(None, player, "nak")
@@ -86,6 +98,7 @@ class PeeringCompleted(Packet):
 
     def __init__(self, player: Player):
         super().__init__(None, player, "peering_completed")
+
 # Timer Packets
 
 
@@ -144,6 +157,10 @@ class FrameSync(Packet):
 
     def __init__(self, frame, player: Player):
         super().__init__(frame, player, "frame_sync")
+
+    def __hash__(self):
+        # frame sync packets are uniqure for (frame, createdAt)
+        return hash(self.packet_type + self.player.name)
 
 
 class AcquireMaster(Packet):

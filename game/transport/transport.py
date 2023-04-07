@@ -1,7 +1,7 @@
 import json
 import socket
 from game.models.player import Player
-from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet, SyncReq, SyncAck, PeerSyncAck, UpdateLeader
+from game.transport.packet import ConnectionEstab, ConnectionRequest, Packet, SyncReq
 from game.lobby.tracker import Tracker
 from game.clock.sync import Sync
 from game.clock.delay import Delay
@@ -41,6 +41,8 @@ class Transport:
         self.sent_sync = False
 
         self.sync_req_timers = {}
+
+        self.pkt_history = {}
 
         # start my socket
         if not host_socket:
@@ -102,8 +104,10 @@ class Transport:
                         socket.AF_INET, socket.SOCK_STREAM)
                     sock.connect((ip, port))
                     # send a player my conn request
-                    sock.sendall(ConnectionRequest(Player(self.myself)).json().encode(
-                        'utf-8').ljust(self.chunksize, b"\0"))
+                    packet = ConnectionRequest(Player(self.myself))
+                    d = str(hash(packet)) + "\0" + packet.json()
+                    padded = d.encode('utf-8').ljust(self.chunksize, b"\0")
+                    sock.sendall(padded)
                     print(
                         f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
                     self.logger.info(
@@ -115,8 +119,10 @@ class Transport:
 
     def send(self, packet: Packet, player_id):
         self.delayer.delay(player_id)
+        # add hash to packet header
+        d = str(hash(packet)) + "\0" + packet.json()
+        padded = d.encode('utf-8').ljust(self.chunksize, b"\0")
 
-        padded = packet.json().encode('utf-8').ljust(self.chunksize, b"\0")
         try:
             conn = self._connection_pool[player_id]
             conn.sendall(padded)
@@ -157,20 +163,15 @@ class Transport:
                 threading.Thread(target=self.send_within(
                     packet, player_id, delay=0), daemon=True)
 
-        # for player_id in self._connection_pool:
-        #     print("Sending packet", packet.get_packet_type(), "to", player_id)
-        #     self.send(packet, player_id)
-
     def receive(self) -> str:
         """
         Drain the queue when we are ready to handle data.
         """
         try:
-            data: bytes = self.queue.get_nowait()
+            data = self.queue.get_nowait()
             self.queue.task_done()
             if data:
-                packet = Packet.from_json(json.loads(
-                    data.decode('utf-8').rstrip("\0")))
+                packet = Packet.from_json(json.loads(data))
                 length = len(packet)
                 rtt = time.time() - packet.get_created_at()
                 throughput = length / rtt
@@ -181,8 +182,7 @@ class Transport:
             return
 
     def check_if_peering_and_handle(self, data, connection):
-        decoded = data.decode('utf-8').rstrip("\0")
-        d = json.loads(decoded)
+        d = json.loads(data)
         packet_type = d["packet_type"]
         if packet_type == "connection_req":
             self.handle_connection_request(d, connection)
@@ -225,6 +225,16 @@ class Transport:
         while True:
             try:
                 data = connection.recv(self.chunksize)
+                incoming = data.decode('utf-8')
+                hashcode, data = incoming.rstrip("\0").split("\0")
+
+                self.lock.acquire()
+                if self.pkt_history.get(hashcode, False):
+                    self.lock.release()
+                    continue
+                self.pkt_history[hashcode] = True
+                self.lock.release()
+
                 if data:
                     is_peering = self.check_if_peering_and_handle(
                         data, connection)
@@ -255,7 +265,6 @@ class Transport:
         self.my_socket.close()
         for connection in self._connection_pool.values():
             connection.close()
-
 
     def set_packet_timer(self, player_id, packet: Packet):
         self.sync_req_timers[player_id] = threading.Timer(

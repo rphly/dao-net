@@ -3,12 +3,11 @@ import threading
 from platform import system
 from game.clock.clock import Clock
 from game.models.player import Player
-from game.models.action import Action
 from game.lobby.tracker import Tracker
 from game.models.vote import Vote
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
-from game.transport.packet import AckStart, EndGame, Nak, Ack, PeerSyncAck, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync, SyncAck, UpdateLeader
+from game.transport.packet import AckStart, EndGame, Nak, Ack, PeerSyncAck, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync, SyncAck, UpdateLeader, Action
 import keyboard
 import game.clock.sync as sync
 from time import time, sleep
@@ -492,7 +491,7 @@ class Client():
 
     def _selecting_seats(self):
         self._is_selecting_seat = True
-        pkt = Action(dict(seat=self._my_keypress), self._myself)
+        pkt = Action(self._my_keypress, self._myself)
         self._my_keypress_time = pkt.get_created_at()
         self._transportLayer.sendall(pkt)
 
@@ -511,7 +510,7 @@ class Client():
         keyboard.remove_all_hotkeys()
 
     def _receiving_seats(self, action: Packet):
-        seat = action.get_data().get("seat")
+        seat = action.get_data()
         player = action.get_player()
         created_at = action.get_created_at()
         if seat:
