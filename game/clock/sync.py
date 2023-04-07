@@ -77,3 +77,4 @@ class Sync:
     
     def reset_sync(self):
         self._delay_dict = {}
+        self.leader_idx = 0

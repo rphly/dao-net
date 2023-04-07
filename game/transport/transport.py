@@ -35,6 +35,7 @@ class Transport:
 
         self.sync = Sync(myself=self.myself,
                          tracker=self.tracker, logger=self.logger)
+        self.pre_game_sync = True
         self.is_sync_completed = False
 
         self.delayer = Delay(myself, tracker)
@@ -243,6 +244,7 @@ class Transport:
 
     # Sync class functions
     def syncing(self):
+        print(self.sync.is_leader_myself())
         if self.sync.is_leader_myself() and not self.sent_sync:
             print("sending sync req")
             sync_req_pkt = SyncReq(self.my_player)
@@ -257,6 +259,7 @@ class Transport:
 
     def reset_sync(self):
         self.sync.reset_sync()
+        self.sent_sync = False
 
     def shutdown(self):
         self.thread_mgr.shutdown()

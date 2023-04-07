@@ -100,6 +100,7 @@ class Client():
         self.is_sync_complete = False
 
         self.round_number = 1
+        self._am_spectator = False
 
     def _state(self):
         return self._state
@@ -150,7 +151,7 @@ class Client():
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
-            # self._transportLayer.reset_sync()
+
             self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
@@ -177,6 +178,11 @@ class Client():
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
         self._checkTransportLayerForIncomingData()
+
+        if self._am_spectator:
+            self._state = "SPECTATOR"
+            return
+        
 
         if len(self._round_ready.keys()) < self._total_players - 1:
             if self.init_send_time is None:
@@ -314,8 +320,14 @@ class Client():
 
         # player has lost the game
         if not self._players.get(self._myself.get_name(), None):
+            if self._total_players == 2:
+                self._state = "END_GAME"
+                return
             print("\n[SYSTEM] You lost! Enjoy spectating the game!")
-            self._state = "SPECTATOR"
+            self._total_players -= 1
+            self._am_spectator = True
+            self._transportLayer.reset_sync()
+            self._state = "SYNCHRONIZE_CLOCK"
 
         # if no chairs left, end the game, else reset
         elif len(self._round_inputs.keys()) < 1:
@@ -328,7 +340,9 @@ class Client():
 
         else:
             # must wait for everyone to signal end round before moving on to next round
-            self._state = "AWAIT_KEYPRESS"
+            self._total_players -= 1
+            self._transportLayer.reset_sync()
+            self._state = "SYNCHRONIZE_CLOCK"
 
     def end_game(self):
         # terminate all connectionsidk
@@ -559,3 +573,6 @@ class Client():
         self._done_voting = False
 
         self._vote_tied = False
+        self.init_send_time = None
+        self.init_ack_start = None
+
