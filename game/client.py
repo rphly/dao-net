@@ -157,12 +157,12 @@ class Client():
     def sync_clock(self):
         self._checkTransportLayerForIncomingData()
         if not self._transportLayer.sync.done():
-            print("syncing...")
-            self.is_sync_complete = self._transportLayer.syncing()
+            self.is_sync_complete = self._transportLayer.syncing(
+                self.round_number)
             return
         else:
             print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
-            update_leader_pkt = UpdateLeader(None, self._myself)
+            update_leader_pkt = UpdateLeader(self.round_number, self._myself)
             self._transportLayer.sendall(update_leader_pkt)
             self._transportLayer.sync.next_leader()
             self._state = "AWAIT_SYNC_END"
@@ -172,17 +172,12 @@ class Client():
         if self._transportLayer.sync.no_more_leader():
             self._transportLayer.stop_timers()
             print(f"[SYNC COMPLETE]")
-            self._state = "INIT"
+            self._state = "INIT" if self.round_number == 1 else "AWAIT_KEYPRESS"
 
     def init(self):
         # we only reach here once peering is completed
         # everybody sends ok start to everyone else
         self._checkTransportLayerForIncomingData()
-
-        if self._am_spectator:
-            self._state = "SPECTATOR"
-            return
-        
 
         if len(self._round_ready.keys()) < self._total_players - 1:
             if self.init_send_time is None:
@@ -199,6 +194,10 @@ class Client():
 
     def await_keypress(self):
         self._checkTransportLayerForIncomingData()
+
+        if self._am_spectator:
+            self._state = "SPECTATOR"
+            return
 
         if not self._round_started:
             if self._all_voted_to_start():
@@ -356,7 +355,6 @@ class Client():
 
 ######### helper functions #########
 
-
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         pkt: Packet = self._transportLayer.receive()
@@ -459,8 +457,6 @@ class Client():
                     self._state = "END_GAME"
 
             elif pkt.get_packet_type() == "sync_req":
-                print("received sync req")
-
                 rcv_time = time()
                 # print("rcv time: {}".format(rcv_time))
                 leader_id = pkt.get_player().get_name()
@@ -469,13 +465,12 @@ class Client():
                     rcv_time) - float(pkt.get_created_at())
                 # print("delay from leader {}".format(delay_from_leader))
 
-                sync_ack_pkt = SyncAck(delay_from_leader, self._myself)
+                sync_ack_pkt = SyncAck(
+                    delay_from_leader, self._myself, self.round_number)
                 self._transportLayer.send(
                     packet=sync_ack_pkt, player_id=leader_id)
 
             elif pkt.get_packet_type() == "sync_ack":
-                print("received sync ack")
-
                 rcv_time = time()
                 self._transportLayer.sync.update_delay_dict(pkt)
 
@@ -485,10 +480,9 @@ class Client():
                 self._transportLayer.sync_req_timers[peer_id].cancel()
 
                 delay_from_peer = float(rcv_time) - float(pkt.get_created_at())
-                print(f"sending sync ack ack akc to {peer_id}")
 
                 peer_sync_ack_pkt = PeerSyncAck(
-                    delay_from_peer, self._myself)
+                    delay_from_peer, self._myself, self.round_number)
                 self._transportLayer.send(
                     packet=peer_sync_ack_pkt, player_id=peer_id)
 
@@ -496,7 +490,6 @@ class Client():
                 self._transportLayer.sync.update_delay_dict(pkt)
 
             elif pkt.get_packet_type() == "update_leader":
-                print("received update leader")
                 self._transportLayer.sync.next_leader()
                 if self._transportLayer.sync.no_more_leader():
                     # print(self._transportLayer.sync._delay_dict)
@@ -575,4 +568,3 @@ class Client():
         self._vote_tied = False
         self.init_send_time = None
         self.init_ack_start = None
-

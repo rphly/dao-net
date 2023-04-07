@@ -118,28 +118,28 @@ class PeeringCompleted(Packet):
 class SyncReq(Packet):
     """Send a Sync packet"""
 
-    def __init__(self, player: Player):
-        super().__init__(None, player, "sync_req")
+    def __init__(self, round_number, player: Player):
+        super().__init__(round_number, player, "sync_req")
 
 
 class SyncAck(Packet):
     """Send a Sync packet."""
 
-    def __init__(self, data, player: Player):
+    def __init__(self, data, player: Player, round_number):
         super().__init__(data, player, "sync_ack")
 
 
 class PeerSyncAck(Packet):
     """Send peer their delay measurement."""
 
-    def __init__(self, data, player: Player):
+    def __init__(self, data, player: Player, round_number):
         super().__init__(data, player, "peer_sync_ack")
 
 
 class UpdateLeader(Packet):
     """Update the leader of syncing."""
 
-    def __init__(self, data: int, player: Player):
+    def __init__(self, data, player: Player):
         super().__init__(data, player, "update_leader")
 # End of Timer Packets
 
@@ -184,10 +184,18 @@ class AcquireMaster(Packet):
     def __init__(self, player: Player):
         super().__init__(None, player, "acquire_master")
 
+    def __hash__(self):
+        # frame sync packets are unique for (frame, createdAt)
+        return hash(self.packet_type + self.player.name + str(self.data) + str(self.get_created_at()))
+
 
 class UpdateMaster(Packet):
     def __init__(self, new_master_id: str, player: Player):
         super().__init__(new_master_id, player, "update_master")
+
+    def __hash__(self):
+        # frame sync packets are unique for (frame, createdAt)
+        return hash(self.packet_type + self.player.name + str(self.data) + str(self.get_created_at()))
 
 
 # initial transport layer initiation

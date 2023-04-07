@@ -243,11 +243,10 @@ class Transport:
                 break
 
     # Sync class functions
-    def syncing(self):
-        print(self.sync.is_leader_myself())
+    def syncing(self, round_number):
         if self.sync.is_leader_myself() and not self.sent_sync:
             print("sending sync req")
-            sync_req_pkt = SyncReq(self.my_player)
+            sync_req_pkt = SyncReq(round_number, self.my_player)
             self.sendall(sync_req_pkt)
             self.sent_sync = True
 
