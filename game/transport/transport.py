@@ -125,7 +125,6 @@ class Transport:
         if len(bd) > self.chunksize:
             print("Warning: packet too large")
         padded = bd.ljust(self.chunksize, b"\0")
-
         try:
             conn = self._connection_pool[player_id]
             conn.sendall(padded)
@@ -155,16 +154,12 @@ class Transport:
 
     def sendall(self, packet: Packet):
         wait_dict = self.sync.get_wait_times()
-        if wait_dict:
-            for player_id in self._connection_pool:
-                wait = wait_dict[player_id]
-                threading.Thread(target=self.send_within(
-                    packet, player_id, delay=wait), daemon=True)
-
-        else:
-            for player_id in self._connection_pool:
-                threading.Thread(target=self.send_within(
-                    packet, player_id, delay=0), daemon=True)
+        self.lock.acquire()
+        for player_id in self._connection_pool:
+            wait = wait_dict.get(player_id, 0) if wait_dict else 0
+            threading.Thread(target=self.send_within(
+                packet, player_id, delay=wait), daemon=True)
+        self.lock.release()
 
     def receive(self) -> str:
         """

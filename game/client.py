@@ -107,7 +107,7 @@ class Client():
     def start(self):
         try:
             while not self.game_over:
-                sleep(0.5)  # slow down game loop
+                sleep(0.2)  # slow down game loop
                 self.frame_count += 1
                 if self.frame_count % 10 == 0:
                     self._transportLayer.sendall(
@@ -341,6 +341,7 @@ class Client():
 
 
 ######### helper functions #########
+
 
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
