@@ -170,6 +170,7 @@ class Client():
     def await_sync_end(self):
         self._checkTransportLayerForIncomingData()
         if self._transportLayer.sync.no_more_leader():
+            self._transportLayer.stop_timers()
             print(f"[SYNC COMPLETE]")
             self._state = "INIT"
 

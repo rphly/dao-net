@@ -277,3 +277,8 @@ class Transport:
         # start timer in thread
         self.set_packet_timer(player_id, packet)
         return
+
+    def stop_timers(self):
+        for player, timer in self.sync_req_timers.items():
+            timer.cancel()
+        
