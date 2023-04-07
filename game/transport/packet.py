@@ -78,6 +78,10 @@ class Action(Packet):
     def __str__(self):
         return f"Action: {super().get_packet_type()}"
 
+    def __hash__(self):
+        # frame sync packets are unique for keypress, createdat
+        return hash(self.packet_type + self.player.name + self.data + str(self.get_created_at()))
+
 
 class Ack(Packet):
     """Acknowledge a seat selection."""
@@ -151,6 +155,10 @@ class SatDown(Packet):
     def __init__(self, seat, player: Player):
         super().__init__(seat, player, "sat_down")
 
+    def __hash__(self):
+        # frame sync packets are unique for keypress, createdat
+        return hash(self.packet_type + self.player.name + self.data + str(self.get_created_at()))
+
 
 class FrameSync(Packet):
     """FrameSync"""
@@ -159,7 +167,7 @@ class FrameSync(Packet):
         super().__init__(frame, player, "frame_sync")
 
     def __hash__(self):
-        # frame sync packets are uniqure for (frame, createdAt)
+        # frame sync packets are unique for (frame, createdAt)
         return hash(self.packet_type + self.player.name)
 
 
