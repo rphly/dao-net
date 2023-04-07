@@ -177,7 +177,7 @@ class FrameSync(Packet):
 
     def __hash__(self):
         # frame sync packets are unique for (frame, createdAt)
-        return hash(self.packet_type + self.player.name + self.data + str(self.get_created_at()))
+        return hash(self.packet_type + self.player.name + str(self.data) + str(self.get_created_at()))
 
 
 class AcquireMaster(Packet):
