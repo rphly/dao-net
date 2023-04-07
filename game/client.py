@@ -201,6 +201,7 @@ class Client():
                 sleep(3)
                 self._round_started = True
                 print(f"\n|-------- ROUND {self.round_number} --------|")
+                print(f"[PLAYING AS] {self._myself.get_name()}")
                 print(f"[CURRENT PLAYERS] {list(self._players.keys())}")
                 print(f"[AVAILABLE SEATS] {self._round_inputs}")
                 print("[SYSTEM] GRAB A SEAT NOW !!!")
@@ -398,7 +399,7 @@ class Client():
 
             elif pkt.get_packet_type() == "vote":
                 player_to_kick = pkt.get_data()
-                # print(f"[SYSTEM] Received vote to kick {player_to_kick}")
+                print(f"[SYSTEM] Received vote to kick {player_to_kick}")
                 if player_to_kick in self._votekick:
                     self._votekick[player_to_kick] += 1
                 else:
@@ -532,7 +533,6 @@ class Client():
             self._send_ack(player)
             self._round_inputs[seat] = player.get_name()
             self.lock.release()
-            print(self._round_inputs)
             return
 
     def _reset_round(self):

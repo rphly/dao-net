@@ -121,7 +121,10 @@ class Transport:
         self.delayer.delay(player_id)
         # add hash to packet header
         d = str(hash(packet)) + "\0" + packet.json()
-        padded = d.encode('utf-8').ljust(self.chunksize, b"\0")
+        bd = d.encode('utf-8')
+        if len(bd) > self.chunksize:
+            print("Warning: packet too large")
+        padded = bd.ljust(self.chunksize, b"\0")
 
         try:
             conn = self._connection_pool[player_id]
@@ -281,4 +284,3 @@ class Transport:
     def stop_timers(self):
         for player, timer in self.sync_req_timers.items():
             timer.cancel()
-        

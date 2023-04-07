@@ -80,7 +80,7 @@ class Action(Packet):
 
     def __hash__(self):
         # frame sync packets are unique for keypress, createdat
-        return hash(self.packet_type + self.player.name + self.data + str(self.get_created_at()))
+        return hash(self.packet_type + self.player.get_name() + self.data + str(self.get_created_at()))
 
 
 class Ack(Packet):
@@ -88,6 +88,9 @@ class Ack(Packet):
 
     def __init__(self, player: Player):
         super().__init__(None, player, "ack")
+
+    def __hash__(self):
+        return hash(self.packet_type + self.player.get_name() + str(self.get_created_at()))
 
 
 class Nak(Packet):
@@ -97,7 +100,7 @@ class Nak(Packet):
         super().__init__(None, player, "nak")
 
     def __hash__(self):
-        return hash(self.packet_type + self.player.name + str(self.get_created_at()))
+        return hash(self.packet_type + self.player.get_name() + str(self.get_created_at()))
 
 
 class PeeringCompleted(Packet):
@@ -107,7 +110,7 @@ class PeeringCompleted(Packet):
         super().__init__(None, player, "peering_completed")
 
     def __hash__(self):
-        return hash(self.packet_type + self.player.name + str(self.get_created_at()))
+        return hash(self.packet_type + self.player.get_name() + str(self.get_created_at()))
 
 # Timer Packets
 
@@ -163,7 +166,7 @@ class SatDown(Packet):
 
     def __hash__(self):
         # frame sync packets are unique for keypress, createdat
-        return hash(self.packet_type + self.player.name + self.data + str(self.get_created_at()))
+        return hash(self.packet_type + self.player.get_name() + self.data + str(self.get_created_at()))
 
 
 class FrameSync(Packet):
@@ -174,7 +177,7 @@ class FrameSync(Packet):
 
     def __hash__(self):
         # frame sync packets are unique for (frame, createdAt)
-        return hash(self.packet_type + self.player.name)
+        return hash(self.packet_type + self.player.name, self.data, str(self.get_created_at()))
 
 
 class AcquireMaster(Packet):
@@ -214,4 +217,4 @@ class Vote(Packet):
         super().__init__(playerid, player, "vote")
 
     def __hash__(self):
-        return hash(self.packet_type + self.player.name + self.data + str(self.get_created_at()))
+        return hash(self.packet_type + self.player.get_name() + self.data + str(self.get_created_at()))
