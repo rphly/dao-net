@@ -163,9 +163,21 @@ class Client():
             return
         else:
             print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
-            self.logger.info(f"DELAY LIST\n Delay List: {self._transportLayer.sync._delay_dict}")
-            self.logger.info(f"ORDERED DELAYLIST\n Ordered delays: {sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)}")
-            self.logger.info(f"WAIT LIST\n Wait List: {self._transportLayer.sync.get_wait_times()}")
+            temporary_logger_dict = {"Logger Name":"UNORDERED DELAYLIST", "Logging Data": self._transportLayer.sync._delay_dict}
+            self.logger.info(f'{temporary_logger_dict}')
+            temporary_logger_dict = {"Logger Name":"ORDERED DELAYLIST", "Logging Data":sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)}
+            self.logger.info(f'{temporary_logger_dict}')
+            temporary_logger_dict = {"Logger Name":"WAIT LIST", "Logging Data":self._transportLayer.sync.get_wait_times()}
+            self.logger.info(f'{temporary_logger_dict}')
+
+            # Old Logger
+
+            # self.logger.info(f"DELAY LIST\n Delay List: {self._transportLayer.sync._delay_dict}")
+            # self.logger.info(f"ORDERED DELAYLIST\n Ordered delays: {sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)}")
+            # self.logger.info(f"WAIT LIST\n Wait List: {self._transportLayer.sync.get_wait_times()}")
+
+            ###
+
             update_leader_pkt = UpdateLeader(None, self._myself)
             self._transportLayer.sendall(update_leader_pkt)
             self._transportLayer.sync.next_leader()
@@ -223,6 +235,7 @@ class Client():
                             translated_key: str = self.letter_to_key[k]
                         else:
                             translated_key = k.lower()
+
                         keyboard.add_hotkey(
                             translated_key, self._insert_input, args=(k,))
                         self.hotkeys_added = True
@@ -262,6 +275,8 @@ class Client():
 
     def await_round_end(self):
         self._checkTransportLayerForIncomingData()
+        temporary_logger_dict = {"Logger Name":"GAME PLAY LIST", "Logging Data":self._round_inputs.values()}
+        self.logger.info(f'{temporary_logger_dict}')
         if all(self._round_inputs.values()):
             # everyone is ready to vote
             if not self._done_voting:
@@ -497,6 +512,8 @@ class Client():
         self._is_selecting_seat = True
         pkt = Action(dict(seat=self._my_keypress), self._myself)
         self._my_keypress_time = pkt.get_created_at()
+        temporary_logger_dict = {"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {time.localtime()} }
+        self.logger.info(f'{temporary_logger_dict}')
         self._transportLayer.sendall(pkt)
 
     def _send_ack(self, player: Player):
@@ -560,5 +577,4 @@ class Client():
         self._sat_down_count = 0
         self._votekick = {}
         self._done_voting = False
-
         self._vote_tied = False
