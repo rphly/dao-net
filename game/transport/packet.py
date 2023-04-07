@@ -96,12 +96,18 @@ class Nak(Packet):
     def __init__(self, player: Player):
         super().__init__(None, player, "nak")
 
+    def __hash__(self):
+        return hash(self.packet_type + self.player.name + str(self.get_created_at()))
+
 
 class PeeringCompleted(Packet):
     """Peering has been completed."""
 
     def __init__(self, player: Player):
         super().__init__(None, player, "peering_completed")
+
+    def __hash__(self):
+        return hash(self.packet_type + self.player.name + str(self.get_created_at()))
 
 # Timer Packets
 
@@ -201,3 +207,11 @@ class EndGame(Packet):
 
     def __init__(self, player: Player):
         super().__init__(None, player, "end_game")
+
+
+class Vote(Packet):
+    def __init__(self, playerid: str, player: Player):
+        super().__init__(playerid, player, "vote")
+
+    def __hash__(self):
+        return hash(self.packet_type + self.player.name + self.data + str(self.get_created_at()))

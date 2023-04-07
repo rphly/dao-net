@@ -4,10 +4,9 @@ from platform import system
 from game.clock.clock import Clock
 from game.models.player import Player
 from game.lobby.tracker import Tracker
-from game.models.vote import Vote
 from game.thread_manager import ThreadManager
 from game.transport.transport import Transport
-from game.transport.packet import AckStart, EndGame, Nak, Ack, PeerSyncAck, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync, SyncAck, UpdateLeader, Action
+from game.transport.packet import AckStart, EndGame, Nak, Ack, PeerSyncAck, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync, SyncAck, UpdateLeader, Action, Vote
 import keyboard
 import game.clock.sync as sync
 from time import time, sleep
