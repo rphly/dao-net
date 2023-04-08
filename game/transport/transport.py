@@ -150,15 +150,16 @@ class Transport:
         time.sleep(delay)
         self.send(packet, player_id)
         if packet.get_packet_type() == "action":
-            temporary_logger_dict = {"Logger Name":"ACTION PACKET INFO-send ", "Sender":self.myself, "SEND_TIME":time.time(), "DELAY":delay ,"TO":player_id}
+            temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-SEND", "Sender":self.myself, "SEND_TIME":time.time(), "DATA": packet.get_data(),"DELAY":delay ,"TO":player_id})
             self.logger.info(f'{temporary_logger_dict}')
-        else:
-            temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO-send ", "Sender":self.myself, "SEND_TIME":time.time(), "DELAY":delay ,"TO":player_id}
-            self.logger.info(f'{temporary_logger_dict}')
+        #else:
+            #temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO-send ", "Sender":self.myself, "SEND_TIME":time.time(), "DELAY":delay ,#"TO":player_id}
+            #self.logger.info(f'{temporary_logger_dict}')
             # self.logger.info(
             #     f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
             # self.logger.info(
             #     f"DELAY_INFO (Send) \n{self.myself} to {player_id} | send_time:{now} | delay_time: {now+delay} | packet_type: {packet.get_packet_type()}")
+
 
     def sendall(self, packet: Packet):
         wait_dict = self.sync.get_wait_times()
@@ -182,11 +183,11 @@ class Transport:
                 rtt = time.time() - packet.get_created_at()
                 throughput = length / rtt
                 if packet.get_packet_type()=="action":
-                    temporary_logger_dict = {"Logger Name":"ACTION PACKET INFO-RECEIVE", "Length": {length}, "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": {rtt}, "Throughput": {throughput}}
+                    temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "Length": {length}, "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": {rtt}, "Throughput": {throughput}})
                     self.logger.info(f'{temporary_logger_dict}')
-                else:
-                    temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO", "Length": {length}, "Packet Type": packet.get_packet_type(), "RTT": {rtt}, "Throughput": {throughput}}
-                    self.logger.info(f'{temporary_logger_dict}')
+                #else:
+                    #temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO", "Length": {length}, "Packet Type": packet.get_packet_type(), "RTT": {rtt}, "Throughput": {throughput}}
+                    #self.logger.info(f'{temporary_logger_dict}')
                 return packet
         except Empty:
             return

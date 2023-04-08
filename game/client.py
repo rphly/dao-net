@@ -111,6 +111,8 @@ class Client():
             while not self.game_over:
                 sleep(0.2)  # slow down game loop
                 self.frame_count += 1
+                # temporary_logger_dict = json.dumps({"Logger Name":"ORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data":sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)})
+                # self.logger.info(f'{temporary_logger_dict}')
                 if self.frame_count % 10 == 0:
                     self._transportLayer.sendall(
                         FrameSync(self.frame_count, self._myself))
@@ -163,11 +165,11 @@ class Client():
             return
         else:
             print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
-            temporary_logger_dict = {"Logger Name":"UNORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data": self._transportLayer.sync._delay_dict}
+            temporary_logger_dict = json.dumps({"Logger Name":"UNORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data": self._transportLayer.sync._delay_dict})
             self.logger.info(f'{temporary_logger_dict}')
-            temporary_logger_dict = {"Logger Name":"ORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data":sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)}
+            temporary_logger_dict = json.dumps({"Logger Name":"ORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data":sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)})
             self.logger.info(f'{temporary_logger_dict}')
-            temporary_logger_dict = {"Logger Name":"WAIT LIST", "Round Number":self.round_number, "Logging Data":self._transportLayer.sync.get_wait_times()}
+            temporary_logger_dict = json.dumps({"Logger Name":"WAIT LIST", "Round Number":self.round_number, "Logging Data":self._transportLayer.sync.get_wait_times()})
             self.logger.info(f'{temporary_logger_dict}')
 
             # Old Logger
@@ -281,7 +283,7 @@ class Client():
 
     def await_round_end(self):
         self._checkTransportLayerForIncomingData()
-        temporary_logger_dict = {"Logger Name":"GAME PLAY LIST", "Logging Data":self._round_inputs.values()}
+        temporary_logger_dict = json.dumps({"Logger Name":"GAME PLAY LIST", "Round Number": self.round_number, "Logging Data":self._round_inputs.values()})
         self.logger.info(f'{temporary_logger_dict}')
         if all(self._round_inputs.values()):
             # everyone is ready to vote
@@ -521,7 +523,7 @@ class Client():
         self._is_selecting_seat = True
         pkt = Action(self._my_keypress, self._myself)
         self._my_keypress_time = pkt.get_created_at()
-        temporary_logger_dict = {"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {time.time()} }
+        temporary_logger_dict = json.dumps({"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {time.time()} })
         self.logger.info(f'{temporary_logger_dict}')
         self._transportLayer.sendall(pkt)
 
