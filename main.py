@@ -39,7 +39,7 @@ if __name__ == "__main__":
                 player_port = int(sys.argv[i+1])
                 current_time = datetime.now().strftime("%H-%M-%S")
                 logger = setup_logger(
-                    "PLAYER_LOGGER", f"./logs/PLAYER_{current_time}_DAO-NET.log")
+                    "PLAYER_LOGGER", f"./logs/PLAYER_{player_name}_{current_time}_DAO-NET.json")
                 logger.info("Starting player mode.")
                 logger.info(f"Player name is {player_name}.")
             except (ValueError, TypeError):
@@ -51,7 +51,7 @@ if __name__ == "__main__":
                 is_player_mode = False
                 current_time = datetime.now().strftime("%H-%M-%S")
                 logger = setup_logger(
-                    "HOST_LOGGER", f"./logs/HOST_{current_time}_DAO-NET.log")
+                    "HOST_LOGGER", f"./logs/HOST_{player_name}_{current_time}_DAO-NET.json")
                 logger.info("Starting host mode.")
                 logger.info(f"Player name is {player_name}.")
 

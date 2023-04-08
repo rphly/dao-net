@@ -1,0 +1,94 @@
+{"asctime": "2023-04-08 16:04:30,860", "levelname": "INFO", "message": "Starting host mode."}
+{"asctime": "2023-04-08 16:04:30,860", "levelname": "INFO", "message": "Player name is vast-condor."}
+{"asctime": "2023-04-08 16:04:34,498", "levelname": "INFO", "message": "All clients notified of game start."}
+{"asctime": "2023-04-08 16:04:34,975", "levelname": "INFO", "message": "Entering game..."}
+{"asctime": "2023-04-08 16:04:36,987", "levelname": "INFO", "message": "vast-condor sending connection request to funny-gnu at 1680941076.9867537"}
+{"asctime": "2023-04-08 16:04:37,184", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 0, \"Player Name\": \"vast-condor\", \"Time\": 1680941077.1845162}"}
+{"asctime": "2023-04-08 16:04:37,400", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 1, \"Player Name\": \"vast-condor\", \"Time\": 1680941077.4000616}"}
+{"asctime": "2023-04-08 16:04:37,600", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 2, \"Player Name\": \"vast-condor\", \"Time\": 1680941077.6007133}"}
+{"asctime": "2023-04-08 16:04:37,816", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 3, \"Player Name\": \"vast-condor\", \"Time\": 1680941077.8163154}"}
+{"asctime": "2023-04-08 16:04:38,017", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 4, \"Player Name\": \"vast-condor\", \"Time\": 1680941078.0173564}"}
+{"asctime": "2023-04-08 16:04:39,639", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 5, \"Player Name\": \"vast-condor\", \"Time\": 1680941079.6390536}"}
+{"asctime": "2023-04-08 16:04:40,563", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 6, \"Player Name\": \"vast-condor\", \"Time\": 1680941080.5639668}"}
+{"asctime": "2023-04-08 16:04:40,765", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 7, \"Player Name\": \"vast-condor\", \"Time\": 1680941080.7657607}"}
+{"asctime": "2023-04-08 16:04:40,967", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 8, \"Player Name\": \"vast-condor\", \"Time\": 1680941080.9670966}"}
+{"asctime": "2023-04-08 16:04:41,167", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 9, \"Player Name\": \"vast-condor\", \"Time\": 1680941081.167829}"}
+{"asctime": "2023-04-08 16:04:42,078", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 10, \"Player Name\": \"vast-condor\", \"Time\": 1680941082.0789876}"}
+{"asctime": "2023-04-08 16:04:42,790", "levelname": "INFO", "message": "{\"Logger Name\": \"UNORDERED DELAYLIST\", \"Round Number\": 1, \"Logging Data\": {\"funny-gnu\": 0.859276294708252}}"}
+{"asctime": "2023-04-08 16:04:42,790", "levelname": "INFO", "message": "{\"Logger Name\": \"ORDERED DELAYLIST\", \"Round Number\": 1, \"Logging Data\": [\"funny-gnu\"]}"}
+{"asctime": "2023-04-08 16:04:42,791", "levelname": "INFO", "message": "{\"Logger Name\": \"WAIT LIST\", \"Round Number\": 1, \"Logging Data\": {\"funny-gnu\": 0}}"}
+{"asctime": "2023-04-08 16:04:43,701", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 11, \"Player Name\": \"vast-condor\", \"Time\": 1680941083.7014236}"}
+{"asctime": "2023-04-08 16:04:43,917", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 12, \"Player Name\": \"vast-condor\", \"Time\": 1680941083.9171734}"}
+{"asctime": "2023-04-08 16:04:45,540", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 13, \"Player Name\": \"vast-condor\", \"Time\": 1680941085.5401847}"}
+{"asctime": "2023-04-08 16:04:45,741", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 14, \"Player Name\": \"vast-condor\", \"Time\": 1680941085.7411385}"}
+{"asctime": "2023-04-08 16:04:46,653", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 15, \"Player Name\": \"vast-condor\", \"Time\": 1680941086.6537313}"}
+{"asctime": "2023-04-08 16:04:49,871", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 16, \"Player Name\": \"vast-condor\", \"Time\": 1680941089.871845}"}
+{"asctime": "2023-04-08 16:04:50,072", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 17, \"Player Name\": \"vast-condor\", \"Time\": 1680941090.0723267}"}
+{"asctime": "2023-04-08 16:04:50,272", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 18, \"Player Name\": \"vast-condor\", \"Time\": 1680941090.2727094}"}
+{"asctime": "2023-04-08 16:04:50,473", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 19, \"Player Name\": \"vast-condor\", \"Time\": 1680941090.4735215}"}
+{"asctime": "2023-04-08 16:04:51,386", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 20, \"Player Name\": \"vast-condor\", \"Time\": 1680941091.38659}"}
+{"asctime": "2023-04-08 16:04:51,587", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 21, \"Player Name\": \"vast-condor\", \"Time\": 1680941091.5877888}"}
+{"asctime": "2023-04-08 16:04:51,587", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680941091.5877888}"}
+{"asctime": "2023-04-08 16:04:52,298", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"vast-condor\", \"SEND_TIME\": 1680941092.2989647, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"funny-gnu\"}"}
+{"asctime": "2023-04-08 16:04:52,514", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 22, \"Player Name\": \"vast-condor\", \"Time\": 1680941092.5146267}"}
+{"asctime": "2023-04-08 16:04:52,715", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 23, \"Player Name\": \"vast-condor\", \"Time\": 1680941092.7152493}"}
+{"asctime": "2023-04-08 16:04:52,916", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 24, \"Player Name\": \"vast-condor\", \"Time\": 1680941092.9164712}"}
+{"asctime": "2023-04-08 16:04:52,916", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.9167516231536865, \"Throughput\": 52.35878376181851}"}
+{"asctime": "2023-04-08 16:04:53,829", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 25, \"Player Name\": \"vast-condor\", \"Time\": 1680941093.8291185}"}
+{"asctime": "2023-04-08 16:04:54,044", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 26, \"Player Name\": \"vast-condor\", \"Time\": 1680941094.044666}"}
+{"asctime": "2023-04-08 16:04:54,245", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 27, \"Player Name\": \"vast-condor\", \"Time\": 1680941094.245686}"}
+{"asctime": "2023-04-08 16:04:54,446", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 28, \"Player Name\": \"vast-condor\", \"Time\": 1680941094.4466038}"}
+{"asctime": "2023-04-08 16:04:54,646", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 29, \"Player Name\": \"vast-condor\", \"Time\": 1680941094.6469302}"}
+{"asctime": "2023-04-08 16:04:55,358", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680941095.3581874}"}
+{"asctime": "2023-04-08 16:04:56,069", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"vast-condor\", \"SEND_TIME\": 1680941096.069533, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"funny-gnu\"}"}
+{"asctime": "2023-04-08 16:04:56,284", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 30, \"Player Name\": \"vast-condor\", \"Time\": 1680941096.2848427}"}
+{"asctime": "2023-04-08 16:04:56,285", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.28535938262939453, \"Throughput\": 168.20894255416565}"}
+{"asctime": "2023-04-08 16:04:57,213", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 31, \"Player Name\": \"vast-condor\", \"Time\": 1680941097.2137656}"}
+{"asctime": "2023-04-08 16:04:57,414", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 32, \"Player Name\": \"vast-condor\", \"Time\": 1680941097.4145122}"}
+{"asctime": "2023-04-08 16:04:57,629", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 33, \"Player Name\": \"vast-condor\", \"Time\": 1680941097.6299405}"}
+{"asctime": "2023-04-08 16:04:57,846", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 34, \"Player Name\": \"vast-condor\", \"Time\": 1680941097.8464258}"}
+{"asctime": "2023-04-08 16:04:58,046", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 35, \"Player Name\": \"vast-condor\", \"Time\": 1680941098.0467312}"}
+{"asctime": "2023-04-08 16:04:58,261", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 36, \"Player Name\": \"vast-condor\", \"Time\": 1680941098.2619503}"}
+{"asctime": "2023-04-08 16:04:58,476", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 37, \"Player Name\": \"vast-condor\", \"Time\": 1680941098.476929}"}
+{"asctime": "2023-04-08 16:04:58,476", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680941098.476929}"}
+{"asctime": "2023-04-08 16:04:59,188", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"vast-condor\", \"SEND_TIME\": 1680941099.1880767, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"funny-gnu\"}"}
+{"asctime": "2023-04-08 16:04:59,404", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 38, \"Player Name\": \"vast-condor\", \"Time\": 1680941099.4036264}"}
+{"asctime": "2023-04-08 16:04:59,404", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.40464091300964355, \"Throughput\": 118.62369438370669}"}
+{"asctime": "2023-04-08 16:05:00,327", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 39, \"Player Name\": \"vast-condor\", \"Time\": 1680941100.3274345}"}
+{"asctime": "2023-04-08 16:05:01,253", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 40, \"Player Name\": \"vast-condor\", \"Time\": 1680941101.2536077}"}
+{"asctime": "2023-04-08 16:05:01,454", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 41, \"Player Name\": \"vast-condor\", \"Time\": 1680941101.4549825}"}
+{"asctime": "2023-04-08 16:05:01,455", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680941101.4554524}"}
+{"asctime": "2023-04-08 16:05:02,163", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"vast-condor\", \"SEND_TIME\": 1680941102.163622, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"funny-gnu\"}"}
+{"asctime": "2023-04-08 16:05:02,378", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 42, \"Player Name\": \"vast-condor\", \"Time\": 1680941102.3783088}"}
+{"asctime": "2023-04-08 16:05:02,378", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.37854766845703125, \"Throughput\": 126.80041114940444}"}
+{"asctime": "2023-04-08 16:05:03,290", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 43, \"Player Name\": \"vast-condor\", \"Time\": 1680941103.2909875}"}
+{"asctime": "2023-04-08 16:05:03,492", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 44, \"Player Name\": \"vast-condor\", \"Time\": 1680941103.4922106}"}
+{"asctime": "2023-04-08 16:05:03,692", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 45, \"Player Name\": \"vast-condor\", \"Time\": 1680941103.6926506}"}
+{"asctime": "2023-04-08 16:05:03,893", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 46, \"Player Name\": \"vast-condor\", \"Time\": 1680941103.8937094}"}
+{"asctime": "2023-04-08 16:05:04,093", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 47, \"Player Name\": \"vast-condor\", \"Time\": 1680941104.0939548}"}
+{"asctime": "2023-04-08 16:05:04,094", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680941104.0942638}"}
+{"asctime": "2023-04-08 16:05:04,804", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"vast-condor\", \"SEND_TIME\": 1680941104.8049767, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"funny-gnu\"}"}
+{"asctime": "2023-04-08 16:05:05,005", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 48, \"Player Name\": \"vast-condor\", \"Time\": 1680941105.0053701}"}
+{"asctime": "2023-04-08 16:05:05,005", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.005616426467895508, \"Throughput\": 8546.35955342361}"}
+{"asctime": "2023-04-08 16:05:05,916", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 49, \"Player Name\": \"vast-condor\", \"Time\": 1680941105.9163547}"}
+{"asctime": "2023-04-08 16:05:06,826", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 50, \"Player Name\": \"vast-condor\", \"Time\": 1680941106.8262029}"}
+{"asctime": "2023-04-08 16:05:07,027", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 51, \"Player Name\": \"vast-condor\", \"Time\": 1680941107.0273697}"}
+{"asctime": "2023-04-08 16:05:07,243", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 52, \"Player Name\": \"vast-condor\", \"Time\": 1680941107.2432733}"}
+{"asctime": "2023-04-08 16:05:07,243", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.24380803108215332, \"Throughput\": 196.87620537744291}"}
+{"asctime": "2023-04-08 16:05:07,953", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680941107.9530902}"}
+{"asctime": "2023-04-08 16:05:08,667", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"vast-condor\", \"SEND_TIME\": 1680941108.6668465, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"funny-gnu\"}"}
+{"asctime": "2023-04-08 16:05:08,868", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 53, \"Player Name\": \"vast-condor\", \"Time\": 1680941108.8684685}"}
+{"asctime": "2023-04-08 16:05:09,070", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 54, \"Player Name\": \"vast-condor\", \"Time\": 1680941109.0705206}"}
+{"asctime": "2023-04-08 16:05:09,285", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 55, \"Player Name\": \"vast-condor\", \"Time\": 1680941109.2859185}"}
+{"asctime": "2023-04-08 16:05:09,486", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 56, \"Player Name\": \"vast-condor\", \"Time\": 1680941109.4867914}"}
+{"asctime": "2023-04-08 16:05:09,687", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 57, \"Player Name\": \"vast-condor\", \"Time\": 1680941109.6871092}"}
+{"asctime": "2023-04-08 16:05:09,887", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 58, \"Player Name\": \"vast-condor\", \"Time\": 1680941109.8874803}"}
+{"asctime": "2023-04-08 16:05:10,102", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 59, \"Player Name\": \"vast-condor\", \"Time\": 1680941110.1029718}"}
+{"asctime": "2023-04-08 16:05:11,028", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 60, \"Player Name\": \"vast-condor\", \"Time\": 1680941111.0285087}"}
+{"asctime": "2023-04-08 16:05:11,243", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 61, \"Player Name\": \"vast-condor\", \"Time\": 1680941111.2438557}"}
+{"asctime": "2023-04-08 16:05:11,244", "levelname": "INFO", "message": "{\"Logger Name\": \"GAME PLAY LIST\", \"Round Number\": 1, \"Logging Data\": {\"Q\": \"funny-gnu\"}}"}
+{"asctime": "2023-04-08 16:05:12,151", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 62, \"Player Name\": \"vast-condor\", \"Time\": 1680941112.1514966}"}
+{"asctime": "2023-04-08 16:05:12,151", "levelname": "INFO", "message": "{\"Logger Name\": \"GAME PLAY LIST\", \"Round Number\": 1, \"Logging Data\": {\"Q\": \"funny-gnu\"}}"}
+{"asctime": "2023-04-08 16:05:12,352", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 63, \"Player Name\": \"vast-condor\", \"Time\": 1680941112.352854}"}
+{"asctime": "2023-04-08 16:05:12,569", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 64, \"Player Name\": \"vast-condor\", \"Time\": 1680941112.569403}"}
+{"asctime": "2023-04-08 16:05:12,570", "levelname": "INFO", "message": "Terminating game..."}
