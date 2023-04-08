@@ -1,6 +1,6 @@
 from game.models.player import Player
 import json
-from time import time
+import time
 import sys
 
 
@@ -29,7 +29,7 @@ class Packet:
         self.data = data
         self.player = player
         self.packet_type = packet_type
-        self.createdAt = int(time())
+        self.createdAt = int(time.time())
 
     def get_data(self):
         return self.data
