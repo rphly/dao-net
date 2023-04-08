@@ -2,9 +2,12 @@
 .DS_Store
 .AppleDouble
 .LSOverride
+<<<<<<< HEAD
 .json
 logs/
 logs_parse/
+=======
+>>>>>>> parent of 02de314 (Merge branch 'log_new')
 
 # Icon must end with two \r
 Icon
