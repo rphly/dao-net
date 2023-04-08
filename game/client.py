@@ -111,7 +111,7 @@ class Client():
             while not self.game_over:
                 sleep(0.2)  # slow down game loop
                 if self.frame_count%2 == 0:
-                    temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself})
+                    temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself.get_name(), "Time":time()})
                     self.logger.info(f'{temporary_logger_dict}')
                 self.frame_count += 1
                 if self.frame_count % 10 == 0:
@@ -465,8 +465,12 @@ class Client():
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
                         if frame < self.frame_count:
+                            temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-BEFORE", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                            self.logger.info(f'{temporary_logger_dict}')
                             # print("Slow down since master is behind")
                             sleep(0.3)
+                            temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-AFTER", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                            self.logger.info(f'{temporary_logger_dict}')
                         elif frame > self.frame_count:
                             # print("Requesting to be master since I'm behind")
                             self._frameSync.acquire_master()
