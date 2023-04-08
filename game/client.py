@@ -163,11 +163,11 @@ class Client():
             return
         else:
             print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
-            temporary_logger_dict = {"Logger Name":"UNORDERED DELAYLIST", "Logging Data": self._transportLayer.sync._delay_dict}
+            temporary_logger_dict = {"Logger Name":"UNORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data": self._transportLayer.sync._delay_dict}
             self.logger.info(f'{temporary_logger_dict}')
-            temporary_logger_dict = {"Logger Name":"ORDERED DELAYLIST", "Logging Data":sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)}
+            temporary_logger_dict = {"Logger Name":"ORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data":sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)}
             self.logger.info(f'{temporary_logger_dict}')
-            temporary_logger_dict = {"Logger Name":"WAIT LIST", "Logging Data":self._transportLayer.sync.get_wait_times()}
+            temporary_logger_dict = {"Logger Name":"WAIT LIST", "Round Number":self.round_number, "Logging Data":self._transportLayer.sync.get_wait_times()}
             self.logger.info(f'{temporary_logger_dict}')
 
             # Old Logger
@@ -521,7 +521,7 @@ class Client():
         self._is_selecting_seat = True
         pkt = Action(self._my_keypress, self._myself)
         self._my_keypress_time = pkt.get_created_at()
-        temporary_logger_dict = {"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {str(datetime.now().time())} }
+        temporary_logger_dict = {"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {time.time()} }
         self.logger.info(f'{temporary_logger_dict}')
         self._transportLayer.sendall(pkt)
 

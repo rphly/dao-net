@@ -113,7 +113,7 @@ class Transport:
                     print(
                         f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
                     self.logger.info(
-                        f"{self.myself} sending connection request to {player_id} at {str(datetime.now().time())}")
+                        f"{self.myself} sending connection request to {player_id} at {time.time()}")
                     time.sleep(1)
                 except (ConnectionRefusedError, TimeoutError):
                     pass
@@ -150,10 +150,10 @@ class Transport:
         time.sleep(delay)
         self.send(packet, player_id)
         if packet.get_packet_type() == "action":
-            temporary_logger_dict = {"Logger Name":"ACTION PACKET INFO-send ", "Sender":self.myself, "SEND_TIME":str(datetime.now().time()), "DELAY":delay ,"TO":player_id}
+            temporary_logger_dict = {"Logger Name":"ACTION PACKET INFO-send ", "Sender":self.myself, "SEND_TIME":time.time(), "DELAY":delay ,"TO":player_id}
             self.logger.info(f'{temporary_logger_dict}')
         else:
-            temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO-send ", "Sender":self.myself, "SEND_TIME":str(datetime.now().time()), "DELAY":delay ,"TO":player_id}
+            temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO-send ", "Sender":self.myself, "SEND_TIME":time.time(), "DELAY":delay ,"TO":player_id}
             self.logger.info(f'{temporary_logger_dict}')
             # self.logger.info(
             #     f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
