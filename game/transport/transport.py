@@ -177,12 +177,13 @@ class Transport:
             self.queue.task_done()
             if data:
                 packet = Packet.from_json(json.loads(data))
-                length = len(packet)
-                rtt = time() - packet.get_created_at()
-                throughput = length / rtt
-                if packet.get_packet_type()=="action":
-                    temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "Length": length, "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": rtt, "Throughput": throughput})
-                    self.logger.info(f'{temporary_logger_dict}')
+                # This has been shifted to client.py
+                # length = len(packet)
+                # rtt = time() - packet.get_created_at()
+                # throughput = length / rtt
+                # if packet.get_packet_type()=="action":
+                #     temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "Length": length, "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": rtt, "Throughput": throughput})
+                #     self.logger.info(f'{temporary_logger_dict}')
                 #else:
                     #temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO", "Length": {length}, "Packet Type": packet.get_packet_type(), "RTT": {rtt}, "Throughput": {throughput}}
                     #self.logger.info(f'{temporary_logger_dict}')

@@ -390,7 +390,7 @@ class Client():
                 rtt = time() - pkt.get_created_at()
                 throughput = length / rtt
                 if pkt.get_packet_type()=="action":
-                    temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "Length": length, "Packet Type": pkt.get_packet_type(), "Data": pkt.get_data(), "RTT": rtt, "Throughput": throughput})
+                    temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "From":pkt.player.get_name(),"Length": length, "Packet Type": pkt.get_packet_type(), "Data": pkt.get_data(), "RTT": rtt, "Throughput": throughput})
                     self.logger.info(f'{temporary_logger_dict}')
                 if not self._state == "SPECTATOR":
                     self._receiving_seats(pkt)
