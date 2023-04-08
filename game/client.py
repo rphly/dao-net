@@ -110,7 +110,7 @@ class Client():
             while not self.game_over:
                 sleep(0.2)  # slow down game loop
                 self.frame_count += 1
-                if self.frame_count % 10 == 0:
+                if self._frameSync.get_master() == self._myself and self.frame_count % 5 == 0:
                     self._transportLayer.sendall(
                         FrameSync(self.frame_count, self._myself))
                 self.trigger_handler(self._state)
@@ -424,8 +424,7 @@ class Client():
                 player = pkt.get_player()
                 new_master_name = pkt.get_data()
                 if self._frameSync.get_master() is None or player.get_name() == self._frameSync.get_master().get_name():
-                    # print(
-                    #     f"Updating master to {new_master_name}")
+                    print(f"[FRAME_SYNC] Updating master to {new_master_name}")
                     self._frameSync.update_master(
                         Player(new_master_name), None)
 
@@ -442,11 +441,12 @@ class Client():
                 self._frameSync.update_frame(player.get_name(), frame)
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
-                        if frame < self.frame_count:
-                            # print("Slow down since master is behind")
+                        if frame < self.frame_count + 2:
+                            print(f"[FRAME_SYNC] Slowing down since I'm ahead")
                             sleep(0.3)
                         elif frame > self.frame_count:
-                            # print("Requesting to be master since I'm behind")
+                            print(
+                                "[FRAME_SYNC] Requesting to be master since I'm behind")
                             self._frameSync.acquire_master()
 
             elif pkt.get_packet_type() == "end_game":

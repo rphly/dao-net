@@ -137,12 +137,6 @@ class Transport:
             conn.connect((ip, port))
             conn.sendall(padded)
             self._connection_pool[player_id] = conn
-        # ip, port = self.tracker.get_ip_port(
-        #     player_id)
-        # conn = socket.socket(
-        #     socket.AF_INET, socket.SOCK_STREAM)
-        # conn.connect((ip, port))
-        # conn.sendall(padded)
 
     def send_within(self, packet: Packet, player_id, delay: float):
         now = time.time()
@@ -153,7 +147,11 @@ class Transport:
         self.logger.info(
             f"DELAY_INFO\n{self.myself} to {player_id} | send_time:{now} | delay_time: {now+delay} | packet_type: {packet.get_packet_type()}")
 
-    def sendall(self, packet: Packet):
+    def sendall(self, packet: Packet, use_sync: bool = True):
+        if not use_sync:
+            for player_id in self._connection_pool:
+                self.send(packet, player_id)
+            return
         wait_dict = self.sync.get_wait_times()
         self.lock.acquire()
         for player_id in self._connection_pool:
