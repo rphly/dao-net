@@ -469,7 +469,7 @@ class Client():
                             self.logger.info(f'{temporary_logger_dict}')
                             # print("Slow down since master is behind")
                             
-                            waittime = 0.9 # (self.frame_count - frame) * 0.2 - 0.1
+                            waittime = 0 # (self.frame_count - frame) * 0.2 - 0.1
                             sleep(waittime)
 
                             temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-AFTER", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})

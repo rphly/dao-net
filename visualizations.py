@@ -46,8 +46,10 @@ def loop_folder(folder_path):
                     if player_name not in frames:
                         frames[player_name] = []
                     frames[player_name].append(thejsonyouneeded["Time"])
-                # if thejsonyouneeded['Logger Name'] == "FRAME SLOWING-BEFORE":
-                #     frames[thejsonyouneeded["Frame Count"]] = thejsonyouneeded["Time"]
+                if thejsonyouneeded['Logger Name'] == "FRAME SLOWING-BEFORE":
+                    # frames[thejsonyouneeded["Frame Count"]] = thejsonyouneeded["Time"]
+                    pass
+
     return keypress_times, throughputs, frames
                 
 
@@ -65,7 +67,7 @@ if __name__ == "__main__":
         # ax.plot(value, label=name)
         fig.add_trace(go.Scatter(x=list(range(0,len(value))), y=value, name=name), secondary_y=False)
 
-    fig.update_layout(title=frames, xaxis_title='Index', yaxis_title='Value 1')
+    fig.update_layout(title=str(frames.keys()), xaxis_title='Frame number', yaxis_title='Time')
   
     fig.show()
     pass
