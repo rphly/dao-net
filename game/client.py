@@ -110,9 +110,10 @@ class Client():
         try:
             while not self.game_over:
                 sleep(0.2)  # slow down game loop
+                if self.frame_count%2 == 0:
+                    temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself})
+                    self.logger.info(f'{temporary_logger_dict}')
                 self.frame_count += 1
-                # temporary_logger_dict = json.dumps({"Logger Name":"ORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data":sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)})
-                # self.logger.info(f'{temporary_logger_dict}')
                 if self.frame_count % 10 == 0:
                     self._transportLayer.sendall(
                         FrameSync(self.frame_count, self._myself))
