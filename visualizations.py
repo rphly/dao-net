@@ -1,6 +1,8 @@
 import os
 import json
-
+import matplotlib.pyplot as plt
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 
 relevant_tags = {
     "ORDERED DELAYLIST",
@@ -56,4 +58,14 @@ if __name__ == "__main__":
     keypress_times, throughputs, frames = loop_folder("./logs_parse")
     print("Average throughputs: ", sum(throughputs)/len(throughputs))
     print(frames)
+    name_list = frames.keys()
+    # fig, ax = plt.subplots()
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    for name, value in frames.items():
+        # ax.plot(value, label=name)
+        fig.add_trace(go.Scatter(x=list(range(0,len(value))), y=value, name=name), secondary_y=False)
+
+    fig.update_layout(title=frames, xaxis_title='Index', yaxis_title='Value 1')
+  
+    fig.show()
     pass
