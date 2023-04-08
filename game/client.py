@@ -110,9 +110,9 @@ class Client():
         try:
             while not self.game_over:
                 sleep(0.2)  # slow down game loop
-                if self.frame_count%2 == 0:
-                    temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself.get_name(), "Time":time()})
-                    self.logger.info(f'{temporary_logger_dict}')
+                # if self.frame_count%2 == 0: # To reduce the number of frames logged
+                temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself.get_name(), "Time":time()})
+                self.logger.info(f'{temporary_logger_dict}')
                 self.frame_count += 1
                 if self.frame_count % 10 == 0:
                     self._transportLayer.sendall(
@@ -468,7 +468,10 @@ class Client():
                             temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-BEFORE", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
                             self.logger.info(f'{temporary_logger_dict}')
                             # print("Slow down since master is behind")
-                            sleep(0.3)
+                            
+                            waittime = 0.9 # (self.frame_count - frame) * 0.2 - 0.1
+                            sleep(waittime)
+
                             temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-AFTER", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
                             self.logger.info(f'{temporary_logger_dict}')
                         elif frame > self.frame_count:

@@ -1,6 +1,7 @@
 import logging
+from pythonjsonlogger import jsonlogger
 
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+formatter = jsonlogger.JsonFormatter('%(asctime)s %(levelname)s %(message)s')
 
 def setup_logger(name, log_file, level=logging.INFO):
     """To setup as many loggers as you want"""

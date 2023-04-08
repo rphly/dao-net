@@ -1,0 +1,238 @@
+{"asctime": "2023-04-08 15:35:30,010", "levelname": "INFO", "message": "Starting player mode."}
+{"asctime": "2023-04-08 15:35:30,011", "levelname": "INFO", "message": "Player name is helped-macaw."}
+{"asctime": "2023-04-08 15:35:31,640", "levelname": "INFO", "message": "Entering game..."}
+{"asctime": "2023-04-08 15:35:33,652", "levelname": "INFO", "message": "helped-macaw sending connection request to expert-chow at 1680939333.6520805"}
+{"asctime": "2023-04-08 15:35:33,865", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 0, \"Player Name\": \"helped-macaw\", \"Time\": 1680939333.865206}"}
+{"asctime": "2023-04-08 15:35:34,065", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 1, \"Player Name\": \"helped-macaw\", \"Time\": 1680939334.065549}"}
+{"asctime": "2023-04-08 15:35:34,280", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 2, \"Player Name\": \"helped-macaw\", \"Time\": 1680939334.2801702}"}
+{"asctime": "2023-04-08 15:35:34,482", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 3, \"Player Name\": \"helped-macaw\", \"Time\": 1680939334.482025}"}
+{"asctime": "2023-04-08 15:35:34,697", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 4, \"Player Name\": \"helped-macaw\", \"Time\": 1680939334.697235}"}
+{"asctime": "2023-04-08 15:35:36,300", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 5, \"Player Name\": \"helped-macaw\", \"Time\": 1680939336.30053}"}
+{"asctime": "2023-04-08 15:35:36,515", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 6, \"Player Name\": \"helped-macaw\", \"Time\": 1680939336.5153558}"}
+{"asctime": "2023-04-08 15:35:36,730", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 7, \"Player Name\": \"helped-macaw\", \"Time\": 1680939336.730272}"}
+{"asctime": "2023-04-08 15:35:36,930", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 8, \"Player Name\": \"helped-macaw\", \"Time\": 1680939336.930607}"}
+{"asctime": "2023-04-08 15:35:37,145", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 9, \"Player Name\": \"helped-macaw\", \"Time\": 1680939337.145119}"}
+{"asctime": "2023-04-08 15:35:38,056", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 10, \"Player Name\": \"helped-macaw\", \"Time\": 1680939338.056187}"}
+{"asctime": "2023-04-08 15:35:38,968", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 11, \"Player Name\": \"helped-macaw\", \"Time\": 1680939338.968177}"}
+{"asctime": "2023-04-08 15:35:39,182", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 12, \"Player Name\": \"helped-macaw\", \"Time\": 1680939339.1829944}"}
+{"asctime": "2023-04-08 15:35:39,383", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 13, \"Player Name\": \"helped-macaw\", \"Time\": 1680939339.3832357}"}
+{"asctime": "2023-04-08 15:35:39,598", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 14, \"Player Name\": \"helped-macaw\", \"Time\": 1680939339.5985367}"}
+{"asctime": "2023-04-08 15:35:39,813", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 15, \"Player Name\": \"helped-macaw\", \"Time\": 1680939339.8135881}"}
+{"asctime": "2023-04-08 15:35:40,014", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 16, \"Player Name\": \"helped-macaw\", \"Time\": 1680939340.0141943}"}
+{"asctime": "2023-04-08 15:35:40,229", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 17, \"Player Name\": \"helped-macaw\", \"Time\": 1680939340.229339}"}
+{"asctime": "2023-04-08 15:35:40,430", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 18, \"Player Name\": \"helped-macaw\", \"Time\": 1680939340.430098}"}
+{"asctime": "2023-04-08 15:35:40,632", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 19, \"Player Name\": \"helped-macaw\", \"Time\": 1680939340.6324046}"}
+{"asctime": "2023-04-08 15:35:41,341", "levelname": "INFO", "message": "{\"Logger Name\": \"UNORDERED DELAYLIST\", \"Round Number\": 1, \"Logging Data\": {\"expert-chow\": 0.7213819026947021}}"}
+{"asctime": "2023-04-08 15:35:41,341", "levelname": "INFO", "message": "{\"Logger Name\": \"ORDERED DELAYLIST\", \"Round Number\": 1, \"Logging Data\": [\"expert-chow\"]}"}
+{"asctime": "2023-04-08 15:35:41,341", "levelname": "INFO", "message": "{\"Logger Name\": \"WAIT LIST\", \"Round Number\": 1, \"Logging Data\": {\"expert-chow\": 0}}"}
+{"asctime": "2023-04-08 15:35:42,249", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 20, \"Player Name\": \"helped-macaw\", \"Time\": 1680939342.2499955}"}
+{"asctime": "2023-04-08 15:35:42,466", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 21, \"Player Name\": \"helped-macaw\", \"Time\": 1680939342.4667342}"}
+{"asctime": "2023-04-08 15:35:43,390", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 22, \"Player Name\": \"helped-macaw\", \"Time\": 1680939343.3904822}"}
+{"asctime": "2023-04-08 15:35:43,605", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 23, \"Player Name\": \"helped-macaw\", \"Time\": 1680939343.6059475}"}
+{"asctime": "2023-04-08 15:35:43,807", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 24, \"Player Name\": \"helped-macaw\", \"Time\": 1680939343.8073874}"}
+{"asctime": "2023-04-08 15:35:44,715", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 25, \"Player Name\": \"helped-macaw\", \"Time\": 1680939344.7159414}"}
+{"asctime": "2023-04-08 15:35:44,916", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 26, \"Player Name\": \"helped-macaw\", \"Time\": 1680939344.9160197}"}
+{"asctime": "2023-04-08 15:35:45,116", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 27, \"Player Name\": \"helped-macaw\", \"Time\": 1680939345.116941}"}
+{"asctime": "2023-04-08 15:35:45,318", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 28, \"Player Name\": \"helped-macaw\", \"Time\": 1680939345.3180535}"}
+{"asctime": "2023-04-08 15:35:48,633", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 29, \"Player Name\": \"helped-macaw\", \"Time\": 1680939348.6338067}"}
+{"asctime": "2023-04-08 15:35:49,544", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 30, \"Player Name\": \"helped-macaw\", \"Time\": 1680939349.5445406}"}
+{"asctime": "2023-04-08 15:35:49,745", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 31, \"Player Name\": \"helped-macaw\", \"Time\": 1680939349.7452097}"}
+{"asctime": "2023-04-08 15:35:49,945", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 32, \"Player Name\": \"helped-macaw\", \"Time\": 1680939349.9455981}"}
+{"asctime": "2023-04-08 15:35:50,147", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 33, \"Player Name\": \"helped-macaw\", \"Time\": 1680939350.1470773}"}
+{"asctime": "2023-04-08 15:35:50,347", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 34, \"Player Name\": \"helped-macaw\", \"Time\": 1680939350.3477705}"}
+{"asctime": "2023-04-08 15:35:50,347", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 35, \"Player Name\": \"helped-macaw\", \"Time\": 1680939350.3477705}"}
+{"asctime": "2023-04-08 15:35:53,259", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 35, \"Player Name\": \"helped-macaw\", \"Time\": 1680939353.2598066}"}
+{"asctime": "2023-04-08 15:35:53,259", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939353.2598066}"}
+{"asctime": "2023-04-08 15:35:53,972", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939353.9728184, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:35:54,174", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 35, \"Player Name\": \"helped-macaw\", \"Time\": 1680939354.1743436}"}
+{"asctime": "2023-04-08 15:35:54,174", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.17434358596801758, \"Throughput\": 275.3184164102564}"}
+{"asctime": "2023-04-08 15:35:55,088", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 36, \"Player Name\": \"helped-macaw\", \"Time\": 1680939355.088765}"}
+{"asctime": "2023-04-08 15:35:55,088", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 37, \"Player Name\": \"helped-macaw\", \"Time\": 1680939355.088765}"}
+{"asctime": "2023-04-08 15:35:56,388", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 37, \"Player Name\": \"helped-macaw\", \"Time\": 1680939356.388784}"}
+{"asctime": "2023-04-08 15:35:56,590", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 37, \"Player Name\": \"helped-macaw\", \"Time\": 1680939356.5901935}"}
+{"asctime": "2023-04-08 15:35:56,790", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 38, \"Player Name\": \"helped-macaw\", \"Time\": 1680939356.7909098}"}
+{"asctime": "2023-04-08 15:35:56,992", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 39, \"Player Name\": \"helped-macaw\", \"Time\": 1680939356.9927516}"}
+{"asctime": "2023-04-08 15:35:57,905", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 40, \"Player Name\": \"helped-macaw\", \"Time\": 1680939357.9056683}"}
+{"asctime": "2023-04-08 15:35:58,106", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 41, \"Player Name\": \"helped-macaw\", \"Time\": 1680939358.1068716}"}
+{"asctime": "2023-04-08 15:35:58,106", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 42, \"Player Name\": \"helped-macaw\", \"Time\": 1680939358.1068716}"}
+{"asctime": "2023-04-08 15:35:58,416", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 42, \"Player Name\": \"helped-macaw\", \"Time\": 1680939358.4161348}"}
+{"asctime": "2023-04-08 15:35:58,617", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 42, \"Player Name\": \"helped-macaw\", \"Time\": 1680939358.6174953}"}
+{"asctime": "2023-04-08 15:35:58,817", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 43, \"Player Name\": \"helped-macaw\", \"Time\": 1680939358.817913}"}
+{"asctime": "2023-04-08 15:35:59,019", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 44, \"Player Name\": \"helped-macaw\", \"Time\": 1680939359.019011}"}
+{"asctime": "2023-04-08 15:35:59,219", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 45, \"Player Name\": \"helped-macaw\", \"Time\": 1680939359.2199984}"}
+{"asctime": "2023-04-08 15:35:59,421", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 46, \"Player Name\": \"helped-macaw\", \"Time\": 1680939359.421897}"}
+{"asctime": "2023-04-08 15:35:59,623", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 47, \"Player Name\": \"helped-macaw\", \"Time\": 1680939359.6230443}"}
+{"asctime": "2023-04-08 15:35:59,823", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 48, \"Player Name\": \"helped-macaw\", \"Time\": 1680939359.8236694}"}
+{"asctime": "2023-04-08 15:36:00,025", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 49, \"Player Name\": \"helped-macaw\", \"Time\": 1680939360.025044}"}
+{"asctime": "2023-04-08 15:36:00,737", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939360.7376554}"}
+{"asctime": "2023-04-08 15:36:01,450", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939361.4509454, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:36:01,652", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 50, \"Player Name\": \"helped-macaw\", \"Time\": 1680939361.6524847}"}
+{"asctime": "2023-04-08 15:36:01,652", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 51, \"Player Name\": \"helped-macaw\", \"Time\": 1680939361.6524847}"}
+{"asctime": "2023-04-08 15:36:01,760", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 51, \"Player Name\": \"helped-macaw\", \"Time\": 1680939361.7609992}"}
+{"asctime": "2023-04-08 15:36:01,962", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 51, \"Player Name\": \"helped-macaw\", \"Time\": 1680939361.9625351}"}
+{"asctime": "2023-04-08 15:36:01,963", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.9630322456359863, \"Throughput\": 49.84256780342886}"}
+{"asctime": "2023-04-08 15:36:02,876", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 52, \"Player Name\": \"helped-macaw\", \"Time\": 1680939362.8765826}"}
+{"asctime": "2023-04-08 15:36:03,078", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 53, \"Player Name\": \"helped-macaw\", \"Time\": 1680939363.078186}"}
+{"asctime": "2023-04-08 15:36:03,279", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 54, \"Player Name\": \"helped-macaw\", \"Time\": 1680939363.279015}"}
+{"asctime": "2023-04-08 15:36:03,480", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 55, \"Player Name\": \"helped-macaw\", \"Time\": 1680939363.4803462}"}
+{"asctime": "2023-04-08 15:36:03,681", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 56, \"Player Name\": \"helped-macaw\", \"Time\": 1680939363.681318}"}
+{"asctime": "2023-04-08 15:36:03,882", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 57, \"Player Name\": \"helped-macaw\", \"Time\": 1680939363.882365}"}
+{"asctime": "2023-04-08 15:36:04,083", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 58, \"Player Name\": \"helped-macaw\", \"Time\": 1680939364.083655}"}
+{"asctime": "2023-04-08 15:36:04,284", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 59, \"Player Name\": \"helped-macaw\", \"Time\": 1680939364.2842274}"}
+{"asctime": "2023-04-08 15:36:05,193", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 60, \"Player Name\": \"helped-macaw\", \"Time\": 1680939365.1931612}"}
+{"asctime": "2023-04-08 15:36:05,394", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 61, \"Player Name\": \"helped-macaw\", \"Time\": 1680939365.3937678}"}
+{"asctime": "2023-04-08 15:36:05,609", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 62, \"Player Name\": \"helped-macaw\", \"Time\": 1680939365.6093192}"}
+{"asctime": "2023-04-08 15:36:05,810", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 63, \"Player Name\": \"helped-macaw\", \"Time\": 1680939365.810596}"}
+{"asctime": "2023-04-08 15:36:05,810", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 64, \"Player Name\": \"helped-macaw\", \"Time\": 1680939365.810596}"}
+{"asctime": "2023-04-08 15:36:06,521", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 64, \"Player Name\": \"helped-macaw\", \"Time\": 1680939366.5211232}"}
+{"asctime": "2023-04-08 15:36:06,722", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 64, \"Player Name\": \"helped-macaw\", \"Time\": 1680939366.722631}"}
+{"asctime": "2023-04-08 15:36:06,923", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 65, \"Player Name\": \"helped-macaw\", \"Time\": 1680939366.9238605}"}
+{"asctime": "2023-04-08 15:36:07,124", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 66, \"Player Name\": \"helped-macaw\", \"Time\": 1680939367.124472}"}
+{"asctime": "2023-04-08 15:36:07,324", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 67, \"Player Name\": \"helped-macaw\", \"Time\": 1680939367.3244717}"}
+{"asctime": "2023-04-08 15:36:07,524", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 68, \"Player Name\": \"helped-macaw\", \"Time\": 1680939367.524883}"}
+{"asctime": "2023-04-08 15:36:07,726", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 69, \"Player Name\": \"helped-macaw\", \"Time\": 1680939367.7262173}"}
+{"asctime": "2023-04-08 15:36:08,437", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939368.437247}"}
+{"asctime": "2023-04-08 15:36:09,145", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939369.1459658, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:36:09,362", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 70, \"Player Name\": \"helped-macaw\", \"Time\": 1680939369.3620212}"}
+{"asctime": "2023-04-08 15:36:09,362", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 71, \"Player Name\": \"helped-macaw\", \"Time\": 1680939369.3620212}"}
+{"asctime": "2023-04-08 15:36:09,469", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 71, \"Player Name\": \"helped-macaw\", \"Time\": 1680939369.4698133}"}
+{"asctime": "2023-04-08 15:36:09,684", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 71, \"Player Name\": \"helped-macaw\", \"Time\": 1680939369.6840916}"}
+{"asctime": "2023-04-08 15:36:09,684", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.6840915679931641, \"Throughput\": 70.16604537432283}"}
+{"asctime": "2023-04-08 15:36:10,605", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 72, \"Player Name\": \"helped-macaw\", \"Time\": 1680939370.60584}"}
+{"asctime": "2023-04-08 15:36:10,821", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 73, \"Player Name\": \"helped-macaw\", \"Time\": 1680939370.8213134}"}
+{"asctime": "2023-04-08 15:36:11,022", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 74, \"Player Name\": \"helped-macaw\", \"Time\": 1680939371.0221329}"}
+{"asctime": "2023-04-08 15:36:11,237", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 75, \"Player Name\": \"helped-macaw\", \"Time\": 1680939371.2376208}"}
+{"asctime": "2023-04-08 15:36:11,452", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 76, \"Player Name\": \"helped-macaw\", \"Time\": 1680939371.4525304}"}
+{"asctime": "2023-04-08 15:36:11,452", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939371.4525304}"}
+{"asctime": "2023-04-08 15:36:12,159", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939372.1596425, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:36:12,374", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 77, \"Player Name\": \"helped-macaw\", \"Time\": 1680939372.374754}"}
+{"asctime": "2023-04-08 15:36:12,374", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.3747539520263672, \"Throughput\": 128.08403951567342}"}
+{"asctime": "2023-04-08 15:36:13,287", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 78, \"Player Name\": \"helped-macaw\", \"Time\": 1680939373.2876818}"}
+{"asctime": "2023-04-08 15:36:13,488", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 79, \"Player Name\": \"helped-macaw\", \"Time\": 1680939373.488607}"}
+{"asctime": "2023-04-08 15:36:14,397", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 80, \"Player Name\": \"helped-macaw\", \"Time\": 1680939374.397252}"}
+{"asctime": "2023-04-08 15:36:14,597", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 81, \"Player Name\": \"helped-macaw\", \"Time\": 1680939374.59779}"}
+{"asctime": "2023-04-08 15:36:14,811", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 82, \"Player Name\": \"helped-macaw\", \"Time\": 1680939374.8116443}"}
+{"asctime": "2023-04-08 15:36:15,012", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 83, \"Player Name\": \"helped-macaw\", \"Time\": 1680939375.0121286}"}
+{"asctime": "2023-04-08 15:36:15,212", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 84, \"Player Name\": \"helped-macaw\", \"Time\": 1680939375.212715}"}
+{"asctime": "2023-04-08 15:36:15,414", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 85, \"Player Name\": \"helped-macaw\", \"Time\": 1680939375.4143465}"}
+{"asctime": "2023-04-08 15:36:15,414", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 86, \"Player Name\": \"helped-macaw\", \"Time\": 1680939375.4143465}"}
+{"asctime": "2023-04-08 15:36:16,528", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 86, \"Player Name\": \"helped-macaw\", \"Time\": 1680939376.52868}"}
+{"asctime": "2023-04-08 15:36:16,729", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 86, \"Player Name\": \"helped-macaw\", \"Time\": 1680939376.7297814}"}
+{"asctime": "2023-04-08 15:36:16,931", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 87, \"Player Name\": \"helped-macaw\", \"Time\": 1680939376.930552}"}
+{"asctime": "2023-04-08 15:36:17,132", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 88, \"Player Name\": \"helped-macaw\", \"Time\": 1680939377.1321177}"}
+{"asctime": "2023-04-08 15:36:17,333", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 89, \"Player Name\": \"helped-macaw\", \"Time\": 1680939377.3335214}"}
+{"asctime": "2023-04-08 15:36:18,244", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 90, \"Player Name\": \"helped-macaw\", \"Time\": 1680939378.2444823}"}
+{"asctime": "2023-04-08 15:36:18,244", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 91, \"Player Name\": \"helped-macaw\", \"Time\": 1680939378.2444823}"}
+{"asctime": "2023-04-08 15:36:18,352", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 91, \"Player Name\": \"helped-macaw\", \"Time\": 1680939378.3525362}"}
+{"asctime": "2023-04-08 15:36:18,553", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 91, \"Player Name\": \"helped-macaw\", \"Time\": 1680939378.5531971}"}
+{"asctime": "2023-04-08 15:36:18,754", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 92, \"Player Name\": \"helped-macaw\", \"Time\": 1680939378.754083}"}
+{"asctime": "2023-04-08 15:36:18,954", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 93, \"Player Name\": \"helped-macaw\", \"Time\": 1680939378.9548671}"}
+{"asctime": "2023-04-08 15:36:19,155", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 94, \"Player Name\": \"helped-macaw\", \"Time\": 1680939379.1558142}"}
+{"asctime": "2023-04-08 15:36:19,357", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 95, \"Player Name\": \"helped-macaw\", \"Time\": 1680939379.357042}"}
+{"asctime": "2023-04-08 15:36:19,557", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 96, \"Player Name\": \"helped-macaw\", \"Time\": 1680939379.5578194}"}
+{"asctime": "2023-04-08 15:36:19,758", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 97, \"Player Name\": \"helped-macaw\", \"Time\": 1680939379.7585688}"}
+{"asctime": "2023-04-08 15:36:19,959", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 98, \"Player Name\": \"helped-macaw\", \"Time\": 1680939379.9599655}"}
+{"asctime": "2023-04-08 15:36:20,161", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 99, \"Player Name\": \"helped-macaw\", \"Time\": 1680939380.1613488}"}
+{"asctime": "2023-04-08 15:36:21,074", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 100, \"Player Name\": \"helped-macaw\", \"Time\": 1680939381.0749025}"}
+{"asctime": "2023-04-08 15:36:21,275", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 101, \"Player Name\": \"helped-macaw\", \"Time\": 1680939381.2758586}"}
+{"asctime": "2023-04-08 15:36:21,276", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 102, \"Player Name\": \"helped-macaw\", \"Time\": 1680939381.27636}"}
+{"asctime": "2023-04-08 15:36:21,585", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 102, \"Player Name\": \"helped-macaw\", \"Time\": 1680939381.5857275}"}
+{"asctime": "2023-04-08 15:36:21,786", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 102, \"Player Name\": \"helped-macaw\", \"Time\": 1680939381.7867765}"}
+{"asctime": "2023-04-08 15:36:21,988", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 103, \"Player Name\": \"helped-macaw\", \"Time\": 1680939381.9884636}"}
+{"asctime": "2023-04-08 15:36:22,189", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 104, \"Player Name\": \"helped-macaw\", \"Time\": 1680939382.1891615}"}
+{"asctime": "2023-04-08 15:36:22,390", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 105, \"Player Name\": \"helped-macaw\", \"Time\": 1680939382.39024}"}
+{"asctime": "2023-04-08 15:36:22,590", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 106, \"Player Name\": \"helped-macaw\", \"Time\": 1680939382.5908134}"}
+{"asctime": "2023-04-08 15:36:22,791", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 107, \"Player Name\": \"helped-macaw\", \"Time\": 1680939382.7917676}"}
+{"asctime": "2023-04-08 15:36:22,992", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 108, \"Player Name\": \"helped-macaw\", \"Time\": 1680939382.9928312}"}
+{"asctime": "2023-04-08 15:36:23,194", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 109, \"Player Name\": \"helped-macaw\", \"Time\": 1680939383.1943667}"}
+{"asctime": "2023-04-08 15:36:23,904", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939383.9047272}"}
+{"asctime": "2023-04-08 15:36:24,614", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939384.6146727, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:36:24,829", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 110, \"Player Name\": \"helped-macaw\", \"Time\": 1680939384.8299172}"}
+{"asctime": "2023-04-08 15:36:24,829", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 111, \"Player Name\": \"helped-macaw\", \"Time\": 1680939384.8299172}"}
+{"asctime": "2023-04-08 15:36:24,937", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 111, \"Player Name\": \"helped-macaw\", \"Time\": 1680939384.9378314}"}
+{"asctime": "2023-04-08 15:36:25,138", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 111, \"Player Name\": \"helped-macaw\", \"Time\": 1680939385.1384974}"}
+{"asctime": "2023-04-08 15:36:25,138", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.13849735260009766, \"Throughput\": 346.57702186262696}"}
+{"asctime": "2023-04-08 15:36:26,047", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 112, \"Player Name\": \"helped-macaw\", \"Time\": 1680939386.0474322}"}
+{"asctime": "2023-04-08 15:36:26,262", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 113, \"Player Name\": \"helped-macaw\", \"Time\": 1680939386.2623563}"}
+{"asctime": "2023-04-08 15:36:26,477", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 114, \"Player Name\": \"helped-macaw\", \"Time\": 1680939386.4774907}"}
+{"asctime": "2023-04-08 15:36:26,692", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 115, \"Player Name\": \"helped-macaw\", \"Time\": 1680939386.6928325}"}
+{"asctime": "2023-04-08 15:36:26,907", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 116, \"Player Name\": \"helped-macaw\", \"Time\": 1680939386.907991}"}
+{"asctime": "2023-04-08 15:36:27,123", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 117, \"Player Name\": \"helped-macaw\", \"Time\": 1680939387.1232057}"}
+{"asctime": "2023-04-08 15:36:27,323", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 118, \"Player Name\": \"helped-macaw\", \"Time\": 1680939387.3234217}"}
+{"asctime": "2023-04-08 15:36:27,523", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 119, \"Player Name\": \"helped-macaw\", \"Time\": 1680939387.5236812}"}
+{"asctime": "2023-04-08 15:36:28,433", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 120, \"Player Name\": \"helped-macaw\", \"Time\": 1680939388.4330516}"}
+{"asctime": "2023-04-08 15:36:28,648", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 121, \"Player Name\": \"helped-macaw\", \"Time\": 1680939388.648789}"}
+{"asctime": "2023-04-08 15:36:28,863", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 122, \"Player Name\": \"helped-macaw\", \"Time\": 1680939388.8636012}"}
+{"asctime": "2023-04-08 15:36:28,863", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 123, \"Player Name\": \"helped-macaw\", \"Time\": 1680939388.8636012}"}
+{"asctime": "2023-04-08 15:36:29,372", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 123, \"Player Name\": \"helped-macaw\", \"Time\": 1680939389.372917}"}
+{"asctime": "2023-04-08 15:36:29,573", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 123, \"Player Name\": \"helped-macaw\", \"Time\": 1680939389.5734756}"}
+{"asctime": "2023-04-08 15:36:29,774", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 124, \"Player Name\": \"helped-macaw\", \"Time\": 1680939389.7745366}"}
+{"asctime": "2023-04-08 15:36:29,975", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 125, \"Player Name\": \"helped-macaw\", \"Time\": 1680939389.975411}"}
+{"asctime": "2023-04-08 15:36:30,190", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 126, \"Player Name\": \"helped-macaw\", \"Time\": 1680939390.19027}"}
+{"asctime": "2023-04-08 15:36:30,390", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 127, \"Player Name\": \"helped-macaw\", \"Time\": 1680939390.3906543}"}
+{"asctime": "2023-04-08 15:36:30,590", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 128, \"Player Name\": \"helped-macaw\", \"Time\": 1680939390.590831}"}
+{"asctime": "2023-04-08 15:36:30,791", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 129, \"Player Name\": \"helped-macaw\", \"Time\": 1680939390.7919781}"}
+{"asctime": "2023-04-08 15:36:31,716", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 130, \"Player Name\": \"helped-macaw\", \"Time\": 1680939391.7162778}"}
+{"asctime": "2023-04-08 15:36:31,916", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 131, \"Player Name\": \"helped-macaw\", \"Time\": 1680939391.9167159}"}
+{"asctime": "2023-04-08 15:36:31,917", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 132, \"Player Name\": \"helped-macaw\", \"Time\": 1680939391.9170072}"}
+{"asctime": "2023-04-08 15:36:32,225", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 132, \"Player Name\": \"helped-macaw\", \"Time\": 1680939392.2254584}"}
+{"asctime": "2023-04-08 15:36:32,425", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 132, \"Player Name\": \"helped-macaw\", \"Time\": 1680939392.4259999}"}
+{"asctime": "2023-04-08 15:36:32,626", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 133, \"Player Name\": \"helped-macaw\", \"Time\": 1680939392.6267169}"}
+{"asctime": "2023-04-08 15:36:32,841", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 134, \"Player Name\": \"helped-macaw\", \"Time\": 1680939392.8419409}"}
+{"asctime": "2023-04-08 15:36:33,042", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 135, \"Player Name\": \"helped-macaw\", \"Time\": 1680939393.0426862}"}
+{"asctime": "2023-04-08 15:36:33,258", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 136, \"Player Name\": \"helped-macaw\", \"Time\": 1680939393.2580104}"}
+{"asctime": "2023-04-08 15:36:33,471", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 137, \"Player Name\": \"helped-macaw\", \"Time\": 1680939393.4718628}"}
+{"asctime": "2023-04-08 15:36:33,672", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 138, \"Player Name\": \"helped-macaw\", \"Time\": 1680939393.6723573}"}
+{"asctime": "2023-04-08 15:36:33,888", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 139, \"Player Name\": \"helped-macaw\", \"Time\": 1680939393.888099}"}
+{"asctime": "2023-04-08 15:36:34,798", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 140, \"Player Name\": \"helped-macaw\", \"Time\": 1680939394.7982335}"}
+{"asctime": "2023-04-08 15:36:34,798", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 141, \"Player Name\": \"helped-macaw\", \"Time\": 1680939394.7985747}"}
+{"asctime": "2023-04-08 15:36:34,907", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 141, \"Player Name\": \"helped-macaw\", \"Time\": 1680939394.9073842}"}
+{"asctime": "2023-04-08 15:36:35,107", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 141, \"Player Name\": \"helped-macaw\", \"Time\": 1680939395.1079545}"}
+{"asctime": "2023-04-08 15:36:35,308", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 142, \"Player Name\": \"helped-macaw\", \"Time\": 1680939395.308318}"}
+{"asctime": "2023-04-08 15:36:35,508", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 143, \"Player Name\": \"helped-macaw\", \"Time\": 1680939395.5083582}"}
+{"asctime": "2023-04-08 15:36:35,708", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 144, \"Player Name\": \"helped-macaw\", \"Time\": 1680939395.7084029}"}
+{"asctime": "2023-04-08 15:36:35,923", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 145, \"Player Name\": \"helped-macaw\", \"Time\": 1680939395.9231157}"}
+{"asctime": "2023-04-08 15:36:35,923", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939395.9231157}"}
+{"asctime": "2023-04-08 15:36:36,633", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939396.6333067, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:36:36,833", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 146, \"Player Name\": \"helped-macaw\", \"Time\": 1680939396.833979}"}
+{"asctime": "2023-04-08 15:36:36,833", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.8339788913726807, \"Throughput\": 57.5554135680758}"}
+{"asctime": "2023-04-08 15:36:37,744", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 147, \"Player Name\": \"helped-macaw\", \"Time\": 1680939397.7440023}"}
+{"asctime": "2023-04-08 15:36:37,945", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 148, \"Player Name\": \"helped-macaw\", \"Time\": 1680939397.9450324}"}
+{"asctime": "2023-04-08 15:36:38,160", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 149, \"Player Name\": \"helped-macaw\", \"Time\": 1680939398.1602857}"}
+{"asctime": "2023-04-08 15:36:39,072", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 150, \"Player Name\": \"helped-macaw\", \"Time\": 1680939399.0720623}"}
+{"asctime": "2023-04-08 15:36:39,072", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939399.0720623}"}
+{"asctime": "2023-04-08 15:36:39,785", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939399.7852666, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:36:39,986", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 151, \"Player Name\": \"helped-macaw\", \"Time\": 1680939399.9864585}"}
+{"asctime": "2023-04-08 15:36:39,986", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.9864585399627686, \"Throughput\": 48.6589127220812}"}
+{"asctime": "2023-04-08 15:36:40,899", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 152, \"Player Name\": \"helped-macaw\", \"Time\": 1680939400.8996785}"}
+{"asctime": "2023-04-08 15:36:40,900", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 153, \"Player Name\": \"helped-macaw\", \"Time\": 1680939400.900168}"}
+{"asctime": "2023-04-08 15:36:41,409", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 153, \"Player Name\": \"helped-macaw\", \"Time\": 1680939401.4093142}"}
+{"asctime": "2023-04-08 15:36:41,610", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 153, \"Player Name\": \"helped-macaw\", \"Time\": 1680939401.610421}"}
+{"asctime": "2023-04-08 15:36:41,811", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 154, \"Player Name\": \"helped-macaw\", \"Time\": 1680939401.811957}"}
+{"asctime": "2023-04-08 15:36:42,012", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 155, \"Player Name\": \"helped-macaw\", \"Time\": 1680939402.0127296}"}
+{"asctime": "2023-04-08 15:36:42,012", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939402.0127296}"}
+{"asctime": "2023-04-08 15:36:42,724", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939402.7240276, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:36:42,939", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 156, \"Player Name\": \"helped-macaw\", \"Time\": 1680939402.9390357}"}
+{"asctime": "2023-04-08 15:36:43,140", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 157, \"Player Name\": \"helped-macaw\", \"Time\": 1680939403.140228}"}
+{"asctime": "2023-04-08 15:36:43,140", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.1402280330657959, \"Throughput\": 342.2996026584648}"}
+{"asctime": "2023-04-08 15:36:44,050", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 158, \"Player Name\": \"helped-macaw\", \"Time\": 1680939404.0503528}"}
+{"asctime": "2023-04-08 15:36:44,251", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 159, \"Player Name\": \"helped-macaw\", \"Time\": 1680939404.251055}"}
+{"asctime": "2023-04-08 15:36:45,176", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 160, \"Player Name\": \"helped-macaw\", \"Time\": 1680939405.176587}"}
+{"asctime": "2023-04-08 15:36:45,377", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 161, \"Player Name\": \"helped-macaw\", \"Time\": 1680939405.3772395}"}
+{"asctime": "2023-04-08 15:36:45,377", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939405.3772395}"}
+{"asctime": "2023-04-08 15:36:46,088", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939406.0887988, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:36:46,289", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 162, \"Player Name\": \"helped-macaw\", \"Time\": 1680939406.2895756}"}
+{"asctime": "2023-04-08 15:36:46,289", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.28957557678222656, \"Throughput\": 165.75983559586618}"}
+{"asctime": "2023-04-08 15:36:47,200", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 163, \"Player Name\": \"helped-macaw\", \"Time\": 1680939407.2002225}"}
+{"asctime": "2023-04-08 15:36:47,200", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-BEFORE\", \"Frame Count\": 164, \"Player Name\": \"helped-macaw\", \"Time\": 1680939407.2002225}"}
+{"asctime": "2023-04-08 15:36:47,911", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME SLOWING-AFTER\", \"Frame Count\": 164, \"Player Name\": \"helped-macaw\", \"Time\": 1680939407.9119666}"}
+{"asctime": "2023-04-08 15:36:48,113", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 164, \"Player Name\": \"helped-macaw\", \"Time\": 1680939408.1135259}"}
+{"asctime": "2023-04-08 15:36:48,314", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 165, \"Player Name\": \"helped-macaw\", \"Time\": 1680939408.3144486}"}
+{"asctime": "2023-04-08 15:36:48,515", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 166, \"Player Name\": \"helped-macaw\", \"Time\": 1680939408.515158}"}
+{"asctime": "2023-04-08 15:36:48,515", "levelname": "INFO", "message": "{\"Logger Name\": \"KEYPRESS TIME\", \"Seat Selected\": \"Q\", \"Time\": 1680939408.515158}"}
+{"asctime": "2023-04-08 15:36:49,226", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-SEND\", \"Sender\": \"helped-macaw\", \"SEND_TIME\": 1680939409.2266529, \"DATA\": \"Q\", \"DELAY\": 0, \"TO\": \"expert-chow\"}"}
+{"asctime": "2023-04-08 15:36:49,427", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 167, \"Player Name\": \"helped-macaw\", \"Time\": 1680939409.4276235}"}
+{"asctime": "2023-04-08 15:36:49,628", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 168, \"Player Name\": \"helped-macaw\", \"Time\": 1680939409.628875}"}
+{"asctime": "2023-04-08 15:36:49,628", "levelname": "INFO", "message": "{\"Logger Name\": \"ACTION PACKET INFO-RECEIVE\", \"Length\": 48, \"Packet Type\": \"action\", \"Data\": \"Q\", \"RTT\": 0.6288750171661377, \"Throughput\": 76.32677191773266}"}
+{"asctime": "2023-04-08 15:36:50,542", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 169, \"Player Name\": \"helped-macaw\", \"Time\": 1680939410.542253}"}
+{"asctime": "2023-04-08 15:36:51,278", "levelname": "INFO", "message": "Terminating game..."}

@@ -1,0 +1,12 @@
+{"asctime": "2023-04-08 15:34:34,477", "levelname": "INFO", "message": "Starting host mode."}
+{"asctime": "2023-04-08 15:34:34,477", "levelname": "INFO", "message": "Player name is bold-skink."}
+{"asctime": "2023-04-08 15:34:43,477", "levelname": "INFO", "message": "All clients notified of game start."}
+{"asctime": "2023-04-08 15:34:43,955", "levelname": "INFO", "message": "Entering game..."}
+{"asctime": "2023-04-08 15:34:45,969", "levelname": "INFO", "message": "bold-skink sending connection request to intent-guinea at 1680939285.9694743"}
+{"asctime": "2023-04-08 15:34:46,167", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 0, \"Player Name\": \"bold-skink\", \"Time\": 1680939286.167063}"}
+{"asctime": "2023-04-08 15:34:46,383", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 1, \"Player Name\": \"bold-skink\", \"Time\": 1680939286.382967}"}
+{"asctime": "2023-04-08 15:34:46,583", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 2, \"Player Name\": \"bold-skink\", \"Time\": 1680939286.5835354}"}
+{"asctime": "2023-04-08 15:34:46,784", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 3, \"Player Name\": \"bold-skink\", \"Time\": 1680939286.7840428}"}
+{"asctime": "2023-04-08 15:34:46,984", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 4, \"Player Name\": \"bold-skink\", \"Time\": 1680939286.984807}"}
+{"asctime": "2023-04-08 15:34:47,185", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 5, \"Player Name\": \"bold-skink\", \"Time\": 1680939287.185316}"}
+{"asctime": "2023-04-08 15:34:49,023", "levelname": "INFO", "message": "{\"Logger Name\": \"FRAME COUNT\", \"Logging Data\": 6, \"Player Name\": \"bold-skink\", \"Time\": 1680939289.0230055}"}
