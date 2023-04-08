@@ -471,7 +471,7 @@ class Client():
                 self._frameSync.update_frame(player.get_name(), frame)
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
-                        if frame < self.frame_count:
+                        if frame < self.frame_count + 2:
                             temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-BEFORE", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
                             self.logger.info(f'{temporary_logger_dict}')
                             # print("Slow down since master is behind")
