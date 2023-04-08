@@ -283,7 +283,7 @@ class Client():
 
     def await_round_end(self):
         self._checkTransportLayerForIncomingData()
-        temporary_logger_dict = json.dumps({"Logger Name":"GAME PLAY LIST", "Round Number": self.round_number, "Logging Data":self._round_inputs.values()})
+        temporary_logger_dict = json.dumps({"Logger Name":"GAME PLAY LIST", "Round Number": self.round_number, "Logging Data":self._round_inputs})
         self.logger.info(f'{temporary_logger_dict}')
         if all(self._round_inputs.values()):
             # everyone is ready to vote
@@ -523,7 +523,7 @@ class Client():
         self._is_selecting_seat = True
         pkt = Action(self._my_keypress, self._myself)
         self._my_keypress_time = pkt.get_created_at()
-        temporary_logger_dict = json.dumps({"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {time.time()} })
+        temporary_logger_dict = json.dumps({"Logger Name":"KEYPRESS TIME", "Seat Selected":self._my_keypress, "Time": time()})
         self.logger.info(f'{temporary_logger_dict}')
         self._transportLayer.sendall(pkt)
 

@@ -1,7 +1,4 @@
-import functools
 import time
-import socket
-import json
 import logging
 from random import randrange
 

@@ -11,7 +11,7 @@ import threading
 import logging
 
 from datetime import datetime
-import time
+from time import time, sleep
 
 """
 Transport is responsible for sending and receiving data from other players.
@@ -54,7 +54,7 @@ class Transport:
             self.my_socket = s
         else:
             self.my_socket = host_socket
-        time.sleep(2)
+        sleep(2)
 
         t1 = threading.Thread(target=self.accept_connections, daemon=True)
         t2 = threading.Thread(target=self.make_connections, daemon=True)
@@ -111,10 +111,10 @@ class Transport:
                     padded = d.encode('utf-8').ljust(self.chunksize, b"\0")
                     sock.sendall(padded)
                     print(
-                        f"[Make Conn] Sent conn req to {player_id} at {time.time()}")
+                        f"[Make Conn] Sent conn req to {player_id} at {time()}")
                     self.logger.info(
-                        f"{self.myself} sending connection request to {player_id} at {time.time()}")
-                    time.sleep(1)
+                        f"{self.myself} sending connection request to {player_id} at {time()}")
+                    sleep(1)
                 except (ConnectionRefusedError, TimeoutError):
                     pass
             self.lock.release()
@@ -146,14 +146,14 @@ class Transport:
         # conn.sendall(padded)
 
     def send_within(self, packet: Packet, player_id, delay: float):
-        now = time.time()
-        time.sleep(delay)
+        now = time()
+        sleep(delay)
         self.send(packet, player_id)
         if packet.get_packet_type() == "action":
-            temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-SEND", "Sender":self.myself, "SEND_TIME":time.time(), "DATA": packet.get_data(),"DELAY":delay ,"TO":player_id})
+            temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-SEND", "Sender":self.myself, "SEND_TIME":time(), "DATA": packet.get_data(),"DELAY":delay ,"TO":player_id})
             self.logger.info(f'{temporary_logger_dict}')
         #else:
-            #temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO-send ", "Sender":self.myself, "SEND_TIME":time.time(), "DELAY":delay ,#"TO":player_id}
+            #temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO-send ", "Sender":self.myself, "SEND_TIME":time(), "DELAY":delay ,#"TO":player_id}
             #self.logger.info(f'{temporary_logger_dict}')
             # self.logger.info(
             #     f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
@@ -180,10 +180,10 @@ class Transport:
             if data:
                 packet = Packet.from_json(json.loads(data))
                 length = len(packet)
-                rtt = time.time() - packet.get_created_at()
+                rtt = time() - packet.get_created_at()
                 throughput = length / rtt
                 if packet.get_packet_type()=="action":
-                    temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "Length": {length}, "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": {rtt}, "Throughput": {throughput}})
+                    temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "Length": length, "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": rtt, "Throughput": throughput})
                     self.logger.info(f'{temporary_logger_dict}')
                 #else:
                     #temporary_logger_dict = {"Logger Name":"NON-ACTION PACKET INFO", "Length": {length}, "Packet Type": packet.get_packet_type(), "RTT": {rtt}, "Throughput": {throughput}}
@@ -214,7 +214,7 @@ class Transport:
 
         # send estab and trigger the other player to add back same conn
         print(
-            f"{time.time()} [Receive Conn Request] Sending conn estab to {player_name}")
+            f"{time()} [Receive Conn Request] Sending conn estab to {player_name}")
         self.send(ConnectionEstab(Player(self.myself)), player_name)
         self.lock.release()
 
@@ -224,7 +224,7 @@ class Transport:
         self.lock.acquire()
         if not player_name in self._connection_pool:
             # only add player to connection pool if not already inside
-            print(f"{time.time()} [Receive Conn Estab] Saving connection")
+            print(f"{time()} [Receive Conn Estab] Saving connection")
             self._connection_pool[player_name] = connection
         self.lock.release()
 
