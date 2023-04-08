@@ -20,7 +20,7 @@ class Delay:
         for player_id in self.leader_list:
             if player_id == self.myself:
                 continue
-            self._delay_to_peers[player_id] = 0.01 * randrange(1, 9)
+            self._delay_to_peers[player_id] = 0.1 * randrange(7,10)
 
     def delay(self, player_id):
         sleep_time = self._delay_to_peers[player_id]
