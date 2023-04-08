@@ -202,6 +202,8 @@ class Client():
             if self.init_send_time is None:
                 print(f"[SYSTEM] Sending Ready to Start...")
                 self.init_send_time = time()
+                temporary_logger_dict = json.dumps({"Logger Name":"FRAME SYNCING", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                self.logger.info(f'{temporary_logger_dict}')
                 self._frameSync.if_master_emit_new_master(self._myself)
                 self._transportLayer.sendall(ReadyToStart(self._myself))
         else:
@@ -384,6 +386,12 @@ class Client():
         if pkt:
             if pkt.get_packet_type() == "action":
                 # keypress
+                length = len(pkt)
+                rtt = time() - pkt.get_created_at()
+                throughput = length / rtt
+                if pkt.get_packet_type()=="action":
+                    temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "Length": length, "Packet Type": pkt.get_packet_type(), "Data": pkt.get_data(), "RTT": rtt, "Throughput": throughput})
+                    self.logger.info(f'{temporary_logger_dict}')
                 if not self._state == "SPECTATOR":
                     self._receiving_seats(pkt)
 
@@ -468,8 +476,8 @@ class Client():
                             temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-BEFORE", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
                             self.logger.info(f'{temporary_logger_dict}')
                             # print("Slow down since master is behind")
-                            
-                            waittime = 0 # (self.frame_count - frame) * 0.2 - 0.1
+
+                            waittime = 0.9 # (self.frame_count - frame) * 0.2 - 0.1
                             sleep(waittime)
 
                             temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-AFTER", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
