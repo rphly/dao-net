@@ -548,13 +548,14 @@ class Client():
         self._round_ready = {}
         self._round_started = False
 
+        # reset round inputs, num chairs - 1
+        d = self._round_inputs
+        d = {key: None for key in d}
         if not self._vote_tied:
-            # reset round inputs, num chairs - 1
             print("[SYSTEM] Reducing number of chairs...")
-            d = self._round_inputs
-            d = {key: None for key in d}
             d.popitem()
-            self._round_inputs = d
+            
+        self._round_inputs = d
 
         self._my_keypress = None
         self._nak_count = 0
