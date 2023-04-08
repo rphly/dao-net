@@ -442,7 +442,7 @@ class Client():
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
                         if frame < self.frame_count + 2:
-                            print(f"[FRAME_SYNC] Slowing down since I'm ahead")
+                            #print(f"[FRAME_SYNC] Slowing down since I'm ahead")
                             sleep(0.3)
                         elif frame > self.frame_count:
                             print(
