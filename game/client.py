@@ -9,8 +9,9 @@ from game.transport.transport import Transport
 from game.transport.packet import AckStart, EndGame, Nak, Ack, PeerSyncAck, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync, SyncAck, UpdateLeader, Action, Vote
 import keyboard
 import game.clock.sync as sync
-from time import time, sleep
+from time import time, sleep, localtime
 import logging
+from datetime import datetime
 
 
 class Client():
@@ -520,7 +521,7 @@ class Client():
         self._is_selecting_seat = True
         pkt = Action(self._my_keypress, self._myself)
         self._my_keypress_time = pkt.get_created_at()
-        temporary_logger_dict = {"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {time.localtime()} }
+        temporary_logger_dict = {"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {str(datetime.now().time())} }
         self.logger.info(f'{temporary_logger_dict}')
         self._transportLayer.sendall(pkt)
 
