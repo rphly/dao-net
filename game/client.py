@@ -114,7 +114,7 @@ class Client():
                 temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself.get_name(), "Time":time()})
                 self.logger.info(f'{temporary_logger_dict}')
                 self.frame_count += 1
-                if self.frame_count % 10 == 0:
+                if self._frameSync.get_master() == self._myself and self.frame_count % 5 == 0:
                     self._transportLayer.sendall(
                         FrameSync(self.frame_count, self._myself))
                 self.trigger_handler(self._state)
@@ -454,8 +454,7 @@ class Client():
                 player = pkt.get_player()
                 new_master_name = pkt.get_data()
                 if self._frameSync.get_master() is None or player.get_name() == self._frameSync.get_master().get_name():
-                    # print(
-                    #     f"Updating master to {new_master_name}")
+                    print(f"[FRAME_SYNC] Updating master to {new_master_name}")
                     self._frameSync.update_master(
                         Player(new_master_name), None)
 
@@ -483,7 +482,8 @@ class Client():
                             temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-AFTER", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
                             self.logger.info(f'{temporary_logger_dict}')
                         elif frame > self.frame_count:
-                            # print("Requesting to be master since I'm behind")
+                            print(
+                                "[FRAME_SYNC] Requesting to be master since I'm behind")
                             self._frameSync.acquire_master()
 
             elif pkt.get_packet_type() == "end_game":
