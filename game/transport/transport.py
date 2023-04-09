@@ -171,8 +171,8 @@ class Transport:
                 length = len(packet)
                 rtt = time.time() - packet.get_created_at()
                 throughput = length / rtt
-                self.logger.info(
-                    f"PACKET_INFO\nLength: {length} | Packet Type: {packet.get_packet_type()} | RTT: {rtt} | Throughput: {throughput}")
+                # self.logger.info(
+                #     f"PACKET_INFO\nLength: {length} | Packet Type: {packet.get_packet_type()} | RTT: {rtt} | Throughput: {throughput}")
                 return packet
         except Empty:
             return
