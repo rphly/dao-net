@@ -70,7 +70,7 @@ def loop_folder(folder_path):
 
 if __name__ == "__main__":
     keypress_times, throughputs, frames, special_frames, spectate_times, delay_list = loop_folder("./logs_parse")
-    # print("Average throughputs: ", sum(throughputs)/len(throughputs))
+    print("Average throughputs: ", sum(throughputs)/len(throughputs))
     print(frames)
     name_list = frames.keys()
     # fig, ax = plt.subplots()

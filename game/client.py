@@ -109,7 +109,7 @@ class Client():
         try:
             while not self.game_over:
                 sleep(0.2)  # slow down game loop
-                temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself, "Time": time()})
+                temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
                 self.logger.info(f'{temporary_logger_dict}')
                 self.frame_count += 1
                 if self._frameSync.get_master() == self._myself and self.frame_count % 5 == 0:
@@ -375,13 +375,13 @@ class Client():
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         pkt: Packet = self._transportLayer.receive()
-        temporary_logger_dict = json.dumps({"Logger Name":"GAME PLAY LIST", "Round Number": self.round_number, "Logging Data":self._round_inputs.values()})
+        temporary_logger_dict = json.dumps({"Logger Name":"GAME PLAY LIST", "Round Number": self.round_number, "Logging Data":self._round_inputs})
         self.logger.info(f'{temporary_logger_dict}')
 
         if pkt:
             if pkt.get_packet_type() == "action":
                 # keypress
-                packet = Packet.from_json(json.loads(data))
+                packet = pkt
                 length = len(packet)
                 rtt = time() - packet.get_created_at()
                 throughput = length / rtt
@@ -532,7 +532,7 @@ class Client():
         self._is_selecting_seat = True
         pkt = Action(self._my_keypress, self._myself)
         self._my_keypress_time = pkt.get_created_at()
-        temporary_logger_dict = json.dumps({"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {time.time()} })
+        temporary_logger_dict = json.dumps({"Logger Name":"KEYPRESS TIME", "Seat Selected":self._my_keypress, "Time": time() })
         self.logger.info(f'{temporary_logger_dict}')
         self._transportLayer.sendall(pkt)
 
