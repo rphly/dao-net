@@ -27,7 +27,7 @@ def loop_folder(folder_path):
     throughputs = []
     frames = {}
     special_frames = {}
-    special_times = {}
+    spectate_times = {}
     for filename in os.listdir(folder_path):
         print("\n"+filename)
         player_name = filename.split("_")[1]
@@ -55,15 +55,18 @@ def loop_folder(folder_path):
                     if player_name not in special_frames:
                         special_frames[player_name] = []
                     special_frames[player_name].append([thejsonyouneeded["Frame Count"],thejsonyouneeded["Time"]])
+                if thejsonyouneeded['Logger Name'] == "SPECTATE BEGIN":
+                    spectate_times[thejsonyouneeded['Name']] = (thejsonyouneeded['Frame Count'])
 
-    return keypress_times, throughputs, frames, special_frames
+
+    return keypress_times, throughputs, frames, special_frames, spectate_times
 
 
 
 
 
 if __name__ == "__main__":
-    keypress_times, throughputs, frames, special_frames = loop_folder("./logs_parse")
+    keypress_times, throughputs, frames, special_frames, spectate_times = loop_folder("./logs_parse")
     print("Average throughputs: ", sum(throughputs)/len(throughputs))
     print(frames)
     name_list = frames.keys()
@@ -74,7 +77,8 @@ if __name__ == "__main__":
         fig.add_trace(go.Scatter(x=list(range(0,len(value))), y=value, name=name), secondary_y=False)
         print(special_frames[name][0][0])
         fig.add_trace(go.Scatter(x=[special_frames[name][0][0]], y=[value[special_frames[name][0][0]]],name="Syncing Frame"), secondary_y=False)
-
+        if name in spectate_times:
+            fig.add_trace(go.Scatter(x=[spectate_times[name][0][0]], y=[value[special_frames[name][0][0]]],name="Spectate Frame"), secondary_y=False)
     fig.update_layout(title=str(frames.keys()), xaxis_title='Frame number', yaxis_title='Time')
 
     fig.show()

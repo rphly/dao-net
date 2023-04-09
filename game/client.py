@@ -349,6 +349,8 @@ class Client():
             print("\n[SYSTEM] You lost! Enjoy spectating the game!")
             self._total_players -= 1
             self._am_spectator = True
+            temp_dict = json.dumps({"Logger Name":"SPECTATE BEGIN", "Name": self._myself.get_name(), "Logging Data":self.frame_count})
+            self.logger.info(f"{temp_dict}")
             self._transportLayer.reset_sync()
             self._state = "SYNCHRONIZE_CLOCK"
 
