@@ -455,7 +455,7 @@ class Client():
                 self._frameSync.update_frame(player.get_name(), frame)
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
-                        if frame < self.frame_count + self.frame_delta_threshold:
+                        if self.frame_count > frame + self.frame_delta_threshold:
                             # print(f"[FRAME_SYNC] Slowing down since I'm ahead")
                             sleep(self.loop_interval *
                                   (self.frame_count - frame))
