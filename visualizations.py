@@ -28,6 +28,7 @@ def loop_folder(folder_path):
     frames = {}
     special_frames = {}
     spectate_times = {}
+    delay_list = {}
     for filename in os.listdir(folder_path):
         print("\n"+filename)
         player_name = filename.split("_")[1]
@@ -57,17 +58,19 @@ def loop_folder(folder_path):
                     special_frames[player_name].append([thejsonyouneeded["Frame Count"],thejsonyouneeded["Time"]])
                 if thejsonyouneeded['Logger Name'] == "SPECTATE BEGIN":
                     spectate_times[thejsonyouneeded['Name']] = (thejsonyouneeded['Logging Data'])
+                if thejsonyouneeded['Logger Name'] == "ORDERED DELAYLIST":
+                    delay_list = thejsonyouneeded['Logging Data']
 
 
-    return keypress_times, throughputs, frames, special_frames, spectate_times
+    return keypress_times, throughputs, frames, special_frames, spectate_times, delay_list
 
 
 
 
 
 if __name__ == "__main__":
-    keypress_times, throughputs, frames, special_frames, spectate_times = loop_folder("./logs_parse")
-    print("Average throughputs: ", sum(throughputs)/len(throughputs))
+    keypress_times, throughputs, frames, special_frames, spectate_times, delay_list = loop_folder("./logs_parse")
+    # print("Average throughputs: ", sum(throughputs)/len(throughputs))
     print(frames)
     name_list = frames.keys()
     # fig, ax = plt.subplots()
