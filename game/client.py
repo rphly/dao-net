@@ -485,7 +485,7 @@ class Client():
                 self._frameSync.update_frame(player.get_name(), frame)
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
-                        if frame < self.frame_count + self.frame_delta_threshold:
+                        if self.frame_count > frame + self.frame_delta_threshold:
                             # print(f"[FRAME_SYNC] Slowing down since I'm ahead")
                             temporary_logger_dict = json.dumps(
                                 {"Logger Name": "FRAME SLOWING-BEFORE", "Frame Count": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
