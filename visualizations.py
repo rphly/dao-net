@@ -56,7 +56,7 @@ def loop_folder(folder_path):
                         special_frames[player_name] = []
                     special_frames[player_name].append([thejsonyouneeded["Frame Count"],thejsonyouneeded["Time"]])
                 if thejsonyouneeded['Logger Name'] == "SPECTATE BEGIN":
-                    spectate_times[thejsonyouneeded['Name']] = (thejsonyouneeded['Frame Count'])
+                    spectate_times[thejsonyouneeded['Name']] = (thejsonyouneeded['Logging Data'])
 
 
     return keypress_times, throughputs, frames, special_frames, spectate_times
