@@ -41,7 +41,7 @@ class Client():
 
         self.os_name = system()
 
-        self.loop_interval = 0.2
+        self.loop_interval = 0.4
 
         # INITIALIZE ROUND INPUTS #
         LETTERS = ["Q", "W", "E", "R", "T", "Y"]
@@ -97,7 +97,7 @@ class Client():
             self._myself, self._transportLayer, self._myself if host_socket else None)
         self.frame_delta_threshold = 2
         self.frame_count = 0
-        self.alpha = 0.09
+        self.alpha = 0.08
 
         self.is_peering_completed = False
         self.is_sync_complete = False
@@ -116,7 +116,7 @@ class Client():
                     {"Logger Name": "FRAME COUNT", "Logging Data": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
                 self.logger.info(f'{temporary_logger_dict}')
                 self.frame_count += 1
-                if self._frameSync.get_master() == self._myself and self.frame_count % 5 == 0:
+                if self._frameSync.get_master() == self._myself and self.frame_count % 10 == 0:
                     self._transportLayer.sendall(
                         FrameSync(self.frame_count, self._myself))
                 self.trigger_handler(self._state)
