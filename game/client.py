@@ -62,8 +62,6 @@ class Client():
         self._round_inputs = {k: None for k in [
             self.key_to_letter[mapping[i]] for i in range(self._total_players - 1)]}
 
-        self.frame_count = 0
-
         self.hotkeys_added = False
         self._round_started = False
         self._round_ready = {}
@@ -98,6 +96,8 @@ class Client():
         self._frameSync = Clock(
             self._myself, self._transportLayer, self._myself if host_socket else None)
         self.frame_delta_threshold = 2
+        self.frame_count = 0
+        self.alpha = 0.09
 
         self.is_peering_completed = False
         self.is_sync_complete = False
@@ -381,7 +381,6 @@ class Client():
 
 ######### helper functions #########
 
-
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         pkt: Packet = self._transportLayer.receive()
@@ -486,19 +485,21 @@ class Client():
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
                         if self.frame_count > frame + self.frame_delta_threshold:
-                            # print(f"[FRAME_SYNC] Slowing down since I'm ahead")
+                            print(
+                                f"[FRAME_SYNC] Slowing down since I'm ahead by {self.frame_count - frame} frames")
                             temporary_logger_dict = json.dumps(
                                 {"Logger Name": "FRAME SLOWING-BEFORE", "Frame Count": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
                             self.logger.info(f'{temporary_logger_dict}')
+
                             sleep(self.loop_interval *
-                                  (self.frame_count - frame))
+                                  (self.frame_count - frame)*self.alpha)
                             temporary_logger_dict = json.dumps(
                                 {"Logger Name": "FRAME SLOWING-AFTER", "Frame Count": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
                             self.logger.info(f'{temporary_logger_dict}')
                             # print(f"[FRAME_SYNC] Slowing down since I'm ahead")
                         elif frame > self.frame_count:
                             print(
-                                "[FRAME_SYNC] Requesting to be master since I'm behind")
+                                f"[FRAME_SYNC] Requesting to be master since I'm behind by {self.frame_count - frame} frames")
                             self._frameSync.acquire_master()
 
             elif pkt.get_packet_type() == "end_game":
