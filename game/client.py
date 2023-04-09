@@ -147,12 +147,19 @@ class Client():
         elif state == "SPECTATOR":
             self.spectator()
 
+        elif state == "RESET_SYNC":
+            self.reset_sync()
+
     def peering(self):
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
 
-            self._state = "SYNCHRONIZE_CLOCK"
+            self._state = "RESET_SYNC"
+
+    def reset_sync(self):
+        self._transportLayer.reset_sync()
+        self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
         self._checkTransportLayerForIncomingData()
@@ -325,8 +332,7 @@ class Client():
             print("\n[SYSTEM] You lost! Enjoy spectating the game!")
             self._total_players -= 1
             self._am_spectator = True
-            self._transportLayer.reset_sync()
-            self._state = "SYNCHRONIZE_CLOCK"
+            self._state = "AWAIT_KEYPRESS"
 
         # if no chairs left, end the game, else reset
         elif len(self._round_inputs.keys()) < 1:
@@ -340,8 +346,7 @@ class Client():
         else:
             # must wait for everyone to signal end round before moving on to next round
             self._total_players -= 1
-            self._transportLayer.reset_sync()
-            self._state = "SYNCHRONIZE_CLOCK"
+            self._state = "AWAIT_KEYPRESS"
 
     def end_game(self):
         # terminate all connectionsidk
@@ -554,7 +559,7 @@ class Client():
         if not self._vote_tied:
             print("[SYSTEM] Reducing number of chairs...")
             d.popitem()
-            
+
         self._round_inputs = d
 
         self._my_keypress = None

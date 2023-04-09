@@ -245,13 +245,12 @@ class Transport:
         if self.sync.is_leader_myself() and not self.sent_sync:
             print("sending sync req")
             sync_req_pkt = SyncReq(round_number, self.my_player)
-            self.sendall(sync_req_pkt)
-            self.sent_sync = True
 
-            for player_id in self.sync.leader_list:
-                if not player_id == self.myself:
-                    self.set_packet_timer(player_id, sync_req_pkt)
-
+            if not self.sent_sync:
+                for player_id in self.sync.leader_list:
+                    if not player_id == self.myself:
+                        self.set_packet_timer(player_id, sync_req_pkt)
+                self.sent_sync = True
         return
 
     def reset_sync(self):
@@ -266,7 +265,7 @@ class Transport:
 
     def set_packet_timer(self, player_id, packet: Packet):
         self.sync_req_timers[player_id] = threading.Timer(
-            (1), lambda: self.handle_timeout(packet, player_id))
+            3, lambda: self.handle_timeout(packet, player_id))
         self.sync_req_timers[player_id].start()
 
     def handle_timeout(self, packet, player_id):
