@@ -127,6 +127,10 @@ class SyncAck(Packet):
 
     def __init__(self, data, player: Player, round_number):
         super().__init__(data, player, "sync_ack")
+        self.round_number = round_number
+
+    def __hash__(self):
+        return hash(self.packet_type + self.player.get_name() + str(self.round_number))
 
 
 class PeerSyncAck(Packet):
@@ -134,6 +138,10 @@ class PeerSyncAck(Packet):
 
     def __init__(self, data, player: Player, round_number):
         super().__init__(data, player, "peer_sync_ack")
+        self.round_number = round_number
+
+    def __hash__(self):
+        return hash(self.packet_type + self.player.get_name() + str(self.round_number))
 
 
 class UpdateLeader(Packet):
