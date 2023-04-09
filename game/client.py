@@ -109,6 +109,8 @@ class Client():
         try:
             while not self.game_over:
                 sleep(0.2)  # slow down game loop
+                temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself, "Time": time()})
+                self.logger.info(f'{temporary_logger_dict}')
                 self.frame_count += 1
                 if self._frameSync.get_master() == self._myself and self.frame_count % 5 == 0:
                     self._transportLayer.sendall(
@@ -169,6 +171,12 @@ class Client():
             return
         else:
             print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
+            temporary_logger_dict = json.dumps({"Logger Name":"UNORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data": self._transportLayer.sync._delay_dict})
+            self.logger.info(f'{temporary_logger_dict}')
+            temporary_logger_dict = json.dumps({"Logger Name":"ORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data":sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)})
+            self.logger.info(f'{temporary_logger_dict}')
+            temporary_logger_dict = json.dumps({"Logger Name":"WAIT LIST", "Round Number":self.round_number, "Logging Data":self._transportLayer.sync.get_wait_times()})
+            self.logger.info(f'{temporary_logger_dict}')
             update_leader_pkt = UpdateLeader(self.round_number, self._myself)
             self._transportLayer.sendall(update_leader_pkt)
             self._transportLayer.sync.next_leader()
@@ -190,6 +198,8 @@ class Client():
             if self.init_send_time is None:
                 print(f"[SYSTEM] Sending Ready to Start...")
                 self.init_send_time = time()
+                temporary_logger_dict = json.dumps({"Logger Name":"FRAME SYNCING", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                self.logger.info(f'{temporary_logger_dict}')
                 self._frameSync.if_master_emit_new_master(self._myself)
                 self._transportLayer.sendall(ReadyToStart(self._myself))
         else:
@@ -365,10 +375,19 @@ class Client():
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         pkt: Packet = self._transportLayer.receive()
+        temporary_logger_dict = json.dumps({"Logger Name":"GAME PLAY LIST", "Round Number": self.round_number, "Logging Data":self._round_inputs.values()})
+        self.logger.info(f'{temporary_logger_dict}')
 
         if pkt:
             if pkt.get_packet_type() == "action":
                 # keypress
+                packet = Packet.from_json(json.loads(data))
+                length = len(packet)
+                rtt = time() - packet.get_created_at()
+                throughput = length / rtt
+                if packet.get_packet_type()=="action":
+                    temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "Length": length, "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": rtt, "Throughput": throughput})
+                    self.logger.info(f'{temporary_logger_dict}')
                 if not self._state == "SPECTATOR":
                     self._receiving_seats(pkt)
 
@@ -450,7 +469,11 @@ class Client():
                     if self._frameSync.get_master().get_name() == player.get_name():
                         if frame < self.frame_count + 2:
                             #print(f"[FRAME_SYNC] Slowing down since I'm ahead")
+                            temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-BEFORE", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                            self.logger.info(f'{temporary_logger_dict}')
                             sleep(0.9)
+                            temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-AFTER", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                            self.logger.info(f'{temporary_logger_dict}')
                         elif frame > self.frame_count:
                             print(
                                 "[FRAME_SYNC] Requesting to be master since I'm behind")
@@ -509,6 +532,8 @@ class Client():
         self._is_selecting_seat = True
         pkt = Action(self._my_keypress, self._myself)
         self._my_keypress_time = pkt.get_created_at()
+        temporary_logger_dict = json.dumps({"Logger Name":"KEYPRESS TIME", "Seat Selected":{self._my_keypress}, "Time": {time.time()} })
+        self.logger.info(f'{temporary_logger_dict}')
         self._transportLayer.sendall(pkt)
 
     def _send_ack(self, player: Player):

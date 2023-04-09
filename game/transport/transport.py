@@ -142,10 +142,9 @@ class Transport:
         now = time.time()
         time.sleep(delay)
         self.send(packet, player_id)
-        self.logger.info(
-            f"{self.myself} sending {packet.get_packet_type()} packet to {player_id}")
-        self.logger.info(
-            f"DELAY_INFO\n{self.myself} to {player_id} | send_time:{now} | delay_time: {now+delay} | packet_type: {packet.get_packet_type()}")
+        if packet.get_packet_type() == "action":
+            temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-SEND", "Sender":self.myself, "SEND_TIME":time.time(), "DATA": packet.get_data(),"DELAY":delay ,"TO":player_id})
+            self.logger.info(f'{temporary_logger_dict}')
 
     def sendall(self, packet: Packet, use_sync: bool = True):
         if not use_sync:
