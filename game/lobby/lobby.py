@@ -151,7 +151,7 @@ class Lobby():
         else:
             print("Not enough players to start game.")
             self.logger.info(
-                f"Attempt to start with {self.tracker.get_player_count()} players. Failed.Need {self.NUM_PLAYERS} players to start.")
+                f"Attempt to start with {self.tracker.get_player_count()} players. Failed. Need {self.NUM_PLAYERS} players to start.")
             print("Current players: " + str(self.tracker.get_players()))
 
     def lobby_register(self, data, connection):

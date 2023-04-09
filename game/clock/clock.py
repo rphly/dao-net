@@ -29,5 +29,5 @@ class Clock:
                 new_master.get_name(), self.myself))
 
     def update_master(self, new_master: Player, _from: Player):
-        if _from == self.master or self.master is None:
+        if self.master is None or _from.get_name() == self.master.get_name():
             self.master = new_master

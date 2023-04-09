@@ -41,6 +41,8 @@ class Client():
 
         self.os_name = system()
 
+        self.loop_interval = 0.2
+
         # INITIALIZE ROUND INPUTS #
         LETTERS = ["Q", "W", "E", "R", "T", "Y"]
         KEYBOARD_MAPPING_MAC = [12, 13, 14, 15, 17, 16]  # Q W E R T Y
@@ -95,6 +97,7 @@ class Client():
 
         self._frameSync = Clock(
             self._myself, self._transportLayer, self._myself if host_socket else None)
+        self.frame_delta_threshold = 2
 
         self.is_peering_completed = False
         self.is_sync_complete = False
@@ -108,7 +111,7 @@ class Client():
     def start(self):
         try:
             while not self.game_over:
-                sleep(0.2)  # slow down game loop
+                sleep(self.loop_interval)  # slow down game loop
                 self.frame_count += 1
                 if self._frameSync.get_master() == self._myself and self.frame_count % 5 == 0:
                     self._transportLayer.sendall(
@@ -431,14 +434,20 @@ class Client():
                 if self._frameSync.get_master() is None or player.get_name() == self._frameSync.get_master().get_name():
                     print(f"[FRAME_SYNC] Updating master to {new_master_name}")
                     self._frameSync.update_master(
-                        Player(new_master_name), None)
+                        Player(new_master_name), player)
+                    print(
+                        f"[FRAME_SYNC] Master is now {self._frameSync.get_master().get_name()}")
 
             elif pkt.get_packet_type() == "acquire_master":
                 playerRequestingForMaster = pkt.get_player()
+                print(
+                    f"[FRAME_SYNC] {playerRequestingForMaster} requested to acquire master")
                 self._frameSync.if_master_emit_new_master(
                     playerRequestingForMaster)
                 self._frameSync.update_master(
                     playerRequestingForMaster, self._myself)
+                print(
+                    f"[FRAME_SYNC] Master is now {self._frameSync.get_master().get_name()}")
 
             elif pkt.get_packet_type() == "frame_sync":
                 frame = pkt.get_data()
@@ -446,9 +455,10 @@ class Client():
                 self._frameSync.update_frame(player.get_name(), frame)
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
-                        if frame < self.frame_count + 2:
-                            #print(f"[FRAME_SYNC] Slowing down since I'm ahead")
-                            sleep(0.9)
+                        if frame < self.frame_count + self.frame_delta_threshold:
+                            # print(f"[FRAME_SYNC] Slowing down since I'm ahead")
+                            sleep(self.loop_interval *
+                                  (self.frame_count - frame))
                         elif frame > self.frame_count:
                             print(
                                 "[FRAME_SYNC] Requesting to be master since I'm behind")
