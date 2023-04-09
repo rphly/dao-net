@@ -2,9 +2,6 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-.json
-./logs
-./logs_parse
 
 # Icon must end with two \r
 Icon

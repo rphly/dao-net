@@ -9,9 +9,8 @@ from game.transport.transport import Transport
 from game.transport.packet import AckStart, EndGame, Nak, Ack, PeerSyncAck, PeeringCompleted, Packet, ReadyToStart, SatDown, FrameSync, SyncAck, UpdateLeader, Action, Vote
 import keyboard
 import game.clock.sync as sync
-from time import time, sleep, localtime
+from time import time, sleep
 import logging
-from datetime import datetime
 
 
 class Client():
@@ -110,9 +109,6 @@ class Client():
         try:
             while not self.game_over:
                 sleep(0.2)  # slow down game loop
-                # if self.frame_count%2 == 0: # To reduce the number of frames logged
-                temporary_logger_dict = json.dumps({"Logger Name":"FRAME COUNT", "Logging Data":self.frame_count, "Player Name": self._myself.get_name(), "Time":time()})
-                self.logger.info(f'{temporary_logger_dict}')
                 self.frame_count += 1
                 if self._frameSync.get_master() == self._myself and self.frame_count % 5 == 0:
                     self._transportLayer.sendall(
@@ -151,12 +147,19 @@ class Client():
         elif state == "SPECTATOR":
             self.spectator()
 
+        elif state == "RESET_SYNC":
+            self.reset_sync()
+
     def peering(self):
         if self._transportLayer.all_connected() and not self.is_peering_completed:
             self._transportLayer.sendall(PeeringCompleted(player=self._myself))
             self.is_peering_completed = True
 
-            self._state = "SYNCHRONIZE_CLOCK"
+            self._state = "RESET_SYNC"
+
+    def reset_sync(self):
+        self._transportLayer.reset_sync()
+        self._state = "SYNCHRONIZE_CLOCK"
 
     def sync_clock(self):
         self._checkTransportLayerForIncomingData()
@@ -166,21 +169,6 @@ class Client():
             return
         else:
             print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
-            temporary_logger_dict = json.dumps({"Logger Name":"UNORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data": self._transportLayer.sync._delay_dict})
-            self.logger.info(f'{temporary_logger_dict}')
-            temporary_logger_dict = json.dumps({"Logger Name":"ORDERED DELAYLIST", "Round Number":self.round_number, "Logging Data":sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)})
-            self.logger.info(f'{temporary_logger_dict}')
-            temporary_logger_dict = json.dumps({"Logger Name":"WAIT LIST", "Round Number":self.round_number, "Logging Data":self._transportLayer.sync.get_wait_times()})
-            self.logger.info(f'{temporary_logger_dict}')
-
-            # Old Logger
-
-            # self.logger.info(f"DELAY LIST\n Delay List: {self._transportLayer.sync._delay_dict}")
-            # self.logger.info(f"ORDERED DELAYLIST\n Ordered delays: {sorted(self._transportLayer.sync._delay_dict, key=lambda x:x[1], reverse=True)}")
-            # self.logger.info(f"WAIT LIST\n Wait List: {self._transportLayer.sync.get_wait_times()}")
-
-            ###
-
             update_leader_pkt = UpdateLeader(self.round_number, self._myself)
             self._transportLayer.sendall(update_leader_pkt)
             self._transportLayer.sync.next_leader()
@@ -202,8 +190,6 @@ class Client():
             if self.init_send_time is None:
                 print(f"[SYSTEM] Sending Ready to Start...")
                 self.init_send_time = time()
-                temporary_logger_dict = json.dumps({"Logger Name":"FRAME SYNCING", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
-                self.logger.info(f'{temporary_logger_dict}')
                 self._frameSync.if_master_emit_new_master(self._myself)
                 self._transportLayer.sendall(ReadyToStart(self._myself))
         else:
@@ -246,7 +232,6 @@ class Client():
                             translated_key: str = self.letter_to_key[k]
                         else:
                             translated_key = k.lower()
-
                         keyboard.add_hotkey(
                             translated_key, self._insert_input, args=(k,))
                         self.hotkeys_added = True
@@ -286,8 +271,6 @@ class Client():
 
     def await_round_end(self):
         self._checkTransportLayerForIncomingData()
-        temporary_logger_dict = json.dumps({"Logger Name":"GAME PLAY LIST", "Round Number": self.round_number, "Logging Data":self._round_inputs})
-        self.logger.info(f'{temporary_logger_dict}')
         if all(self._round_inputs.values()):
             # everyone is ready to vote
             if not self._done_voting:
@@ -351,8 +334,7 @@ class Client():
             self._am_spectator = True
             temp_dict = json.dumps({"Logger Name":"SPECTATE BEGIN", "Name": self._myself.get_name(), "Logging Data":self.frame_count})
             self.logger.info(f"{temp_dict}")
-            self._transportLayer.reset_sync()
-            self._state = "SYNCHRONIZE_CLOCK"
+            self._state = "AWAIT_KEYPRESS"
 
         # if no chairs left, end the game, else reset
         elif len(self._round_inputs.keys()) < 1:
@@ -366,8 +348,7 @@ class Client():
         else:
             # must wait for everyone to signal end round before moving on to next round
             self._total_players -= 1
-            self._transportLayer.reset_sync()
-            self._state = "SYNCHRONIZE_CLOCK"
+            self._state = "AWAIT_KEYPRESS"
 
     def end_game(self):
         # terminate all connectionsidk
@@ -388,12 +369,6 @@ class Client():
         if pkt:
             if pkt.get_packet_type() == "action":
                 # keypress
-                length = len(pkt)
-                rtt = time() - pkt.get_created_at()
-                throughput = length / rtt
-                if pkt.get_packet_type()=="action":
-                    temporary_logger_dict = json.dumps({"Logger Name":"ACTION PACKET INFO-RECEIVE", "From":pkt.player.get_name(),"Length": length, "Packet Type": pkt.get_packet_type(), "Data": pkt.get_data(), "RTT": rtt, "Throughput": throughput})
-                    self.logger.info(f'{temporary_logger_dict}')
                 if not self._state == "SPECTATOR":
                     self._receiving_seats(pkt)
 
@@ -474,15 +449,8 @@ class Client():
                 if self._frameSync.get_master():
                     if self._frameSync.get_master().get_name() == player.get_name():
                         if frame < self.frame_count + 2:
-                            temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-BEFORE", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
-                            self.logger.info(f'{temporary_logger_dict}')
-                            # print("Slow down since master is behind")
-
-                            waittime = 0.9 # (self.frame_count - frame) * 0.2 - 0.1
-                            sleep(waittime)
-
-                            temporary_logger_dict = json.dumps({"Logger Name":"FRAME SLOWING-AFTER", "Frame Count":self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
-                            self.logger.info(f'{temporary_logger_dict}')
+                            #print(f"[FRAME_SYNC] Slowing down since I'm ahead")
+                            sleep(0.9)
                         elif frame > self.frame_count:
                             print(
                                 "[FRAME_SYNC] Requesting to be master since I'm behind")
@@ -541,8 +509,6 @@ class Client():
         self._is_selecting_seat = True
         pkt = Action(self._my_keypress, self._myself)
         self._my_keypress_time = pkt.get_created_at()
-        temporary_logger_dict = json.dumps({"Logger Name":"KEYPRESS TIME", "Seat Selected":self._my_keypress, "Time": time()})
-        self.logger.info(f'{temporary_logger_dict}')
         self._transportLayer.sendall(pkt)
 
     def _send_ack(self, player: Player):
@@ -595,7 +561,7 @@ class Client():
         if not self._vote_tied:
             print("[SYSTEM] Reducing number of chairs...")
             d.popitem()
-            
+
         self._round_inputs = d
 
         self._my_keypress = None
@@ -606,6 +572,7 @@ class Client():
         self._sat_down_count = 0
         self._votekick = {}
         self._done_voting = False
+
         self._vote_tied = False
         self.init_send_time = None
         self.init_ack_start = None

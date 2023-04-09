@@ -1,6 +1,6 @@
 from game.models.player import Player
 import json
-from time import time
+import time
 import sys
 
 
@@ -29,7 +29,7 @@ class Packet:
         self.data = data
         self.player = player
         self.packet_type = packet_type
-        self.createdAt = int(time())
+        self.createdAt = int(time.time())
 
     def get_data(self):
         return self.data
@@ -127,6 +127,10 @@ class SyncAck(Packet):
 
     def __init__(self, data, player: Player, round_number):
         super().__init__(data, player, "sync_ack")
+        self.round_number = round_number
+
+    def __hash__(self):
+        return hash(self.packet_type + self.player.get_name() + str(self.round_number))
 
 
 class PeerSyncAck(Packet):
@@ -134,6 +138,10 @@ class PeerSyncAck(Packet):
 
     def __init__(self, data, player: Player, round_number):
         super().__init__(data, player, "peer_sync_ack")
+        self.round_number = round_number
+
+    def __hash__(self):
+        return hash(self.packet_type + self.player.get_name() + str(self.round_number))
 
 
 class UpdateLeader(Packet):
@@ -141,6 +149,8 @@ class UpdateLeader(Packet):
 
     def __init__(self, data, player: Player):
         super().__init__(data, player, "update_leader")
+
+
 # End of Timer Packets
 
 
