@@ -78,7 +78,7 @@ if __name__ == "__main__":
         print(special_frames[name][0][0])
         fig.add_trace(go.Scatter(x=[special_frames[name][0][0]], y=[value[special_frames[name][0][0]]],name="Syncing Frame"), secondary_y=False)
         if name in spectate_times:
-            fig.add_trace(go.Scatter(x=[spectate_times[name][0][0]], y=[value[special_frames[name][0][0]]],name="Spectate Frame"), secondary_y=False)
+            fig.add_trace(go.Scatter(x=[spectate_times[name]], y=[value[spectate_times[name]]],name="Spectate Frame"), secondary_y=False)
     fig.update_layout(title=str(frames.keys()), xaxis_title='Frame number', yaxis_title='Time')
 
     fig.show()
