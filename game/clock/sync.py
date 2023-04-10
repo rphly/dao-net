@@ -61,9 +61,9 @@ class Sync:
         return sorted(self._delay_dict.items(), key=lambda x:x[1], reverse=True)
     
     def get_wait_times(self):
-        self.logger.info(f"DELAYLIST\n{self.myself} | Actual delays: {self._delay_dict.items()}")
+        # self.logger.info(f"DELAYLIST\n{self.myself} | Actual delays: {self._delay_dict.items()}")
         ordered_delays = self.get_ordered_delays()
-        self.logger.info(f"DELAYLIST_ORDERED\n{self.myself} | Ordered delays: {self._delay_dict.items()}")
+        # self.logger.info(f"DELAYLIST_ORDERED\n{self.myself} | Ordered delays: {self._delay_dict.items()}")
         wait_times = {}
         if len(ordered_delays) == len(self.leader_list) - 1:
             for i in range(len(ordered_delays)-1):

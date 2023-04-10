@@ -175,14 +175,15 @@ class Client():
             return
         else:
             print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
-            # temporary_logger_dict = json.dumps(
-            #     {"Logger Name": "UNORDERED DELAYLIST", "Round Number": self.round_number, "Logging Data": self._transportLayer.sync._delay_dict})
-            # self.logger.info(f'{temporary_logger_dict}')
-            temporary_logger_dict = json.dumps({"Logger Name": "ORDERED DELAYLIST", "Round Number": self.round_number, "Logging Data": sorted(
-                self._transportLayer.sync._delay_dict, key=lambda x: x[1], reverse=True)})
-            self.logger.info(f'{temporary_logger_dict}')
             temporary_logger_dict = json.dumps(
-                {"Logger Name": "WAIT LIST", "Round Number": self.round_number, "Logging Data": self._transportLayer.sync.get_wait_times()})
+                {"Logger Name": "UNORDERED DELAYLIST", "Round Number": self.round_number, "Logging Data": self._transportLayer.sync._delay_dict})
+            self.logger.info(f'{temporary_logger_dict}')
+
+            # temporary_logger_dict = json.dumps({"Logger Name": "ORDERED DELAYLIST", "Round Number": self.round_number, "Logging Data": str(sorted(
+            #     self._transportLayer.sync._delay_dict, key=lambda x: x[1], reverse=True))})
+            # self.logger.info(f'{temporary_logger_dict}')
+            temporary_logger_dict = json.dumps(
+                {"Logger Name": "WAIT LIST", "Round Number": self.round_number, "Logging Data": str(self._transportLayer.sync.get_wait_times())})
             self.logger.info(f'{temporary_logger_dict}')
             update_leader_pkt = UpdateLeader(self.round_number, self._myself)
             self._transportLayer.sendall(update_leader_pkt)
@@ -350,9 +351,9 @@ class Client():
             print("\n[SYSTEM] You lost! Enjoy spectating the game!")
             self._total_players -= 1
             self._am_spectator = True
-            temp_dict = json.dumps({"Logger Name": "SPECTATE BEGIN", "Name": self._myself.get_name(
-            ), "Logging Data": self.frame_count})
-            self.logger.info(f"{temp_dict}")
+            # temp_dict = json.dumps({"Logger Name": "SPECTATE BEGIN", "Name": self._myself.get_name(
+            # ), "Logging Data": self.frame_count})
+            # self.logger.info(f"{temp_dict}")
             self._state = "AWAIT_KEYPRESS"
 
         # if no chairs left, end the game, else reset
@@ -387,7 +388,7 @@ class Client():
         pkt: Packet = self._transportLayer.receive()
         # temporary_logger_dict = json.dumps(
         #     {"Logger Name": "GAME PLAY LIST", "Round Number": self.round_number, "Logging Data": self._round_inputs})
-        self.logger.info(f'{temporary_logger_dict}')
+        # self.logger.info(f'{temporary_logger_dict}')
 
         if pkt:
             if pkt.get_packet_type() == "action":
@@ -397,7 +398,7 @@ class Client():
                 rtt = time() - packet.get_created_at()
                 throughput = length / rtt
                 if packet.get_packet_type() == "action":
-                    temporary_logger_dict = json.dumps({"Logger Name": "ACTION PACKET INFO-RECEIVE", "Length": length, "From": packet.get_player().get_name(), "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": rtt, "Throughput": throughput})
+                    temporary_logger_dict = json.dumps({"Logger Name": "ACTION PACKET INFO-RECEIVE", "Length": length, "From": packet.get_player().get_name(), "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": rtt, "Throughput": throughput, "Round": self.round_number})
                     self.logger.info(f'{temporary_logger_dict}')
                 if not self._state == "SPECTATOR":
                     self._receiving_seats(pkt)
@@ -554,7 +555,7 @@ class Client():
         pkt = Action(self._my_keypress, self._myself)
         self._my_keypress_time = pkt.get_created_at()
         temporary_logger_dict = json.dumps(
-            {"Logger Name": "KEYPRESS TIME", "Seat Selected": self._my_keypress, "Time": time()})
+            {"Logger Name": "KEYPRESS TIME", "Seat Selected": self._my_keypress, "Time": time(), "Round": self.round_number})
         self.logger.info(f'{temporary_logger_dict}')
         self._transportLayer.sendall(pkt)
 
