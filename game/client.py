@@ -228,7 +228,14 @@ class Client():
             if self._all_voted_to_start():
                 # waiting for everyone to ackstart
                 print(f"[SYSTEM] STARTING GAME IN 3 SECONDS")
-                sleep(3)
+                sleep(1)
+
+                print(f"[SYSTEM] STARTING GAME IN 2 SECONDS")
+                sleep(1)
+
+                print(f"[SYSTEM] STARTING GAME IN 1 SECONDS")
+                sleep(1)
+                
                 self._round_started = True
                 print(f"\n|-------- ROUND {self.round_number} --------|")
                 print(f"[PLAYING AS] {self._myself.get_name()}")
@@ -572,6 +579,7 @@ class Client():
 
     def _insert_input(self, keypress):
         self._my_keypress = keypress
+        print(f"[ACTION] I HAVE PRESSED {keypress}")
         keyboard.remove_all_hotkeys()
 
     def _receiving_seats(self, action: Packet):
