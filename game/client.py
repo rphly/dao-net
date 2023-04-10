@@ -112,9 +112,9 @@ class Client():
         try:
             while not self.game_over:
                 sleep(self.loop_interval)  # slow down game loop
-                temporary_logger_dict = json.dumps(
-                    {"Logger Name": "FRAME COUNT", "Logging Data": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
-                self.logger.info(f'{temporary_logger_dict}')
+                # temporary_logger_dict = json.dumps(
+                #     {"Logger Name": "FRAME COUNT", "Logging Data": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                # self.logger.info(f'{temporary_logger_dict}')
                 self.frame_count += 1
                 if self._frameSync.get_master() == self._myself and self.frame_count % 5 == 0:
                     self._transportLayer.sendall(
@@ -175,9 +175,9 @@ class Client():
             return
         else:
             print(f"[DELAYS FILLED]: {self._transportLayer.sync._delay_dict}")
-            temporary_logger_dict = json.dumps(
-                {"Logger Name": "UNORDERED DELAYLIST", "Round Number": self.round_number, "Logging Data": self._transportLayer.sync._delay_dict})
-            self.logger.info(f'{temporary_logger_dict}')
+            # temporary_logger_dict = json.dumps(
+            #     {"Logger Name": "UNORDERED DELAYLIST", "Round Number": self.round_number, "Logging Data": self._transportLayer.sync._delay_dict})
+            # self.logger.info(f'{temporary_logger_dict}')
             temporary_logger_dict = json.dumps({"Logger Name": "ORDERED DELAYLIST", "Round Number": self.round_number, "Logging Data": sorted(
                 self._transportLayer.sync._delay_dict, key=lambda x: x[1], reverse=True)})
             self.logger.info(f'{temporary_logger_dict}')
@@ -205,9 +205,9 @@ class Client():
             if self.init_send_time is None:
                 print(f"[SYSTEM] Sending Ready to Start...")
                 self.init_send_time = time()
-                temporary_logger_dict = json.dumps(
-                    {"Logger Name": "FRAME SYNCING", "Frame Count": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
-                self.logger.info(f'{temporary_logger_dict}')
+                # temporary_logger_dict = json.dumps(
+                #     {"Logger Name": "FRAME SYNCING", "Frame Count": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                # self.logger.info(f'{temporary_logger_dict}')
                 self._frameSync.if_master_emit_new_master(self._myself)
                 self._transportLayer.sendall(ReadyToStart(self._myself))
         else:
@@ -385,8 +385,8 @@ class Client():
     def _checkTransportLayerForIncomingData(self):
         """handle data being received from transport layer"""
         pkt: Packet = self._transportLayer.receive()
-        temporary_logger_dict = json.dumps(
-            {"Logger Name": "GAME PLAY LIST", "Round Number": self.round_number, "Logging Data": self._round_inputs})
+        # temporary_logger_dict = json.dumps(
+        #     {"Logger Name": "GAME PLAY LIST", "Round Number": self.round_number, "Logging Data": self._round_inputs})
         self.logger.info(f'{temporary_logger_dict}')
 
         if pkt:
@@ -397,8 +397,7 @@ class Client():
                 rtt = time() - packet.get_created_at()
                 throughput = length / rtt
                 if packet.get_packet_type() == "action":
-                    temporary_logger_dict = json.dumps({"Logger Name": "ACTION PACKET INFO-RECEIVE", "Length": length,
-                                                       "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": rtt, "Throughput": throughput})
+                    temporary_logger_dict = json.dumps({"Logger Name": "ACTION PACKET INFO-RECEIVE", "Length": length, "From": packet.get_player().get_name(), "Packet Type": packet.get_packet_type(), "Data": packet.get_data(), "RTT": rtt, "Throughput": throughput})
                     self.logger.info(f'{temporary_logger_dict}')
                 if not self._state == "SPECTATOR":
                     self._receiving_seats(pkt)
@@ -487,14 +486,14 @@ class Client():
                     if self._frameSync.get_master().get_name() == player.get_name():
                         if self.frame_count > frame + self.frame_delta_threshold:
                             # print(f"[FRAME_SYNC] Slowing down since I'm ahead")
-                            temporary_logger_dict = json.dumps(
-                                {"Logger Name": "FRAME SLOWING-BEFORE", "Frame Count": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
-                            self.logger.info(f'{temporary_logger_dict}')
+                            # temporary_logger_dict = json.dumps(
+                            #     {"Logger Name": "FRAME SLOWING-BEFORE", "Frame Count": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                            # self.logger.info(f'{temporary_logger_dict}')
                             sleep(self.loop_interval *
                                   (self.frame_count - frame))
-                            temporary_logger_dict = json.dumps(
-                                {"Logger Name": "FRAME SLOWING-AFTER", "Frame Count": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
-                            self.logger.info(f'{temporary_logger_dict}')
+                            # temporary_logger_dict = json.dumps(
+                            #     {"Logger Name": "FRAME SLOWING-AFTER", "Frame Count": self.frame_count, "Player Name": self._myself.get_name(), "Time": time()})
+                            # self.logger.info(f'{temporary_logger_dict}')
                             # print(f"[FRAME_SYNC] Slowing down since I'm ahead")
                         elif frame > self.frame_count:
                             print(
