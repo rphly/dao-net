@@ -247,7 +247,7 @@ class Transport:
 
             if not self.sent_sync:
                 for player_id in self.sync.leader_list:
-                    if not player_id == self.myself:
+                    if not player_id == self.myself and not player_id in self.sync._delay_dict.keys():
                         self.set_packet_timer(player_id, sync_req_pkt)
                 self.sent_sync = True
         return
